@@ -41,6 +41,7 @@ private slots:
     void windowChange();
     void selectColor();
     void deleteItem();
+    void autoPixmap(QString name);
 private:
     QTableView *view;
     ItemModel *mView;

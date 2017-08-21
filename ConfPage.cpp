@@ -60,7 +60,7 @@ void ConfPage::initUI()
     typeComboBox->addItems(typeNames);
     typeComboBox->setMinimumSize(97, 35);
     typeComboBox->setView(new QListView);
-
+    connect(typeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(autoPixmap(QString)));
     typePixmap = new QLabel(this);
     typePixmap->setPixmap(QPixmap(":/source/M1S0.jpg"));
 
@@ -232,5 +232,11 @@ void ConfPage::deleteItem()
     if (row < 0)
         return;
     pModel->removeRow(row);
+}
+
+void ConfPage::autoPixmap(QString name)
+{
+    QString pixmap = QString(":/source/%1.jpg").arg(name);
+    typePixmap->setPixmap(QPixmap(pixmap));
 }
 
