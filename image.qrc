@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/">
+        <file>source/file.png</file>
+        <file>source/link.png</file>
+        <file>source/SoftRainBlue.css</file>
+        <file>source/dir.png</file>
+        <file>source/check_1.png</file>
+        <file>source/check_2.png</file>
+        <file>source/check_box_1.png</file>
+        <file>source/check_box_2.png</file>
+        <file>source/radio_1.png</file>
+        <file>source/radio_2.png</file>
+        <file>source/aip.png</file>
+        <file>source/arrow_down.ico</file>
+        <file>source/arrow_up.ico</file>
+        <file>source/background.bmp</file>
+        <file>source/check_3.png</file>
+        <file>source/check_4.png</file>
+        <file>source/CoolBlack.bmp</file>
+        <file>source/down_arrow.png</file>
+        <file>source/downarrow.png</file>
+        <file>source/EyeGreen.bmp</file>
+        <file>source/fontawesome-webfont.ttf</file>
+        <file>source/spinup.png</file>
+        <file>source/TitleCn.png</file>
+        <file>source/TitleEn.png</file>
+        <file>source/up_arrow.png</file>
+        <file>source/uparrow.png</file>
+        <file>source/wifi.png</file>
+        <file>source/logo.png</file>
+        <file>source/ABC-N.jpg</file>
+        <file>source/ABC-O.jpg</file>
+        <file>source/ABC-Y.jpg</file>
+        <file>source/ABC.jpg</file>
+        <file>source/M1S0.jpg</file>
+        <file>source/M1S1.jpg</file>
+        <file>source/M1S1L1.jpg</file>
+        <file>source/M1S1L2.jpg</file>
+        <file>source/M1S1L3.jpg</file>
+        <file>source/M1S2.jpg</file>
+        <file>source/M1S3.jpg</file>
+        <file>source/M1S4.jpg</file>
+        <file>source/None.jpg</file>
+    </qresource>
+</RCC>

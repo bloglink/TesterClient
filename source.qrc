@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/aip.png</file>
+        <file>images/bear.jpg</file>
+        <file>images/logo.png</file>
+        <file>icons/app.png</file>
+        <file>icons/close.png</file>
+        <file>icons/dollar.png</file>
+        <file>icons/down_arrow.png</file>
+        <file>icons/down.png</file>
+        <file>icons/downarrow.png</file>
+        <file>icons/face.png</file>
+        <file>icons/home.png</file>
+        <file>icons/industry.png</file>
+        <file>icons/link.ico</file>
+        <file>icons/man.png</file>
+        <file>icons/minus.png</file>
+        <file>icons/note.png</file>
+        <file>icons/shirt.png</file>
+        <file>icons/stop.png</file>
+        <file>icons/user.png</file>
+        <file>skins/bu_bk.css</file>
+        <file>skins/gn_bu.css</file>
+        <file>icons/left.png</file>
+        <file>icons/right.png</file>
+        <file>icons/shop.png</file>
+    </qresource>
+</RCC>
