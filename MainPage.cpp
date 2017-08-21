@@ -27,6 +27,7 @@ bool MainPage::login()
 
 void MainPage::initUI()
 {
+    this->setWindowTitle("电机综合测试仪V-0.1");
     //设置界面风格
     QFile file;
     QString qss;

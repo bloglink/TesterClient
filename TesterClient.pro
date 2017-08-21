@@ -12,22 +12,13 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = TesterClient
 TEMPLATE = app
-win32{
-LIBS += C:\CanCmd.dll
-}
-linux{
-greaterThan(QT_MAJOR_VERSION, 4):LIBS += /usr/lib/libCanCmd.so
-}
 
 SOURCES += main.cpp\
     Histogram.cpp \
     Waveform.cpp \
     PageKey.cpp \
-    WinHome.cpp \
     WinSyst.cpp \
-    WinType.cpp \
     WinData.cpp \
-    WinTest.cpp \
     PageDcr.cpp \
     PageMag.cpp \
     PageInr.cpp \
@@ -39,11 +30,9 @@ SOURCES += main.cpp\
     PageLvs.cpp \
     PageLck.cpp \
     PageOut.cpp \
-    WinBack.cpp \
     TcpClient.cpp \
     UdpClient.cpp \
     SqlClient.cpp \
-    CanClient.cpp \
     SerialPort.cpp \
     MessageBox.cpp \
     PageAmp.cpp \
@@ -69,11 +58,8 @@ HEADERS  += \
     Histogram.h \
     Waveform.h \
     PageKey.h \
-    WinHome.h \
     WinSyst.h \
-    WinType.h \
     WinData.h \
-    WinTest.h \
     PageDcr.h \
     PageMag.h \
     PageInr.h \
@@ -85,11 +71,9 @@ HEADERS  += \
     PageLvs.h \
     PageLck.h \
     PageOut.h \
-    WinBack.h \
     TcpClient.h \
     UdpClient.h \
     SqlClient.h \
-    CanClient.h \
     SerialPort.h \
     MessageBox.h \
     PageAmp.h \
@@ -115,11 +99,8 @@ HEADERS  += \
 
 FORMS    += \
     PageKey.ui \
-    WinHome.ui \
     WinSyst.ui \
-    WinType.ui \
     WinData.ui \
-    WinTest.ui \
     PageDcr.ui \
     PageMag.ui \
     PageInr.ui \
@@ -131,7 +112,6 @@ FORMS    += \
     PageLvs.ui \
     PageLck.ui \
     PageOut.ui \
-    WinBack.ui \
     QRCodeTest.ui
 
 RESOURCES += \

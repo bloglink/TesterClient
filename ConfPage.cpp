@@ -125,9 +125,11 @@ void ConfPage::initUI()
     }
 
     QPushButton *btnDelete = new QPushButton("删除项目",this);
+    btnDelete->setMinimumSize(97, 35);
     connect(btnDelete,SIGNAL(clicked(bool)),this,SLOT(deleteItem()));
     btnsLayout->addWidget(btnDelete);
     QPushButton *btnConfig = new QPushButton("配置项目",this);
+    btnConfig->setMinimumSize(97, 35);
     connect(btnConfig,SIGNAL(clicked(bool)),this,SLOT(windowChange()));
     btnsLayout->addWidget(btnConfig);
     btnsLayout->addStretch();
