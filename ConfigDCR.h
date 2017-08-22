@@ -32,7 +32,7 @@ public:
     explicit ConfigDCR(QWidget *parent = 0);
     ~ConfigDCR();
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 private slots:
     void initUI();
@@ -41,6 +41,7 @@ private slots:
     void autoInput();
     void autoCalculate();
     void appendXmlData(int column, QString name);
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;

@@ -56,9 +56,10 @@ void MainPage::initUI()
     connect(this, SIGNAL(transmitShow(QString)), test, SLOT(recvAppShow(QString)));
     connect(test, SIGNAL(buttonTest()), this, SLOT(testThread()));
 
-    ConfigDCR *dcr = new ConfigDCR(this);
+    dcr = new ConfigDCR(this);
     connect(dcr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(dcr, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(dcr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), dcr, SLOT(recvAppShow(QString)));
 
     ConfigACW *acw = new ConfigACW(this);
     connect(acw, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -173,12 +174,15 @@ void MainPage::wait(int ms)
 void MainPage::testThread()
 {
     testInit();
-    testDCR();
+//    testDCR();
 }
 
 void MainPage::testInit()
 {
-
+    test->initItems();
+    QJsonObject obj;
+    obj.insert("TxMessage", "3008");
+    emit transmitJson(obj);
 }
 
 void MainPage::testDCR()

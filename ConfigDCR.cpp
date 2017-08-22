@@ -208,7 +208,7 @@ void ConfigDCR::saveData()
     text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
 
-    emit saveConfig((doc.toByteArray()).insert(0,"6002 "));
+    emit sendNetMsg((doc.toByteArray()).insert(0,"6002 "));
     emit buttonClicked(NULL);
     initData(doc.toByteArray());
 }
@@ -263,3 +263,9 @@ void ConfigDCR::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
+void ConfigDCR::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("6004 DCR");
+}

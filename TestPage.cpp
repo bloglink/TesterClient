@@ -9,24 +9,70 @@ TestPage::~TestPage()
 {
 }
 
+void TestPage::initItems()
+{
+    for (int i=0; i < mView->rowCount(); i++) {
+        mView->item(i,2)->setText("");
+        mView->item(i,3)->setText("");
+    }
+}
+
 void TestPage::updateItems(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("Test_Data_Param").isEmpty())
-        return;
-    mView->setRowCount(0);
-    QDomNodeList list = docs.elementsByTagName("Test_Data_Param").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        if (dom.nodeName() == "Test_1") {
-            for (int i=0; i < temp.size(); i++)
-            mView->appendRow(new QStandardItem(temp.at(i)));
+    if (!docs.elementsByTagName("Test_Data_Param").isEmpty()) {
+        mView->setRowCount(0);
+        QDomNodeList list = docs.elementsByTagName("Test_Data_Param").at(0).childNodes();
+        for (int i=0; i < list.size(); i++) {
+            QDomElement dom = list.at(i).toElement();
+            QStringList temp = dom.text().split(",");
+            if (dom.nodeName() == "Test_1") {
+                for (int i=0; i < temp.size(); i++) {
+                    mView->appendRow(new QStandardItem(temp.at(i)));
+                    mView->setItem(i,1,new QStandardItem);
+                    mView->setItem(i,2,new QStandardItem);
+                    mView->setItem(i,3,new QStandardItem);
+                }
+            }
+            if (dom.nodeName() == "Test_2") {
+                for (int i=0; i < qMin(temp.size(),mView->rowCount()); i++)
+                    mView->setItem(i,1,new QStandardItem(temp.at(i)));
+            }
         }
-        if (dom.nodeName() == "Test_2") {
-            for (int i=0; i < qMin(temp.size(),mView->rowCount()); i++)
-            mView->setItem(i,1,new QStandardItem(temp.at(i)));
+    }
+    if (!docs.elementsByTagName("Test_Data_Result").isEmpty()) {
+        QDomNodeList list = docs.elementsByTagName("Test_Data_Result").at(0).childNodes();
+        for (int i=0; i < list.size(); i++) {
+            QDomElement dom = list.at(i).toElement();
+            QString temp = dom.text();
+            if (dom.nodeName() == "Test_3") {
+                for (int i=0; i < mView->rowCount(); i++) {
+                    if (mView->item(i,2)->text().isEmpty()) {
+                        mView->item(i,2)->setText(temp);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    if (!docs.elementsByTagName("Test_Data_Judge").isEmpty()) {
+        QDomNodeList list = docs.elementsByTagName("Test_Data_Judge").at(0).childNodes();
+        for (int i=0; i < list.size(); i++) {
+            QDomElement dom = list.at(i).toElement();
+            QString temp = dom.text();
+            if (dom.nodeName() == "Test_3") {
+                for (int i=0; i < mView->rowCount(); i++) {
+                    if (mView->item(i,3)->text().isEmpty()) {
+                        mView->item(i,3)->setText(temp);
+                        if (temp == "OK")
+                            mView->item(i,3)->setForeground(QBrush(QColor(Qt::green)));
+                        else
+                            mView->item(i,3)->setForeground(QBrush(QColor(Qt::red)));
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -347,9 +393,9 @@ void TestPage::DrawWave()
     wave->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
 
     //设置坐标轴名称
-//    wave->xAxis->setLabel("x");
-//    wave->xAxis->setLabelColor(Qt::white);
-//        wave->yAxis->setLabel("y");
+    //    wave->xAxis->setLabel("x");
+    //    wave->xAxis->setLabelColor(Qt::white);
+    //        wave->yAxis->setLabel("y");
 
     //设置坐标轴显示范围，否则只能看到默认范围
     wave->xAxis->setRange(0, 360);

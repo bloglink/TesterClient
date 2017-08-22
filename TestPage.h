@@ -39,6 +39,7 @@ signals:
     void buttonClicked(QByteArray win);
     void buttonTest();
 public slots:
+    void initItems();
     void updateItems(QString items);
 private slots:
     void initUI();

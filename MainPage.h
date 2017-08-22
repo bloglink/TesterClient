@@ -68,6 +68,8 @@ private:
     ConfPage *conf;
     TestPage *test;
 
+    ConfigDCR *dcr;
+
     PLCPage *plc;
 };
 
