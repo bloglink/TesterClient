@@ -55,6 +55,8 @@ private:
     QStackedWidget *stack;
     UdpSocket udp;
     int preindex;
+
+    ConfPage *conf;
 };
 
 #endif // MAINPAGE_H

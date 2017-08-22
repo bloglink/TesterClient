@@ -68,7 +68,6 @@ void ConfigDCR::initUI()
     view->setItemDelegateForColumn(4, Unit);
 
     SpinBox *spinBox = new SpinBox;
-    //    spinBox->setMaximum(100);
     view->setItemDelegateForColumn(8, spinBox);
     view->setItemDelegateForColumn(9, spinBox);
     view->setItemDelegateForColumn(10, spinBox);
@@ -116,9 +115,60 @@ void ConfigDCR::initUI()
 
 void ConfigDCR::initData(QByteArray dat)
 {
-    QDomDocument doc;
-    doc.setContent(dat);
-    qDebug() << doc.toByteArray();
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("DCR").isEmpty())
+        return;
+    QDomNodeList list = docs.elementsByTagName("DCR").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        if (dom.nodeName() == "test") {
+            for (int i=0; i < temp.size(); i++) {
+                if (temp.at(i) == "1")
+                    model->item(i,0)->setCheckState(Qt::Checked);
+            }
+        }
+        if (dom.nodeName() == "port1")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,1)->setText(temp.at(i));
+        if (dom.nodeName() == "port2")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,2)->setText(temp.at(i));
+        if (dom.nodeName() == "unit")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,3)->setText(temp.at(i));
+        if (dom.nodeName() == "min")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,4)->setText(temp.at(i));
+        if (dom.nodeName() == "max")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,5)->setText(temp.at(i));
+        if (dom.nodeName() == "std")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,6)->setText(temp.at(i));
+        if (dom.nodeName() == "std_min")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,7)->setText(temp.at(i));
+        if (dom.nodeName() == "std_max")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,8)->setText(temp.at(i));
+        if (dom.nodeName() == "std_temp")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,9)->setText(temp.at(i));
+        if (dom.nodeName() == "wire_comp1")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,10)->setText(temp.at(i));
+        if (dom.nodeName() == "wire_comp2")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i,11)->setText(temp.at(i));
+        if (dom.nodeName() == "temp_comp") {
+            if (temp.at(0) == "1")
+                nounCheckBox->setChecked(true);
+            else
+                nounCheckBox->setChecked(false);
+        }
+    }
 }
 
 void ConfigDCR::saveData()
@@ -160,6 +210,7 @@ void ConfigDCR::saveData()
 
     emit saveConfig(doc.toByteArray());
     emit buttonClicked(NULL);
+    initData(doc.toByteArray());
 }
 
 void ConfigDCR::autoInput()
@@ -206,7 +257,7 @@ void ConfigDCR::appendXmlData(int column, QString name)
             temp.append(model->item(i, column)->text());
         }
     }
-    QDomText text = doc.createTextNode(temp.join(""));
+    QDomText text = doc.createTextNode(temp.join(","));
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);

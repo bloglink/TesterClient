@@ -45,9 +45,10 @@ void MainPage::initUI()
     WinData *wdat = new WinData(this);
     connect(wdat,SIGNAL(buttonClicked(QByteArray)),this,SLOT(readButtons(QByteArray)));
 
-    ConfPage *conf = new ConfPage(this);
+    conf = new ConfPage(this);
     connect(conf, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(conf, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(conf, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), conf, SLOT(recvAppShow(QString)));
 
     TestPage *test = new TestPage(this);
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -113,7 +114,20 @@ void MainPage::initUdp(QJsonObject obj)
 
 void MainPage::recvNetMsg(QString msg)
 {
-    emit sendNetMsg(msg);
+    int a = msg.indexOf(" ");
+    int cmd = msg.mid(0,a).toInt();
+    QString dat = msg.mid(a+1,msg.size());
+    switch (cmd) {
+    case 3001:
+        break;
+    case 3003:
+        break;
+    case 3005:
+        conf->initTypes(dat);
+        break;
+    default:
+        break;
+    }
 }
 
 void MainPage::readButtons(QByteArray win)

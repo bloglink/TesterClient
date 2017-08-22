@@ -31,8 +31,10 @@ public:
     ~ConfPage();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public:
+    void initTypes(QString dat);
 private slots:
     void initUI();
     void saveData();
@@ -42,6 +44,9 @@ private slots:
     void selectColor();
     void deleteItem();
     void autoPixmap(QString name);
+    void recvAppShow(QString win);
+    void appendType();
+    void deleteType();
 private:
     QTableView *view;
     ItemModel *mView;
@@ -61,6 +66,8 @@ private:
 
     QFrame *btnFrame;
     QToolButton *btnHide;
+
+
 };
 
 #endif // CONFPAGE_H

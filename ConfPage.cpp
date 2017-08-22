@@ -9,6 +9,15 @@ ConfPage::~ConfPage()
 {
 }
 
+void ConfPage::initTypes(QString dat)
+{
+    QStringList names = dat.split(" ");
+    mView->setRowCount(0);
+    for (int i=0; i < names.size(); i++) {
+        mView->appendRow(new QStandardItem(names.at(i)));
+    }
+}
+
 void ConfPage::initUI()
 {
     this->setObjectName("ConfPage");
@@ -28,9 +37,11 @@ void ConfPage::initUI()
     QPushButton *btnAppend = new QPushButton(this);
     btnAppend->setText(tr("添加型号"));
     btnAppend->setMinimumSize(97, 35);
+    connect(btnAppend,SIGNAL(clicked(bool)),this,SLOT(appendType()));
     QPushButton *btnRemove = new QPushButton(this);
     btnRemove->setText(tr("删除型号"));
     btnRemove->setMinimumSize(97, 35);
+    connect(btnRemove,SIGNAL(clicked(bool)),this,SLOT(deleteType()));
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
@@ -180,7 +191,7 @@ void ConfPage::saveData()
     text = doc.createTextNode(temp.join(","));
     type.appendChild(text);
 
-    emit saveConfig(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray());
     emit buttonClicked(NULL);
 }
 
@@ -240,3 +251,21 @@ void ConfPage::autoPixmap(QString name)
     typePixmap->setPixmap(QPixmap(pixmap));
 }
 
+void ConfPage::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("3004");
+    emit sendNetMsg("6004 sys");
+    emit sendNetMsg("6004 conf");
+}
+
+void ConfPage::appendType()
+{
+    emit sendNetMsg("3000");
+}
+
+void ConfPage::deleteType()
+{
+    emit sendNetMsg("3000");
+}
