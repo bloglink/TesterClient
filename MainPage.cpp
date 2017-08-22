@@ -50,9 +50,10 @@ void MainPage::initUI()
     connect(conf, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), conf, SLOT(recvAppShow(QString)));
 
-    TestPage *test = new TestPage(this);
+    test = new TestPage(this);
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(test, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(test, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), test, SLOT(recvAppShow(QString)));
     connect(test, SIGNAL(buttonTest()), this, SLOT(testThread()));
 
     ConfigDCR *dcr = new ConfigDCR(this);
@@ -103,6 +104,11 @@ void MainPage::initUI()
     layout->setMargin(0);
 }
 
+void MainPage::initPLC()
+{
+    plc = new PLCPage(this);
+}
+
 void MainPage::initUdp(QJsonObject obj)
 {
     QString host = obj.value("host_addr").toString();
@@ -128,6 +134,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6005:
         conf->initOther(dat);
+        test->updateItems(dat);
         break;
     default:
         break;
@@ -155,21 +162,34 @@ void MainPage::readButtons(QByteArray win)
     }
 }
 
-void MainPage::testThread()
-{
-    QJsonObject obj;
-    obj.insert("TxMessage", "6006 DCR");
-    emit transmitJson(obj);
-//    for (int i=0; i < 1000; i++) {
-//        wait(10);
-//    }
-}
-
 void MainPage::wait(int ms)
 {
     QElapsedTimer t;
     t.start();
     while (t.elapsed() < ms)
         QCoreApplication::processEvents();
+}
+
+void MainPage::testThread()
+{
+    testInit();
+    testDCR();
+}
+
+void MainPage::testInit()
+{
+
+}
+
+void MainPage::testDCR()
+{
+    QJsonObject obj;
+    obj.insert("TxMessage", "6006 DCR");
+    emit transmitJson(obj);
+}
+
+void MainPage::testACW()
+{
+
 }
 

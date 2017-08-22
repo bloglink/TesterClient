@@ -22,19 +22,33 @@ void ConfPage::initOther(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("Conf").isEmpty())
-        return;
-    QDomNodeList list = docs.elementsByTagName("Conf").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        if (dom.nodeName() == "color") {
-            for (int i=0; i < temp.size(); i++) {
-                colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
+    if (!docs.elementsByTagName("Conf").isEmpty()) {
+        QDomNodeList list = docs.elementsByTagName("Conf").at(0).childNodes();
+        for (int i=0; i < list.size(); i++) {
+            QDomElement dom = list.at(i).toElement();
+            QStringList temp = dom.text().split(",");
+            if (dom.nodeName() == "color") {
+                for (int i=0; i < temp.size(); i++) {
+                    colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
+                }
+            }
+            if (dom.nodeName() == "type") {
+                typeComboBox->setCurrentText(temp.at(0));
             }
         }
-        if (dom.nodeName() == "type") {
-            typeComboBox->setCurrentText(temp.at(0));
+    }
+    if (!docs.elementsByTagName("Sys").isEmpty()) {
+        QDomNodeList list = docs.elementsByTagName("Sys").at(0).childNodes();
+        for (int i=0; i < list.size(); i++) {
+            QDomElement dom = list.at(i).toElement();
+            QStringList temp = dom.text().split(",");
+            if (dom.nodeName() == "Test_Item") {
+                pModel->setRowCount(0);
+                for (int i=0; i < temp.size(); i++) {
+                    pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
+                }
+                pModel->appendRow(new QStandardItem);
+            }
         }
     }
 }
@@ -141,12 +155,11 @@ void ConfPage::initUI()
 
     QVBoxLayout *btnsLayout = new QVBoxLayout;
 
-    QStringList btnNames;
-    btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" << "匝间"
-             << "电感" << "空载" << "加载" << "FG";
+    btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" <<"直耐"
+             << "匝间" << "电感" << "空载" << "加载" << "FG";
     QStringList objNames;
-    objNames << "ConfigDCR" << "ConfigMAG" << "ConfigIR" << "ConfigACW" << "ConfigIMP"
-             << "ConfigIND" << "ConfigPWR" << "ConfigLoad" << "ConfigFG";
+    objNames << "ConfigDCR" << "ConfigMAG" << "ConfigIR" << "ConfigACW" << "ConfigDCR"
+             << "ConfigIMP" << "ConfigIND" << "ConfigPWR" << "ConfigLoad" << "ConfigFG";
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i),this));
         btnsLayout->addWidget(buttons.at(i));
@@ -277,7 +290,7 @@ void ConfPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     emit sendNetMsg("3004");
-    emit sendNetMsg("6004 sys");
+    emit sendNetMsg("6004 Sys");
     emit sendNetMsg("6004 Conf");
 }
 

@@ -9,6 +9,28 @@ TestPage::~TestPage()
 {
 }
 
+void TestPage::updateItems(QString dat)
+{
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("Test_Data_Param").isEmpty())
+        return;
+    mView->setRowCount(0);
+    QDomNodeList list = docs.elementsByTagName("Test_Data_Param").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        if (dom.nodeName() == "Test_1") {
+            for (int i=0; i < temp.size(); i++)
+            mView->appendRow(new QStandardItem(temp.at(i)));
+        }
+        if (dom.nodeName() == "Test_2") {
+            for (int i=0; i < qMin(temp.size(),mView->rowCount()); i++)
+            mView->setItem(i,1,new QStandardItem(temp.at(i)));
+        }
+    }
+}
+
 void TestPage::initUI()
 {
     this->setObjectName("TestPage");
@@ -167,7 +189,7 @@ void TestPage::saveData()
     text = doc.createTextNode(temp.join(","));
     type.appendChild(text);
 
-    emit saveConfig(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray());
     emit buttonClicked(NULL);
 }
 
@@ -325,9 +347,9 @@ void TestPage::DrawWave()
     wave->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
 
     //设置坐标轴名称
-    wave->xAxis->setLabel("x");
-    wave->xAxis->setLabelColor(Qt::white);
-    //    wave->yAxis->setLabel("y");
+//    wave->xAxis->setLabel("x");
+//    wave->xAxis->setLabelColor(Qt::white);
+//        wave->yAxis->setLabel("y");
 
     //设置坐标轴显示范围，否则只能看到默认范围
     wave->xAxis->setRange(0, 360);
@@ -337,4 +359,11 @@ void TestPage::DrawWave()
 void TestPage::windowChange()
 {
     emit buttonClicked(QObject::sender()->objectName().toUtf8());
+}
+
+void TestPage::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("3004");
 }

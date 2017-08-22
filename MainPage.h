@@ -34,6 +34,8 @@
 #include "WinData.h"
 #include "WinSyst.h"
 
+#include "PLCPage.h"
+
 class MainPage : public QWidget
 {
     Q_OBJECT
@@ -48,11 +50,15 @@ public:
     bool login();
 private slots:
     void initUI();
+    void initPLC();
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
     void testThread();
     void wait(int ms);
+    void testInit();
+    void testDCR();
+    void testACW();
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -60,6 +66,9 @@ private:
     int preindex;
 
     ConfPage *conf;
+    TestPage *test;
+
+    PLCPage *plc;
 };
 
 #endif // MAINPAGE_H

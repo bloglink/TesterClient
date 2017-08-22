@@ -52,7 +52,8 @@ SOURCES += main.cpp\
     ConfPage.cpp \
     TestPage.cpp \
     qcustomplot.cpp \
-    ConfigFG.cpp
+    ConfigFG.cpp \
+    PLCPage.cpp
 
 HEADERS  += \
     Histogram.h \
@@ -95,7 +96,8 @@ HEADERS  += \
     ConfPage.h \
     TestPage.h \
     qcustomplot.h \
-    ConfigFG.h
+    ConfigFG.h \
+    PLCPage.h
 
 FORMS    += \
     PageKey.ui \

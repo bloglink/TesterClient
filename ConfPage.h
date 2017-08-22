@@ -68,6 +68,8 @@ private:
     QFrame *btnFrame;
     QToolButton *btnHide;
 
+    QStringList btnNames;
+
 
 };
 

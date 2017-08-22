@@ -35,15 +35,18 @@ public:
     ~TestPage();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
     void buttonTest();
+public slots:
+    void updateItems(QString items);
 private slots:
     void initUI();
     void saveData();
     void clickButton();
     void showButtons();
     void windowChange();
+    void recvAppShow(QString win);
     void selectColor();
     void deleteItem();
     void DrawHistogram();
