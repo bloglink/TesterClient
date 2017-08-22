@@ -18,6 +18,27 @@ void ConfPage::initTypes(QString dat)
     }
 }
 
+void ConfPage::initOther(QString dat)
+{
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("Conf").isEmpty())
+        return;
+    QDomNodeList list = docs.elementsByTagName("Conf").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        if (dom.nodeName() == "color") {
+            for (int i=0; i < temp.size(); i++) {
+                colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
+            }
+        }
+        if (dom.nodeName() == "type") {
+            typeComboBox->setCurrentText(temp.at(0));
+        }
+    }
+}
+
 void ConfPage::initUI()
 {
     this->setObjectName("ConfPage");
@@ -191,7 +212,7 @@ void ConfPage::saveData()
     text = doc.createTextNode(temp.join(","));
     type.appendChild(text);
 
-    emit sendNetMsg(doc.toByteArray());
+    emit sendNetMsg((doc.toByteArray()).insert(0,"6002 "));
     emit buttonClicked(NULL);
 }
 
@@ -257,7 +278,7 @@ void ConfPage::recvAppShow(QString win)
         return;
     emit sendNetMsg("3004");
     emit sendNetMsg("6004 sys");
-    emit sendNetMsg("6004 conf");
+    emit sendNetMsg("6004 Conf");
 }
 
 void ConfPage::appendType()

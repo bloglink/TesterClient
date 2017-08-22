@@ -76,6 +76,7 @@ void TestPage::initUI()
 
     QPushButton *btnTest = new QPushButton("开始测试",this);
     btnTest->setMinimumSize(97,44);
+    connect(btnTest,SIGNAL(clicked(bool)),this,SIGNAL(buttonTest()));
 
     QLabel *btnLogo = new QLabel(this);
     btnLogo->setPixmap(QPixmap(":/source/logo.png"));

@@ -53,6 +53,7 @@ void MainPage::initUI()
     TestPage *test = new TestPage(this);
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(test, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(test, SIGNAL(buttonTest()), this, SLOT(testThread()));
 
     ConfigDCR *dcr = new ConfigDCR(this);
     connect(dcr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -125,6 +126,9 @@ void MainPage::recvNetMsg(QString msg)
     case 3005:
         conf->initTypes(dat);
         break;
+    case 6005:
+        conf->initOther(dat);
+        break;
     default:
         break;
     }
@@ -149,5 +153,23 @@ void MainPage::readButtons(QByteArray win)
     if (previous_window.size() > 10) { // 最大嵌套10层
         previous_window.removeFirst();
     }
+}
+
+void MainPage::testThread()
+{
+    QJsonObject obj;
+    obj.insert("TxMessage", "6006 DCR");
+    emit transmitJson(obj);
+//    for (int i=0; i < 1000; i++) {
+//        wait(10);
+//    }
+}
+
+void MainPage::wait(int ms)
+{
+    QElapsedTimer t;
+    t.start();
+    while (t.elapsed() < ms)
+        QCoreApplication::processEvents();
 }
 

@@ -208,7 +208,7 @@ void ConfigDCR::saveData()
     text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
 
-    emit saveConfig(doc.toByteArray());
+    emit saveConfig((doc.toByteArray()).insert(0,"6002 "));
     emit buttonClicked(NULL);
     initData(doc.toByteArray());
 }

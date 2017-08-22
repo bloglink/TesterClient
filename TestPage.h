@@ -37,6 +37,7 @@ public:
 signals:
     void saveConfig(QByteArray dat);
     void buttonClicked(QByteArray win);
+    void buttonTest();
 private slots:
     void initUI();
     void saveData();

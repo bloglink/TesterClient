@@ -14,6 +14,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QLayout>
+#include <QElapsedTimer>
 
 #include "LoginPage.h"
 #include "UdpSocket.h"
@@ -50,6 +51,8 @@ private slots:
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
+    void testThread();
+    void wait(int ms);
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
