@@ -151,21 +151,6 @@ void TestPage::initUI()
     btnLogo->setScaledContents(true);
     btnLogo->setMinimumHeight(btnLogo->width());
 
-    histogram = new QCustomPlot(this);
-    histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
-    histogram->xAxis->grid()->setPen(QPen(Qt::darkGreen, 1, Qt::DotLine));
-    histogram->yAxis->grid()->setPen(QPen(Qt::darkGreen, 1, Qt::DotLine));
-    histogram->xAxis->setTicks(false);
-    histogram->yAxis->setTicks(false);
-    histogram->xAxis->setTickLabels(false);
-    histogram->yAxis->setTickLabels(false);
-    histogram->axisRect()->setMinimumMargins(QMargins(0,0,0,0));
-    histogram->axisRect()->setupFullAxesBox();
-    histogram->rescaleAxes();
-    histogram->addGraph();
-    histogram->xAxis->setRange(0,400);
-    histogram->yAxis->setRange(0,250);
-    histogram->graph(0)->setPen(QPen(Qt::green));
     DrawHistogram();
 
     QGridLayout *cLayout = new QGridLayout;
@@ -279,32 +264,38 @@ void TestPage::deleteItem()
 
 void TestPage::DrawHistogram()
 {
+    histogram = new QCustomPlot(this);
+    histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
+    histogram->yAxis->setTicks(false);
+    histogram->axisRect()->setMinimumMargins(QMargins(0,0,0,0));
+    histogram->axisRect()->setupFullAxesBox();
+
     // prepare data:
     QVector<double> x1(1), y1(1);
     QVector<double> x2(1), y2(1);
     QVector<double> x3(1), y3(1);
 
-    x1[0] = 15;
+    x1[0] = 1;
     y1[0] = 100;
-    x2[0] = 50;
+    x2[0] = 2;
     y2[0] = 94;
-    x3[0] = 85;
+    x3[0] = 3;
     y3[0] = 6;
 
     QCPBars *bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
-    bars1->setWidth(30);
+    bars1->setWidth(0.9);
     bars1->setData(x1, y1);
     bars1->setPen(Qt::NoPen);
     bars1->setBrush(QColor("blue"));
 
     QCPBars *bars2 = new QCPBars(histogram->xAxis, histogram->yAxis);
-    bars2->setWidth(30);
+    bars2->setWidth(0.9);
     bars2->setData(x2, y2);
     bars2->setPen(Qt::NoPen);
     bars2->setBrush(QColor("green"));
 
     QCPBars *bars3 = new QCPBars(histogram->xAxis, histogram->yAxis);
-    bars3->setWidth(30);
+    bars3->setWidth(0.9);
     bars3->setData(x3, y3);
     bars3->setPen(Qt::NoPen);
     bars3->setBrush(QColor("red"));
@@ -319,6 +310,24 @@ void TestPage::DrawHistogram()
     histogram->rescaleAxes();
     histogram->xAxis->setRange(0, 100);
     histogram->yAxis->setRange(0, 100);
+
+    QVector<double> ticks;
+    QVector<QString> labels;
+    ticks << 1 << 2 << 3;
+    labels << "ALL" << "OK" << "NG";
+    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
+    textTicker->addTicks(ticks, labels);
+    histogram->xAxis->setTicker(textTicker);
+    histogram->xAxis->setTickLabelRotation(0);
+    histogram->xAxis->setSubTicks(false);
+    histogram->xAxis->setTickLength(0, 1);
+    histogram->xAxis->setRange(0.5, 3.5);
+    histogram->xAxis->setBasePen(QPen(Qt::black));
+    histogram->xAxis->setTickPen(QPen(Qt::black));
+    histogram->xAxis->grid()->setVisible(false);
+    histogram->yAxis->grid()->setVisible(false);
+    histogram->xAxis->setTickLabelColor(Qt::white);
+    histogram->xAxis->setLabelColor(Qt::white);
 }
 void TestPage::DrawWave()
 {
