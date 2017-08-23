@@ -105,22 +105,22 @@ void WinSyst::InitSettings()
     g_ini->setIniCodec("GB18030");
     g_ini->beginGroup("GLOBAL");
 
-    ui->BoxUser->setCurrentIndex(g_ini->value("User", "0").toInt());
-    ui->BoxMode->setCurrentIndex(g_ini->value("Mode", "0").toInt());
-    ui->BoxStyle->setCurrentIndex(g_ini->value("Style", "0").toInt());
-    ui->BoxTimeNG->setValue(g_ini->value("TimeNG", "0.5").toDouble());
-    ui->BoxTimeOK->setValue(g_ini->value("TimeOK", "0.2").toDouble());
-    ui->BoxPower->setCurrentIndex(g_ini->value("PowerSupply", "0").toInt());
-    ui->EditCode1->setText(g_ini->value("Barcode1", "0").toString());
-    ui->EditCode2->setText(g_ini->value("Barcode2", "9").toString());
+    ui->BoxUser->setCurrentIndex(g_ini->value("User","0").toInt());
+    ui->BoxMode->setCurrentIndex(g_ini->value("Mode","0").toInt());
+    ui->BoxStyle->setCurrentIndex(g_ini->value("Style","0").toInt());
+    ui->BoxTimeNG->setValue(g_ini->value("TimeNG","0.5").toDouble());
+    ui->BoxTimeOK->setValue(g_ini->value("TimeOK","0.2").toDouble());
+    ui->BoxPower->setCurrentIndex(g_ini->value("PowerSupply","0").toInt());
+    ui->EditCode1->setText(g_ini->value("Barcode1","0").toString());
+    ui->EditCode2->setText(g_ini->value("Barcode2","9").toString());
 
-    password = g_ini->value("Password", "").toString();
+    password = g_ini->value("Password","").toString();
     ui->EditPassword->clear();
     ui->EditPwdNew->clear();
     ui->EditPwdNewR->clear();
     ui->EditPwdOld->clear();
 #ifdef __arm__
-    int t = g_ini->value("AddSeconds", "0").toInt();
+    int t = g_ini->value("AddSeconds","0").toInt();
     if (dateTime.secsTo(QDateTime::currentDateTime()) < t) {
         QDateTime tt = dateTime;
         tt = tt.addSecs(t);
@@ -257,8 +257,8 @@ void WinSyst::ReadHardWareSpace()
 void WinSyst::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("系统异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.0.0.1
+ * author:      zhaonanlin
+ * brief:       测试界面
+*******************************************************************************/
 #include "TestPage.h"
 
 TestPage::TestPage(QWidget *parent) : QWidget(parent)
@@ -12,8 +20,8 @@ TestPage::~TestPage()
 void TestPage::initItems()
 {
     for (int i=0; i < mView->rowCount(); i++) {
-        mView->item(i,2)->setText("");
-        mView->item(i,3)->setText("");
+        mView->item(i, 2)->setText("");
+        mView->item(i, 3)->setText("");
     }
 }
 
@@ -30,14 +38,14 @@ void TestPage::updateItems(QString dat)
             if (dom.nodeName() == "Test_1") {
                 for (int i=0; i < temp.size(); i++) {
                     mView->appendRow(new QStandardItem(temp.at(i)));
-                    mView->setItem(i,1,new QStandardItem);
-                    mView->setItem(i,2,new QStandardItem);
-                    mView->setItem(i,3,new QStandardItem);
+                    mView->setItem(i, 1, new QStandardItem);
+                    mView->setItem(i, 2, new QStandardItem);
+                    mView->setItem(i, 3, new QStandardItem);
                 }
             }
             if (dom.nodeName() == "Test_2") {
-                for (int i=0; i < qMin(temp.size(),mView->rowCount()); i++)
-                    mView->setItem(i,1,new QStandardItem(temp.at(i)));
+                for (int i=0; i < qMin(temp.size(), mView->rowCount()); i++)
+                    mView->setItem(i, 1, new QStandardItem(temp.at(i)));
             }
         }
     }
@@ -48,8 +56,8 @@ void TestPage::updateItems(QString dat)
             QString temp = dom.text();
             if (dom.nodeName() == "Test_3") {
                 for (int i=0; i < mView->rowCount(); i++) {
-                    if (mView->item(i,2)->text().isEmpty()) {
-                        mView->item(i,2)->setText(temp);
+                    if (mView->item(i, 2)->text().isEmpty()) {
+                        mView->item(i, 2)->setText(temp);
                         break;
                     }
                 }
@@ -63,12 +71,12 @@ void TestPage::updateItems(QString dat)
             QString temp = dom.text();
             if (dom.nodeName() == "Test_3") {
                 for (int i=0; i < mView->rowCount(); i++) {
-                    if (mView->item(i,3)->text().isEmpty()) {
-                        mView->item(i,3)->setText(temp);
+                    if (mView->item(i, 3)->text().isEmpty()) {
+                        mView->item(i, 3)->setText(temp);
                         if (temp == "OK")
-                            mView->item(i,3)->setForeground(QBrush(QColor(Qt::green)));
+                            mView->item(i, 3)->setForeground(QBrush(QColor(Qt::green)));
                         else
-                            mView->item(i,3)->setForeground(QBrush(QColor(Qt::red)));
+                            mView->item(i, 3)->setForeground(QBrush(QColor(Qt::red)));
                         break;
                     }
                 }
@@ -87,7 +95,7 @@ void TestPage::initUI()
 
     view = new QTableView(this);
     view->setModel(mView);
-    view->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
+    view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     view->setColumnWidth(0, 150);
     view->setColumnWidth(1, 450);
     view->setColumnWidth(3, 150);
@@ -100,12 +108,12 @@ void TestPage::initUI()
     wave->yAxis->setTicks(false);
     wave->xAxis->setTickLabels(false);
     wave->yAxis->setTickLabels(false);
-    wave->axisRect()->setMinimumMargins(QMargins(0,0,0,0));
+    wave->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
     wave->axisRect()->setupFullAxesBox();
     wave->rescaleAxes();
     wave->addGraph();
-    wave->xAxis->setRange(0,400);
-    wave->yAxis->setRange(0,250);
+    wave->xAxis->setRange(0, 400);
+    wave->yAxis->setRange(0, 250);
     wave->graph(0)->setPen(QPen(Qt::green));
     DrawWave();
 
@@ -117,34 +125,34 @@ void TestPage::initUI()
     waveBox->setLayout(waveLayout);
 
     QHBoxLayout *textLayout = new QHBoxLayout;
-    textLayout->addWidget(new QLabel("型号:__",this));
-    textLayout->addWidget(new QLabel("编号:__",this));
-    textLayout->addWidget(new QLabel("操作员:__",this));
-    textLayout->addWidget(new QLabel("温度:__",this));
+    textLayout->addWidget(new QLabel("型号:__", this));
+    textLayout->addWidget(new QLabel("编号:__", this));
+    textLayout->addWidget(new QLabel("操作员:__", this));
+    textLayout->addWidget(new QLabel("温度:__", this));
 
     QVBoxLayout *mLayout = new QVBoxLayout;
     mLayout->addWidget(view);
     mLayout->addWidget(waveBox);
     mLayout->addLayout(textLayout);
-    mLayout->setStretch(0,5);
-    mLayout->setStretch(1,3);
+    mLayout->setStretch(0, 5);
+    mLayout->setStretch(1, 3);
 
     QGroupBox *mGroup = new QGroupBox(this);
     mGroup->setLayout(mLayout);
 
-    QPushButton *btnHome = new QPushButton("开机主页",this);
+    QPushButton *btnHome = new QPushButton("开机主页", this);
     btnHome->setObjectName("HomePage");
-    btnHome->setMinimumSize(97,44);
-    connect(btnHome,SIGNAL(clicked(bool)),this,SLOT(windowChange()));
+    btnHome->setMinimumSize(97, 44);
+    connect(btnHome, SIGNAL(clicked(bool)), this, SLOT(windowChange()));
 
-    QPushButton *btnConf = new QPushButton("型号管理",this);
+    QPushButton *btnConf = new QPushButton("型号管理", this);
     btnConf->setObjectName("ConfPage");
-    btnConf->setMinimumSize(97,44);
-    connect(btnConf,SIGNAL(clicked(bool)),this,SLOT(windowChange()));
+    btnConf->setMinimumSize(97, 44);
+    connect(btnConf, SIGNAL(clicked(bool)), this, SLOT(windowChange()));
 
-    QPushButton *btnTest = new QPushButton("开始测试",this);
-    btnTest->setMinimumSize(97,44);
-    connect(btnTest,SIGNAL(clicked(bool)),this,SIGNAL(buttonTest()));
+    QPushButton *btnTest = new QPushButton("开始测试", this);
+    btnTest->setMinimumSize(97, 44);
+    connect(btnTest, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest()));
 
     QLabel *btnLogo = new QLabel(this);
     btnLogo->setPixmap(QPixmap(":/source/logo.png"));
@@ -157,7 +165,7 @@ void TestPage::initUI()
     for (int i=0; i < 8; i++) {
         QLabel *color = new QLabel(QString::number(i+1));
         colors.append(color);
-        cLayout->addWidget(color,i/2,i%2);
+        cLayout->addWidget(color, i/2, i%2);
         color->setAlignment(Qt::AlignCenter);
         color->setStyleSheet("background-color:#191919");
     }
@@ -173,17 +181,17 @@ void TestPage::initUI()
     judge->setAlignment(Qt::AlignCenter);
 
     QGridLayout *tLayout = new QGridLayout;
-    tLayout->addWidget(btnHome,0,0,1,2);
-    tLayout->addWidget(btnConf,1,0,1,2);
-    tLayout->addWidget(btnTest,2,0,1,2);
-    tLayout->addWidget(btnLogo,3,0,1,2);
-    tLayout->addWidget(histogram,4,0,1,2);
-    tLayout->setRowStretch(4,2);
-    tLayout->addLayout(cLayout,12,0,1,2);
-    tLayout->setRowStretch(12,1);
+    tLayout->addWidget(btnHome, 0, 0, 1, 2);
+    tLayout->addWidget(btnConf, 1, 0, 1, 2);
+    tLayout->addWidget(btnTest, 2, 0, 1, 2);
+    tLayout->addWidget(btnLogo, 3, 0, 1, 2);
+    tLayout->addWidget(histogram, 4, 0, 1, 2);
+    tLayout->setRowStretch(4, 2);
+    tLayout->addLayout(cLayout, 12, 0, 1, 2);
+    tLayout->setRowStretch(12, 1);
 
-    tLayout->addWidget(station,21,0,1,2);
-    tLayout->addWidget(judge,22,0,1,2);
+    tLayout->addWidget(station, 21, 0, 1, 2);
+    tLayout->addWidget(judge, 22, 0, 1, 2);
 
     QGroupBox *tGroup = new QGroupBox(this);
     tGroup->setLayout(tLayout);
@@ -191,8 +199,8 @@ void TestPage::initUI()
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(mGroup);
     layout->addWidget(tGroup);
-    layout->setStretch(0,7);
-    layout->setStretch(1,1);
+    layout->setStretch(0, 7);
+    layout->setStretch(1, 1);
     this->setLayout(layout);
 }
 
@@ -267,7 +275,7 @@ void TestPage::DrawHistogram()
     histogram = new QCustomPlot(this);
     histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
     histogram->yAxis->setTicks(false);
-    histogram->axisRect()->setMinimumMargins(QMargins(0,0,0,0));
+    histogram->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
     histogram->axisRect()->setupFullAxesBox();
 
     // prepare data:
@@ -337,8 +345,6 @@ void TestPage::DrawWave()
     gradient.setColorAt(1, QColor(18, 25, 34));
     wave->setBackground(QBrush(gradient)); //设置背景色
 
-    //    wave->setInteractions(QCP::iRangeDrag);
-
     QVector<double> x(1080); //可变数组存放绘图的坐标的数据，分别存放x和y坐标的数据
     QVector<double> hu(1080), hv(1080), hw(1080);
     QVector<double> uy(1080), vy(1080), wy(1080);
@@ -356,28 +362,28 @@ void TestPage::DrawWave()
         by[i] = ((((i+9)/15)%2)  == 0) ? 1 : 10;
     }
 
-    QCPGraph *graph1 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph1 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph1->setPen(QPen(Qt::yellow));
     graph1->setData(x, hu);
-    QCPGraph *graph2 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph2 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph2->setPen(QPen(Qt::green));
     graph2->setData(x, hv);
-    QCPGraph *graph3 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph3 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph3->setPen(QPen(Qt::red));
     graph3->setData(x, hw);
-    QCPGraph *graph4 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph4 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph4->setPen(QPen(Qt::yellow));
     graph4->setData(x, uy);
-    QCPGraph *graph5 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph5 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph5->setPen(QPen(Qt::green));
     graph5->setData(x, vy);
-    QCPGraph *graph6 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph6 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph6->setPen(QPen(Qt::red));
     graph6->setData(x, wy);
-    QCPGraph *graph7 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph7 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph7->setPen(QPen(Qt::yellow));
     graph7->setData(x, ay);
-    QCPGraph *graph8 = wave->addGraph(); //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph8 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
     graph8->setPen(QPen(Qt::yellow));
     graph8->setData(x, by);
 

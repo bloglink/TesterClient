@@ -193,13 +193,13 @@ void WinData::ExportToUsb()
     query.exec();
     int i = 0;
     while (query.next()) {
-        file.write(ToGbk(query.value(0).toString().replace(", ", " ")));
-        file.write(", ");
-        file.write(ToGbk(query.value(1).toString().replace(", ", " ")));
-        file.write(", ");
-        file.write(ToGbk(query.value(2).toString().replace(", ", " ")));
-        file.write(", ");
-        file.write(ToGbk(query.value(3).toString().replace(", ", " ")));
+        file.write(ToGbk(query.value(0).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(1).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(2).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(3).toString().replace(",", " ")));
         file.write("\n");
         i++;
         if (i%10 == 1)

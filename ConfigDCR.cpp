@@ -126,42 +126,42 @@ void ConfigDCR::initData(QByteArray dat)
         if (dom.nodeName() == "test") {
             for (int i=0; i < temp.size(); i++) {
                 if (temp.at(i) == "1")
-                    model->item(i,0)->setCheckState(Qt::Checked);
+                    model->item(i, 0)->setCheckState(Qt::Checked);
             }
         }
         if (dom.nodeName() == "port1")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,1)->setText(temp.at(i));
+                model->item(i, 1)->setText(temp.at(i));
         if (dom.nodeName() == "port2")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,2)->setText(temp.at(i));
+                model->item(i, 2)->setText(temp.at(i));
         if (dom.nodeName() == "unit")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,3)->setText(temp.at(i));
+                model->item(i, 3)->setText(temp.at(i));
         if (dom.nodeName() == "min")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,4)->setText(temp.at(i));
+                model->item(i, 4)->setText(temp.at(i));
         if (dom.nodeName() == "max")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,5)->setText(temp.at(i));
+                model->item(i, 5)->setText(temp.at(i));
         if (dom.nodeName() == "std")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,6)->setText(temp.at(i));
+                model->item(i, 6)->setText(temp.at(i));
         if (dom.nodeName() == "std_min")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,7)->setText(temp.at(i));
+                model->item(i, 7)->setText(temp.at(i));
         if (dom.nodeName() == "std_max")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,8)->setText(temp.at(i));
+                model->item(i, 8)->setText(temp.at(i));
         if (dom.nodeName() == "std_temp")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,9)->setText(temp.at(i));
+                model->item(i, 9)->setText(temp.at(i));
         if (dom.nodeName() == "wire_comp1")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,10)->setText(temp.at(i));
+                model->item(i, 10)->setText(temp.at(i));
         if (dom.nodeName() == "wire_comp2")
             for (int i=0; i < temp.size(); i++)
-                model->item(i,11)->setText(temp.at(i));
+                model->item(i, 11)->setText(temp.at(i));
         if (dom.nodeName() == "temp_comp") {
             if (temp.at(0) == "1")
                 nounCheckBox->setChecked(true);
@@ -208,7 +208,7 @@ void ConfigDCR::saveData()
     text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
 
-    emit sendNetMsg((doc.toByteArray()).insert(0,"6002 "));
+    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
     emit buttonClicked(NULL);
     initData(doc.toByteArray());
 }

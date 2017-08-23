@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.0.0.1
+ * author:      zhaonanlin
+ * brief:       PLC控制模块
+*******************************************************************************/
 #include "PLCPage.h"
 
 PLCPage::PLCPage(QWidget *parent) : QWidget(parent)
@@ -30,7 +38,7 @@ quint16 PLCPage::readIO()
         wait(10);
         timeOut++;
         if (timeOut > 100) {
-            QMessageBox::warning(this, "", "IO板无回应", QMessageBox::Ok);
+            QMessageBox::warning(this, "","IO板无回应", QMessageBox::Ok);
             return 0;
         }
     }
@@ -49,7 +57,7 @@ void PLCPage::sendPlc(QString cmd)
         wait(10);
         timeOut++;
         if (timeOut > 100) {
-            QMessageBox::warning(this, "", "PLC无回应", QMessageBox::Ok);
+            QMessageBox::warning(this, "","PLC无回应", QMessageBox::Ok);
             return;
         }
     }
@@ -67,7 +75,7 @@ void PLCPage::readPlc()
         wait(10);
         timeOut++;
         if (timeOut > 100) {
-            QMessageBox::warning(this, "", "伺服无回应", QMessageBox::Ok);
+            QMessageBox::warning(this, "","伺服无回应", QMessageBox::Ok);
             return;
         }
     }
@@ -79,7 +87,7 @@ void PLCPage::readPlc()
         wait(10);
         timeOut++;
         if (timeOut > 100) {
-            QMessageBox::warning(this, "", "伺服无回应", QMessageBox::Ok);
+            QMessageBox::warning(this, "","伺服无回应", QMessageBox::Ok);
             return;
         }
     }
@@ -91,7 +99,7 @@ void PLCPage::readPlc()
         wait(10);
         timeOut++;
         if (timeOut > 100) {
-            QMessageBox::warning(this, "", "伺服无回应", QMessageBox::Ok);
+            QMessageBox::warning(this, "","伺服无回应", QMessageBox::Ok);
             return;
         }
     }

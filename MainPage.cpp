@@ -37,13 +37,13 @@ void MainPage::initUI()
     qApp->setStyleSheet(qss);
 
     HomePage *home = new HomePage(this);
-    connect(home,SIGNAL(buttonClicked(QByteArray)),this,SLOT(readButtons(QByteArray)));
+    connect(home, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     WinSyst *syst = new WinSyst(this);
-    connect(syst,SIGNAL(buttonClicked(QByteArray)),this,SLOT(readButtons(QByteArray)));
+    connect(syst, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     WinData *wdat = new WinData(this);
-    connect(wdat,SIGNAL(buttonClicked(QByteArray)),this,SLOT(readButtons(QByteArray)));
+    connect(wdat, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     conf = new ConfPage(this);
     connect(conf, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -61,29 +61,32 @@ void MainPage::initUI()
     connect(dcr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), dcr, SLOT(recvAppShow(QString)));
 
-    ConfigACW *acw = new ConfigACW(this);
+    acw = new ConfigACW(this);
     connect(acw, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(acw, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(acw, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), acw, SLOT(recvAppShow(QString)));
 
-    ConfigIR *ir = new ConfigIR(this);
-    connect(ir, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(ir, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    inr = new ConfigIR(this);
+    connect(inr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(inr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), inr, SLOT(recvAppShow(QString)));
 
-    ConfigIND *ind = new ConfigIND(this);
+    ind = new ConfigIND(this);
     connect(ind, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(ind, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(ind, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), ind, SLOT(recvAppShow(QString)));
 
     ConfigPWR *pwr = new ConfigPWR(this);
     connect(pwr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(pwr, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(pwr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
 
     ConfigLoad *load = new ConfigLoad(this);
     connect(load, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(load, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(load, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
 
     ConfigFG *fg = new ConfigFG(this);
     connect(fg, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(fg, SIGNAL(saveConfig(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(fg, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
 
     stack = new QStackedWidget(this);
     stack->addWidget(home);
@@ -93,7 +96,7 @@ void MainPage::initUI()
     stack->addWidget(test);
     stack->addWidget(dcr);
     stack->addWidget(acw);
-    stack->addWidget(ir);
+    stack->addWidget(inr);
     stack->addWidget(ind);
     stack->addWidget(pwr);
     stack->addWidget(load);
@@ -123,8 +126,8 @@ void MainPage::initUdp(QJsonObject obj)
 void MainPage::recvNetMsg(QString msg)
 {
     int a = msg.indexOf(" ");
-    int cmd = msg.mid(0,a).toInt();
-    QString dat = msg.mid(a+1,msg.size());
+    int cmd = msg.mid(0, a).toInt();
+    QString dat = msg.mid(a+1, msg.size());
     switch (cmd) {
     case 3001:
         break;
@@ -181,19 +184,18 @@ void MainPage::testInit()
 {
     test->initItems();
     QJsonObject obj;
-    obj.insert("TxMessage", "3008");
+    obj.insert("TxMessage","3008");
     emit transmitJson(obj);
 }
 
 void MainPage::testDCR()
 {
     QJsonObject obj;
-    obj.insert("TxMessage", "6006 DCR");
+    obj.insert("TxMessage","6006 DCR");
     emit transmitJson(obj);
 }
 
 void MainPage::testACW()
 {
-
 }
 

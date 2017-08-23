@@ -25,6 +25,7 @@
 #include <QLabel>
 
 #include "delegate.h"
+#include "qcustomplot.h"
 
 class ConfigLoad : public QWidget
 {
@@ -34,13 +35,17 @@ public:
     ~ConfigLoad();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 private slots:
     void initUI();
     void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
+    void sequence(void);
+    void ruler(double x);
+    void wavePacket(double x1,double x2, QString name);
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;
@@ -50,6 +55,11 @@ private:
 
     QDomDocument doc;
     QDomElement root;
+
+    QTableView *tView;
+    ItemModel *tModel;
+
+    QCustomPlot *customplot;
 };
 
 #endif // CONFIGLOAD_H

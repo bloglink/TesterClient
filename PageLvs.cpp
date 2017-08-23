@@ -53,7 +53,7 @@ void PageLvs::InitSettings()
     QSettings *global = new QSettings(INI_PATH, QSettings::IniFormat);
     global->setIniCodec("GB18030");
     global->beginGroup("GLOBAL");
-    PowerSupply = global->value("PowerSupply", "0").toInt();
+    PowerSupply = global->value("PowerSupply","0").toInt();
     FileInUse = global->value("FileInUse", INI_DEFAULT).toString();
     FileInUse.remove(".ini");
 
@@ -63,7 +63,7 @@ void PageLvs::InitSettings()
     set->setIniCodec("GB18030");
     set->beginGroup("SetLvs");
 
-    QStringList temp = (set->value("Other", "20 0 0.5 10 10 50").toString()).split(" ");
+    QStringList temp = (set->value("Other","20 0 0.5 10 10 50").toString()).split(" ");
     if (temp.size() >= 6) {
         ui->BoxVolt->setValue(temp.at(0).toDouble());
         ui->BoxTime->setValue(temp.at(1).toDouble());
@@ -328,8 +328,8 @@ void PageLvs::showEvent(QShowEvent *e)
 void PageLvs::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("低启异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

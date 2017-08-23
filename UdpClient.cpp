@@ -44,7 +44,7 @@ void UdpClient::InitSettings()
     Types = FileNames.join(" ");
     Number = g_ini->value("UserNumber").toString();
     if (Number.isEmpty())
-        Number = g_ini->value("Number", "168912000X").toString();
+        Number = g_ini->value("Number","168912000X").toString();
 }
 
 void UdpClient::SaveSettings()

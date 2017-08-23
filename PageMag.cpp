@@ -127,7 +127,7 @@ void PageMag::InitSettings()
     set->setIniCodec("GB18030");
     set->beginGroup("SetMag");
 
-    QStringList temp = (set->value("Other", "0 1 2").toString()).split(" ");
+    QStringList temp = (set->value("Other","0 1 2").toString()).split(" ");
     if (temp.size() >= 3) {
         ui->BoxDir->setCurrentIndex(temp.at(0).toInt());
         ui->BoxMain->setValue(temp.at(1).toInt());
@@ -135,33 +135,33 @@ void PageMag::InitSettings()
     }
     ui->BoxDirOnly->setChecked(set->value("DirOnly").toBool());
     //可用
-    temp = (QString(set->value("Enable", "Y Y Y N N N N N").toByteArray())).split(" ");
+    temp = (QString(set->value("Enable","Y Y Y N N N N N").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Enable.at(row)->setText(temp.at(row));
     //端一
-    temp = (set->value("Terminal1", "1 2 1 4 5 6 7 8").toString()).split(" ");
+    temp = (set->value("Terminal1","1 2 1 4 5 6 7 8").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal1.at(row)->setText(temp.at(row));
     //端二
-    temp = (set->value("Terminal2", "2 3 3 5 6 7 8 1").toString()).split(" ");
+    temp = (set->value("Terminal2","2 3 3 5 6 7 8 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal2.at(row)->setText(temp.at(row));
     //最大值
-    temp = (set->value("Max", "10 10 10 10 10 10 10 10").toString()).split(" ");
+    temp = (set->value("Max","10 10 10 10 10 10 10 10").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Max.at(row)->setValue(temp.at(row).toDouble());
     //频率
-    temp = (set->value("FreqL", "0 0 0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("FreqL","0 0 0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         FreqL[row] = temp.at(row).toInt();
-    temp = (set->value("AreaL", "1000 1000 1000 1000 1000 1000 1000 1000").toString()).split(" ");
+    temp = (set->value("AreaL","1000 1000 1000 1000 1000 1000 1000 1000").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         AreaL[row] = temp.at(row).toInt();
     //频率
-    temp = (set->value("FreqR", "0 0 0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("FreqR","0 0 0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         FreqR[row] = temp.at(row).toInt();
-    temp = (set->value("AreaR", "1000 1000 1000 1000 1000 1000 1000 1000").toString()).split(" ");
+    temp = (set->value("AreaR","1000 1000 1000 1000 1000 1000 1000 1000").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         AreaR[row] = temp.at(row).toInt();
     //波形
@@ -636,8 +636,8 @@ void PageMag::CalculateDir()
 void PageMag::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("反嵌异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

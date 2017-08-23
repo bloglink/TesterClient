@@ -21,7 +21,7 @@ void SqlClient::DeviceOpen()
         file.close();
     }
 
-    db = QSqlDatabase::addDatabase("QSQLITE", "SQL");
+    db = QSqlDatabase::addDatabase("QSQLITE","SQL");
     db.setDatabaseName(SQL_PATH);
     if (!db.open())
         qDebug() << QTime::currentTime().toString() << "SQL Error";
@@ -74,10 +74,10 @@ void SqlClient::Write(QByteArray msg)
         query.bindValue(":t4", dat.at(2));
         query.bindValue(":t5", count);
         if (code.isEmpty())
-            query.bindValue(":t6", " ");
+            query.bindValue(":t6"," ");
         else
             query.bindValue(":t6", code);
-        query.bindValue(":t7", " ");
+        query.bindValue(":t7"," ");
     }
     if (dat.size() == 4) {
         query.bindValue(":t1", dat.at(0));
@@ -86,10 +86,10 @@ void SqlClient::Write(QByteArray msg)
         query.bindValue(":t4", dat.at(3));
         query.bindValue(":t5", count);
         if (code.isEmpty())
-            query.bindValue(":t6", " ");
+            query.bindValue(":t6"," ");
         else
             query.bindValue(":t6", code);
-        query.bindValue(":t7", " ");
+        query.bindValue(":t7"," ");
     }
     query.exec();
     if (dat.at(0) == "总数")

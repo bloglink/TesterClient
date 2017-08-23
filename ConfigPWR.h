@@ -25,6 +25,7 @@
 #include <QLabel>
 
 #include "delegate.h"
+#include "qcustomplot.h"
 
 class ConfigPWR : public QWidget
 {
@@ -34,22 +35,31 @@ public:
     ~ConfigPWR();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 private slots:
     void initUI();
     void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
+    void sequence(void);
+    void ruler(double x);
+    void wavePacket(double x1,double x2, QString name);
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;
+
+    QTableView *tView;
+    ItemModel *tModel;
 
     QCheckBox *turnCheckBox;
     QComboBox *turnComboBox;
 
     QDomDocument doc;
     QDomElement root;
+
+    QCustomPlot *customplot;
 };
 
 #endif // CONFIGPWR_H

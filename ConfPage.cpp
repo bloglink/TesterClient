@@ -72,18 +72,18 @@ void ConfPage::initUI()
     QPushButton *btnAppend = new QPushButton(this);
     btnAppend->setText(tr("添加型号"));
     btnAppend->setMinimumSize(97, 35);
-    connect(btnAppend,SIGNAL(clicked(bool)),this,SLOT(appendType()));
+    connect(btnAppend, SIGNAL(clicked(bool)), this, SLOT(appendType()));
     QPushButton *btnRemove = new QPushButton(this);
     btnRemove->setText(tr("删除型号"));
     btnRemove->setMinimumSize(97, 35);
-    connect(btnRemove,SIGNAL(clicked(bool)),this,SLOT(deleteType()));
+    connect(btnRemove, SIGNAL(clicked(bool)), this, SLOT(deleteType()));
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
     connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
-    btnLayout->addWidget(new QLabel("型号名称",this));
+    btnLayout->addWidget(new QLabel("型号名称", this));
     btnLayout->addWidget(typeLineEdit);
     btnLayout->addWidget(btnAppend);
     btnLayout->addWidget(btnRemove);
@@ -106,7 +106,7 @@ void ConfPage::initUI()
     typeComboBox->addItems(typeNames);
     typeComboBox->setMinimumSize(97, 35);
     typeComboBox->setView(new QListView);
-    connect(typeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(autoPixmap(QString)));
+    connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(autoPixmap(QString)));
     typePixmap = new QLabel(this);
     typePixmap->setPixmap(QPixmap(":/source/M1S0.jpg"));
 
@@ -115,18 +115,18 @@ void ConfPage::initUI()
 
         QPushButton *btn = new QPushButton(QString::number(i+1));
         colors.append(btn);
-        cLayout->addWidget(btn,i/2,i%2);
-        connect(btn,SIGNAL(clicked(bool)),this,SLOT(selectColor()));
+        cLayout->addWidget(btn, i/2, i%2);
+        connect(btn, SIGNAL(clicked(bool)), this, SLOT(selectColor()));
     }
 
     QGridLayout *tLayout = new QGridLayout;
-    tLayout->addWidget(new QLabel("电机类型",this),0,0);
-    tLayout->addWidget(typeComboBox,0,1);
-    tLayout->addWidget(typePixmap,1,0,1,2);
-    tLayout->addWidget(new QLabel("线夹颜色",this),2,0);
-    tLayout->addLayout(cLayout,3,0,1,2);
-    tLayout->setColumnStretch(1,1);
-    tLayout->setRowStretch(4,1);
+    tLayout->addWidget(new QLabel("电机类型", this), 0, 0);
+    tLayout->addWidget(typeComboBox, 0, 1);
+    tLayout->addWidget(typePixmap, 1, 0, 1, 2);
+    tLayout->addWidget(new QLabel("线夹颜色", this), 2, 0);
+    tLayout->addLayout(cLayout, 3, 0, 1, 2);
+    tLayout->setColumnStretch(1, 1);
+    tLayout->setRowStretch(4, 1);
 
     QGroupBox *tGroup = new QGroupBox(this);
     tGroup->setLayout(tLayout);
@@ -161,21 +161,21 @@ void ConfPage::initUI()
     objNames << "ConfigDCR" << "ConfigMAG" << "ConfigIR" << "ConfigACW" << "ConfigDCR"
              << "ConfigIMP" << "ConfigIND" << "ConfigPWR" << "ConfigLoad" << "ConfigFG";
     for (int i=0; i < btnNames.size(); i++) {
-        buttons.append(new QPushButton(btnNames.at(i),this));
+        buttons.append(new QPushButton(btnNames.at(i), this));
         btnsLayout->addWidget(buttons.at(i));
         buttons.at(i)->setMinimumSize(97, 44);
         buttons.at(i)->setObjectName(objNames.at(i));
         buttons.at(i)->setCheckable(true);
-        connect(buttons.at(i),SIGNAL(clicked(bool)),this,SLOT(clickButton()));
+        connect(buttons.at(i), SIGNAL(clicked(bool)), this, SLOT(clickButton()));
     }
 
-    QPushButton *btnDelete = new QPushButton("删除项目",this);
+    QPushButton *btnDelete = new QPushButton("删除项目", this);
     btnDelete->setMinimumSize(97, 35);
-    connect(btnDelete,SIGNAL(clicked(bool)),this,SLOT(deleteItem()));
+    connect(btnDelete, SIGNAL(clicked(bool)), this, SLOT(deleteItem()));
     btnsLayout->addWidget(btnDelete);
-    QPushButton *btnConfig = new QPushButton("配置项目",this);
+    QPushButton *btnConfig = new QPushButton("配置项目", this);
     btnConfig->setMinimumSize(97, 35);
-    connect(btnConfig,SIGNAL(clicked(bool)),this,SLOT(windowChange()));
+    connect(btnConfig, SIGNAL(clicked(bool)), this, SLOT(windowChange()));
     btnsLayout->addWidget(btnConfig);
     btnsLayout->addStretch();
     btnsLayout->setMargin(0);
@@ -225,7 +225,7 @@ void ConfPage::saveData()
     text = doc.createTextNode(temp.join(","));
     type.appendChild(text);
 
-    emit sendNetMsg((doc.toByteArray()).insert(0,"6002 "));
+    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 
@@ -239,7 +239,7 @@ void ConfPage::clickButton()
     if (pView->currentIndex().row() < 0 || (pView->currentIndex().row()+1 == pModel->rowCount())) {
         pModel->appendRow(new QStandardItem(""));
         if (pModel->rowCount() > 1)
-            pModel->item(pModel->rowCount()-2,0)->setText(btn->text());
+            pModel->item(pModel->rowCount()-2, 0)->setText(btn->text());
     }
 }
 

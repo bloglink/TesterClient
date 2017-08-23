@@ -67,9 +67,45 @@ void ConfigIR::initUI()
 
 void ConfigIR::initData(QByteArray dat)
 {
-    QDomDocument doc;
-    doc.setContent(dat);
-    qDebug() << doc.toByteArray();
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("IR").isEmpty())
+        return;
+    QDomNodeList list = docs.elementsByTagName("IR").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        if (dom.nodeName() == "test") {
+            for (int i=0; i < temp.size(); i++) {
+                if (temp.at(i) == "1")
+                    model->item(i, 0)->setCheckState(Qt::Checked);
+            }
+        }
+        if (dom.nodeName() == "port1")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 1)->setText(temp.at(i));
+        if (dom.nodeName() == "port2")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 2)->setText(temp.at(i));
+        if (dom.nodeName() == "volt")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 3)->setText(temp.at(i));
+        if (dom.nodeName() == "min")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 4)->setText(temp.at(i));
+        if (dom.nodeName() == "max")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 5)->setText(temp.at(i));
+        if (dom.nodeName() == "time")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 6)->setText(temp.at(i));
+        if (dom.nodeName() == "comp1")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 7)->setText(temp.at(i));
+        if (dom.nodeName() == "comp2")
+            for (int i=0; i < temp.size(); i++)
+                model->item(i, 8)->setText(temp.at(i));
+    }
 }
 
 void ConfigIR::saveData()
@@ -155,7 +191,14 @@ void ConfigIR::saveData()
     text = doc.createTextNode(temp.join(","));
     comp2.appendChild(text);
 
-    emit saveConfig(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray());
     emit buttonClicked(NULL);
+}
+
+void ConfigIR::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("6004 IR");
 }
 

@@ -27,25 +27,25 @@ void HomePage::initUI()
     btn_syst->setText("系统设置");
     btn_syst->setMinimumHeight(65);
     btn_syst->setObjectName("SystPage");
-    connect(btn_syst,SIGNAL(clicked(bool)),this,SLOT(clickButton()));
+    connect(btn_syst, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
 
     QPushButton *btn_conf = new QPushButton(this);
     btn_conf->setText("型号管理");
     btn_conf->setMinimumHeight(65);
     btn_conf->setObjectName("ConfPage");
-    connect(btn_conf,SIGNAL(clicked(bool)),this,SLOT(clickButton()));
+    connect(btn_conf, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
 
     QPushButton *btn_data = new QPushButton(this);
     btn_data->setText("数据管理");
     btn_data->setMinimumHeight(65);
     btn_data->setObjectName("DataPage");
-    connect(btn_data,SIGNAL(clicked(bool)),this,SLOT(clickButton()));
+    connect(btn_data, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
 
     QPushButton *btn_test = new QPushButton(this);
     btn_test->setText("进入测试");
     btn_test->setMinimumHeight(65);
     btn_test->setObjectName("TestPage");
-    connect(btn_test,SIGNAL(clicked(bool)),this,SLOT(clickButton()));
+    connect(btn_test, SIGNAL(clicked(bool)), this, SLOT(clickButton()));
 
     QHBoxLayout *btn_layout = new QHBoxLayout;
     btn_layout->addStretch();

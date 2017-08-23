@@ -78,7 +78,7 @@ void PageLck::InitSettings()
     QSettings *global = new QSettings(INI_PATH, QSettings::IniFormat);
     global->setIniCodec("GB18030");
     global->beginGroup("GLOBAL");
-    PowerSupply = global->value("PowerSupply", "0").toInt();
+    PowerSupply = global->value("PowerSupply","0").toInt();
     FileInUse = global->value("FileInUse", INI_DEFAULT).toString();
     FileInUse.remove(".ini");
 
@@ -88,18 +88,18 @@ void PageLck::InitSettings()
     set->setIniCodec("GB18030");
     set->beginGroup("PageLck");
 
-    ui->BoxVolt->setValue(set->value("Voltage", "220").toDouble());
-    ui->BoxTime->setValue(set->value("TimeUse", "1").toDouble());
-    ui->BoxGrade->setValue(set->value("Grade", "1").toDouble());
-    ui->BoxVoltMax->setValue(set->value("VoltMax", "255").toDouble());
-    ui->BoxVoltMin->setValue(set->value("VoltMin", "1").toDouble());
-    ui->BoxCurrMax->setValue(set->value("CurrentMax", "5.000").toDouble());
-    ui->BoxCurrMin->setValue(set->value("CurrentMin", "0.001").toDouble());
-    ui->BoxPowerMax->setValue(set->value("PowerMax", "1275").toDouble());
-    ui->BoxPowerMin->setValue(set->value("PowerMin", "0.1").toDouble());
-    ui->BoxFreq->setValue(set->value("Freq", "1").toDouble());
-    ui->BoxCurr->setValue(set->value("Current", "0.001").toDouble());
-    ui->BoxPower->setValue(set->value("Power", "1").toDouble());
+    ui->BoxVolt->setValue(set->value("Voltage","220").toDouble());
+    ui->BoxTime->setValue(set->value("TimeUse","1").toDouble());
+    ui->BoxGrade->setValue(set->value("Grade","1").toDouble());
+    ui->BoxVoltMax->setValue(set->value("VoltMax","255").toDouble());
+    ui->BoxVoltMin->setValue(set->value("VoltMin","1").toDouble());
+    ui->BoxCurrMax->setValue(set->value("CurrentMax","5.000").toDouble());
+    ui->BoxCurrMin->setValue(set->value("CurrentMin","0.001").toDouble());
+    ui->BoxPowerMax->setValue(set->value("PowerMax","1275").toDouble());
+    ui->BoxPowerMin->setValue(set->value("PowerMin","0.1").toDouble());
+    ui->BoxFreq->setValue(set->value("Freq","1").toDouble());
+    ui->BoxCurr->setValue(set->value("Current","0.001").toDouble());
+    ui->BoxPower->setValue(set->value("Power","1").toDouble());
     qDebug() << QTime::currentTime().toString() << "PageLck read OK";
 }
 
@@ -372,7 +372,7 @@ void PageLck::ClearResults()
 QString PageLck::CurrentPorwer()
 {
     QSettings *ini = new QSettings(INI_PATH, QSettings::IniFormat);
-    QString n = ini->value("/GLOBAL/PowerSupply", "0").toString();
+    QString n = ini->value("/GLOBAL/PowerSupply","0").toString();
     return n;
 }
 
@@ -406,8 +406,8 @@ void PageLck::showEvent(QShowEvent *e)
 void PageLck::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("堵转异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

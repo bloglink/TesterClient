@@ -39,9 +39,9 @@ void TcpClient::TcpInit()
     QSettings *global = new QSettings(INI_PATH, QSettings::IniFormat);
     global->setIniCodec("GB18030");
     global->beginGroup("GLOBAL");
-    QString h = global->value("HOST", "s.aipuo.com").toString();
-    QString v = global->value("Version", "V-2.0.0.0").toString();
-    QString u = global->value("Number", "168912000X").toString();
+    QString h = global->value("HOST","s.aipuo.com").toString();
+    QString v = global->value("Version","V-2.0.0.0").toString();
+    QString u = global->value("Number","168912000X").toString();
 
     InitString.clear();
     InitString.append(u);

@@ -973,7 +973,7 @@ void QCPPaintBufferGlFbo::reallocateBuffer()
 
   \section qcplayer-defaultlayers Default layers
 
-  Initially, QCustomPlot has six layers: "background", "grid", "main", "axes", "legend" and
+  Initially, QCustomPlot has six layers: "background","grid","main","axes","legend" and
   "overlay" (in that order). On top is the "overlay" layer, which only contains the QCustomPlot's
   selection rect (\ref QCustomPlot::selectionRect). The next two layers "axes" and "legend" contain
   the default axes and legend, so they will be drawn above plottables. In the middle, there is the
@@ -20744,7 +20744,7 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
                         if (!doScatterSkip)
                             ++intervalIt;
                         else
-                            intervalIt += scatterModulo; // since we know indices of "currentIntervalStart", "intervalIt" and "it" are multiples of scatterModulo, we can't accidentally jump over "it" here
+                            intervalIt += scatterModulo; // since we know indices of "currentIntervalStart","intervalIt" and "it" are multiples of scatterModulo, we can't accidentally jump over "it" here
                     }
                 } else if (currentIntervalStart->value > valueMinRange && currentIntervalStart->value < valueMaxRange)
                     scatterData->append(*currentIntervalStart);

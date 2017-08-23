@@ -440,7 +440,7 @@ inline const QCPVector2D operator-(const QCPVector2D &vec) { return QCPVector2D(
 */
 inline QDebug operator<< (QDebug d, const QCPVector2D &vec)
 {
-    d.nospace() << "QCPVector2D(" << vec.x() << ", " << vec.y() << ")";
+    d.nospace() << "QCPVector2D(" << vec.x() << "," << vec.y() << ")";
     return d.space();
 }
 
@@ -814,7 +814,7 @@ Q_DECLARE_TYPEINFO(QCPRange, Q_MOVABLE_TYPE);
 */
 inline QDebug operator<< (QDebug d, const QCPRange &range)
 {
-    d.nospace() << "QCPRange(" << range.lower << ", " << range.upper << ")";
+    d.nospace() << "QCPRange(" << range.lower << "," << range.upper << ")";
     return d.space();
 }
 
@@ -1073,7 +1073,7 @@ inline QDebug operator<< (QDebug d, const QCPDataSelection &selection)
     for (int i=0; i<selection.dataRangeCount(); ++i)
     {
       if (i != 0)
-        d << ", ";
+        d << ",";
       d << selection.dataRange(i);
     }
     d << ")";

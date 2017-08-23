@@ -223,7 +223,7 @@ void PagePwr::InitSettings()
     set->setIniCodec("GB18030");
     set->beginGroup("PagePwr");
 
-    QStringList temp = (set->value("Other", "220 50 1 5").toString()).split(" ");
+    QStringList temp = (set->value("Other","220 50 1 5").toString()).split(" ");
     if (temp.size() >= 3) {
         ui->BoxVolt->setValue(temp.at(0).toDouble());
         ui->BoxFreq->setValue(temp.at(1).toDouble());
@@ -231,39 +231,39 @@ void PagePwr::InitSettings()
         ui->BoxPGVolt->setValue(temp.at(3).toDouble());
     }
     //可用
-    temp = (QString(set->value("Enable", "Y Y Y N N N").toByteArray())).split(" ");
+    temp = (QString(set->value("Enable","Y Y Y N N N").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         Enable.at(row)->setText(temp.at(row));
     //最小电流
-    temp = (set->value("CurrMin", "0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("CurrMin","0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         CurrMin.at(row)->setValue(temp.at(row).toDouble());
     //最大电流
-    temp = (set->value("CurrMax", "5 5 5 5 5 5").toString()).split(" ");
+    temp = (set->value("CurrMax","5 5 5 5 5 5").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         CurrMax.at(row)->setValue(temp.at(row).toDouble());
     //最小功率
-    temp = (set->value("PowerMin", "0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("PowerMin","0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         PowerMin.at(row)->setValue(temp.at(row).toDouble());
     //最大功率
-    temp = (set->value("PowerMax", "500 500 500 500 500 500").toString()).split(" ");
+    temp = (set->value("PowerMax","500 500 500 500 500 500").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         PowerMax.at(row)->setValue(temp.at(row).toDouble());
     //最小容压
-    temp = (set->value("CapMin", "0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("CapMin","0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         CapMin.at(row)->setValue(temp.at(row).toDouble());
     //最大容压
-    temp = (set->value("CapMax", "500 500 500 500 500 500").toString()).split(" ");
+    temp = (set->value("CapMax","500 500 500 500 500 500").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         CapMax.at(row)->setValue(temp.at(row).toDouble());
     //转向
-    temp = (QString(set->value("TestDir", "0 0 0 0 0 0 0 0").toByteArray())).split(" ");
+    temp = (QString(set->value("TestDir","0 0 0 0 0 0 0 0").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         TestDir.at(row)->setCurrentIndex(temp.at(row).toInt());
     //测试时间
-    temp = (set->value("TestTime", "1 1 1 1 1 1").toString()).split(" ");
+    temp = (set->value("TestTime","1 1 1 1 1 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PWR_ROW); row++)
         TestTime.at(row)->setValue(temp.at(row).toDouble());
     temp.clear();
@@ -272,46 +272,46 @@ void PagePwr::InitSettings()
         Grade.at(row)->setText(temp.at(row));
 
     //可用
-    temp = (QString(set->value("PGEnable", "Y Y Y").toByteArray())).split(" ");
+    temp = (QString(set->value("PGEnable","Y Y Y").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGEnable.at(row)->setText(temp.at(row));
 
-    temp = (set->value("PGUpperMin", "4 4 4").toString()).split(" ");
+    temp = (set->value("PGUpperMin","4 4 4").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGUpperMin.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGUpperMax", "6 6 6").toString()).split(" ");
+    temp = (set->value("PGUpperMax","6 6 6").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGUpperMax.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGLowerMin", "0 0 0").toString()).split(" ");
+    temp = (set->value("PGLowerMin","0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGLowerMin.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGLowerMax", "1 1 1").toString()).split(" ");
+    temp = (set->value("PGLowerMax","1 1 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGLowerMax.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGDutyMin", "40 40 40").toString()).split(" ");
+    temp = (set->value("PGDutyMin","40 40 40").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGDutyMin.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGDutyMax", "60 60 60").toString()).split(" ");
+    temp = (set->value("PGDutyMax","60 60 60").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGDutyMax.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGFreqMin", "40 40 40").toString()).split(" ");
+    temp = (set->value("PGFreqMin","40 40 40").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGFreqMin.at(row)->setValue(temp.at(row).toDouble());
-    temp = (set->value("PGFreqMax", "60 60 60").toString()).split(" ");
+    temp = (set->value("PGFreqMax","60 60 60").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGFreqMax.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGCurrMin", "0 0 0").toString()).split(" ");
+    temp = (set->value("PGCurrMin","0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGCurrMin.at(row)->setValue(temp.at(row).toDouble());
 
-    temp = (set->value("PGCurrMax", "1 1 1").toString()).split(" ");
+    temp = (set->value("PGCurrMax","1 1 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), PG_ROW); row++)
         PGCurrMax.at(row)->setValue(temp.at(row).toDouble());
     temp.clear();
@@ -1052,14 +1052,14 @@ QString PagePwr::CurrentSettings()
 QString PagePwr::CurrentPorwer()
 {
     QSettings *ini = new QSettings(INI_PATH, QSettings::IniFormat);
-    QString n = ini->value("/GLOBAL/PowerSupply", "0").toString();
+    QString n = ini->value("/GLOBAL/PowerSupply","0").toString();
     return n;
 }
 
 int PagePwr::CurrentPowerDir()
 {
     QSettings *ini = new QSettings(INI_PATH, QSettings::IniFormat);
-    return ini->value("/GLOBAL/PowerDir", "0").toInt();
+    return ini->value("/GLOBAL/PowerDir","0").toInt();
 }
 
 bool PagePwr::IsPGEnable()
@@ -1090,8 +1090,8 @@ void PagePwr::showEvent(QShowEvent *e)
 void PagePwr::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("功率异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

@@ -34,7 +34,7 @@ public:
     ~ConfigIND();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 private slots:
     void initUI();
@@ -42,6 +42,7 @@ private slots:
     void saveData();
     void autoInput();
     void autoCalculate();
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;

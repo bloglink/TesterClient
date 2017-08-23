@@ -26,13 +26,14 @@ public:
     ~ConfigFG();
 
 signals:
-    void saveConfig(QByteArray dat);
+    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 private slots:
     void initUI();
     void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;

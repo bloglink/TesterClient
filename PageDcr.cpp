@@ -172,7 +172,7 @@ void PageDcr::InitSettings()
     ini->setIniCodec("GB18030");
     ini->beginGroup("SetDcr");
 
-    QStringList temp = (ini->value("Other", "20 0 0.5 10 10 0").toString()).split(" ");
+    QStringList temp = (ini->value("Other","20 0 0.5 10 10 0").toString()).split(" ");
     if (temp.size() >= 6) {
         ui->BoxStd->setValue(temp.at(0).toDouble());
         ui->BoxOffset->setValue(temp.at(1).toDouble());
@@ -182,44 +182,44 @@ void PageDcr::InitSettings()
         ui->BoxUnbalance->setValue(temp.at(5).toDouble());
     }
     //可用
-    temp = (QString(ini->value("Enable", "Y Y Y N N N N N").toByteArray())).split(" ");
+    temp = (QString(ini->value("Enable","Y Y Y N N N N N").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Enable.at(row)->setText(temp.at(row));
     //端一
-    temp = (ini->value("Terminal1", "1 2 1 4 5 6 7 8").toString()).split(" ");
+    temp = (ini->value("Terminal1","1 2 1 4 5 6 7 8").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal1.at(row)->setText(temp.at(row));
     //端二
-    temp = (ini->value("Terminal2", "2 3 3 5 6 7 8 1").toString()).split(" ");
+    temp = (ini->value("Terminal2","2 3 3 5 6 7 8 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal2.at(row)->setText(temp.at(row));
     //材料
-    temp = (QString(ini->value("Metal", "0 0 0 0 0 0 0 0").toByteArray())).split(" ");
+    temp = (QString(ini->value("Metal","0 0 0 0 0 0 0 0").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Metal.at(row)->setCurrentIndex(temp.at(row).toInt());
     //单位
-    temp = (QString(ini->value("Unit", "1 1 1 1 1 1 1 1").toByteArray())).split(" ");
+    temp = (QString(ini->value("Unit","1 1 1 1 1 1 1 1").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Unit.at(row)->setCurrentIndex(temp.at(row).toInt());
     //最小值
-    temp = (ini->value("Min", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (ini->value("Min","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Min.at(row)->setValue(temp.at(row).toDouble());
 
     //最大值
-    temp = (ini->value("Max", "200 200 200 200 200 200 200 200").toString()).split(" ");
+    temp = (ini->value("Max","200 200 200 200 200 200 200 200").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Max.at(row)->setValue(temp.at(row).toDouble());
     //标准值
-    temp = (ini->value("Std", "100 100 100 100 100 100 100 100").toString()).split(" ");
+    temp = (ini->value("Std","100 100 100 100 100 100 100 100").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Std.at(row)->setValue(temp.at(row).toDouble());
     //补偿
-    temp = (ini->value("Offset", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (ini->value("Offset","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Offset.at(row)->setValue(temp.at(row).toDouble());
     //补偿
-    temp = (ini->value("OffsetR", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (ini->value("OffsetR","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         OffsetR.at(row)->setValue(temp.at(row).toDouble());
     qDebug() << QTime::currentTime().toString() << "PageDcr read OK";
@@ -693,8 +693,8 @@ void PageDcr::SendCanCmdPwr(quint8 s)
 void PageDcr::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("电阻异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }
@@ -811,7 +811,7 @@ QString PageDcr::CurrentSettings()
 QString PageDcr::CurrentPorwer()
 {
     QSettings *ini = new QSettings(INI_PATH, QSettings::IniFormat);
-    QString n = ini->value("/GLOBAL/PowerSupply", "0").toString();
+    QString n = ini->value("/GLOBAL/PowerSupply","0").toString();
     return n;
 }
 

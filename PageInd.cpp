@@ -151,7 +151,7 @@ void PageInd::InitSettings()
     set->setIniCodec("GB18030");
     set->beginGroup("PageInd");
 
-    QStringList temp = (set->value("Other", "1 0 20 20 0 0").toString()).split(" ");
+    QStringList temp = (set->value("Other","1 0 20 20 0 0").toString()).split(" ");
     if (temp.size() >= 6) {
         ui->BoxTime->setValue(temp.at(0).toDouble());
         ui->BoxUnbalance->setValue(temp.at(1).toDouble());
@@ -161,43 +161,43 @@ void PageInd::InitSettings()
         ui->BoxMode->setCurrentIndex(temp.at(5).toInt());
     }
     //可用
-    temp = (QString(set->value("Enable", "Y Y Y N N N N N").toByteArray())).split(" ");
+    temp = (QString(set->value("Enable","Y Y Y N N N N N").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Enable.at(row)->setText(temp.at(row));
     //端一
-    temp = (set->value("Terminal1", "1 2 1 4 5 6 7 8").toString()).split(" ");
+    temp = (set->value("Terminal1","1 2 1 4 5 6 7 8").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal1.at(row)->setText(temp.at(row));
     //端二
-    temp = (set->value("Terminal2", "2 3 3 5 6 7 8 1").toString()).split(" ");
+    temp = (set->value("Terminal2","2 3 3 5 6 7 8 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal2.at(row)->setText(temp.at(row));
     //单位
-    temp = (QString(set->value("Unit", "1 1 1 1 1 1 1 1").toByteArray())).split(" ");
+    temp = (QString(set->value("Unit","1 1 1 1 1 1 1 1").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Unit.at(row)->setCurrentIndex(temp.at(row).toInt());
     //最小值
-    temp = (set->value("Min", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (set->value("Min","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Min.at(row)->setValue(temp.at(row).toDouble());
     //最大值
-    temp = (set->value("Max", "200 200 200 200 200 200 200 200").toString()).split(" ");
+    temp = (set->value("Max","200 200 200 200 200 200 200 200").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Max.at(row)->setValue(temp.at(row).toDouble());
     //最小值
-    temp = (set->value("QMin", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (set->value("QMin","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         QMin.at(row)->setValue(temp.at(row).toDouble());
     //最大值
-    temp = (set->value("QMax", "200 200 200 200 200 200 200 200").toString()).split(" ");
+    temp = (set->value("QMax","200 200 200 200 200 200 200 200").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         QMax.at(row)->setValue(temp.at(row).toDouble());
     //标准值
-    temp = (set->value("Std", "100 100 100 100 100 100 100 100").toString()).split(" ");
+    temp = (set->value("Std","100 100 100 100 100 100 100 100").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Std.at(row)->setValue(temp.at(row).toDouble());
     //补偿
-    temp = (set->value("Offset", "0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
+    temp = (set->value("Offset","0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Offset.at(row)->setValue(temp.at(row).toDouble());
     qDebug() << QTime::currentTime().toString() << "PageInd read OK";
@@ -416,7 +416,7 @@ void PageInd::ReadCanCmdResult(QByteArray msg)
 
         Results.append(Result1.Result);
 
-        t +=", " + QString::number(Result2.Result, 'f', 2);
+        t +="," + QString::number(Result2.Result, 'f', 2);
         double max = Max.at(number)->value();
         double min = Min.at(number)->value();
         double qmax = QMax.at(number)->value();
@@ -713,8 +713,8 @@ void PageInd::showEvent(QShowEvent *e)
 void PageInd::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("电感异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

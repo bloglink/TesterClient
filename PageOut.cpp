@@ -196,8 +196,8 @@ void PageOut::Delay(int ms)
 void PageOut::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("输出异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

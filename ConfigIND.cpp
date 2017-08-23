@@ -158,7 +158,7 @@ void ConfigIND::saveData()
     }
     QDomElement test = doc.createElement("test");
     root.appendChild(test);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     test.appendChild(text);
 
     temp.clear();
@@ -167,7 +167,7 @@ void ConfigIND::saveData()
 
     QDomElement port1 = doc.createElement("port1");
     root.appendChild(port1);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     port1.appendChild(text);
 
     temp.clear();
@@ -175,7 +175,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 2)->text());
     QDomElement port2 = doc.createElement("port2");
     root.appendChild(port2);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     port2.appendChild(text);
 
     temp.clear();
@@ -183,7 +183,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 3)->text());
     QDomElement unit = doc.createElement("unit");
     root.appendChild(unit);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     unit.appendChild(text);
 
     temp.clear();
@@ -191,7 +191,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 4)->text());
     QDomElement min = doc.createElement("min");
     root.appendChild(min);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     min.appendChild(text);
 
     temp.clear();
@@ -199,7 +199,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 5)->text());
     QDomElement max = doc.createElement("max");
     root.appendChild(max);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     max.appendChild(text);
 
     temp.clear();
@@ -207,7 +207,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 6)->text());
     QDomElement qmax = doc.createElement("qmax");
     root.appendChild(qmax);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     qmax.appendChild(text);
 
     temp.clear();
@@ -215,7 +215,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 7)->text());
     QDomElement qmin = doc.createElement("qmin");
     root.appendChild(qmin);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     qmin.appendChild(text);
 
     temp.clear();
@@ -223,7 +223,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 8)->text());
     QDomElement std = doc.createElement("std");
     root.appendChild(std);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     std.appendChild(text);
 
     temp.clear();
@@ -231,7 +231,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 9)->text());
     QDomElement std_min = doc.createElement("std_min");
     root.appendChild(std_min);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     std_min.appendChild(text);
 
     temp.clear();
@@ -239,7 +239,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 10)->text());
     QDomElement std_max = doc.createElement("std_max");
     root.appendChild(std_max);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     std_max.appendChild(text);
 
     temp.clear();
@@ -247,7 +247,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 11)->text());
     QDomElement comp1 = doc.createElement("comp1");
     root.appendChild(comp1);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     comp1.appendChild(text);
 
     temp.clear();
@@ -255,7 +255,7 @@ void ConfigIND::saveData()
         temp.append(model->item(i, 12)->text());
     QDomElement comp2 = doc.createElement("comp2");
     root.appendChild(comp2);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     comp2.appendChild(text);
 
     temp.clear();
@@ -265,7 +265,7 @@ void ConfigIND::saveData()
     temp.append(QString::number(modeComboBox->currentIndex()));
     QDomElement temp_comp = doc.createElement("mode");
     root.appendChild(temp_comp);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     temp_comp.appendChild(text);
 
     temp.clear();
@@ -277,10 +277,10 @@ void ConfigIND::saveData()
     temp.append(QString::number(nounComboBox->currentIndex()));
     QDomElement noun = doc.createElement("noun");
     root.appendChild(noun);
-    text = doc.createTextNode(temp.join(", "));
+    text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
 
-    emit saveConfig(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray());
     emit buttonClicked(NULL);
 }
 
@@ -313,5 +313,12 @@ void ConfigIND::autoCalculate()
         model->item(i, 4)->setText(QString("%1").arg(rstd*(100-rmin)/100, 0, 'g', 3));
         model->item(i, 5)->setText(QString("%1").arg(rstd*(100+rmax)/100, 0, 'g', 3));
     }
+}
+
+void ConfigIND::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("6004 IND");
 }
 

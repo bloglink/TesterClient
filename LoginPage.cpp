@@ -168,7 +168,7 @@ void LoginPage::login()
     QJsonObject obj;
     obj.insert("host_addr", svr->currentText());
     obj.insert("host_port", prt->currentText());
-    obj.insert("TxMessage", "1666");
+    obj.insert("TxMessage","1666");
     emit sendJson(obj);
 
     QTimer *timer = new QTimer(this);

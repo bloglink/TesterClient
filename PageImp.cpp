@@ -241,54 +241,54 @@ void PageImp::InitSettings()
     QStringList temp;
     ui->BoxOffset->setChecked(set->value("Offset", true).toBool());
     //可用
-    temp = (QString(set->value("Enable", "Y Y Y N N N N N").toByteArray())).split(" ");
+    temp = (QString(set->value("Enable","Y Y Y N N N N N").toByteArray())).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Enable.at(row)->setText(temp.at(row));
     //端一
-    temp = (set->value("Terminal1", "1 2 1 4 5 6 7 8").toString()).split(" ");
+    temp = (set->value("Terminal1","1 2 1 4 5 6 7 8").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal1.at(row)->setText(temp.at(row));
     //端二
-    temp = (set->value("Terminal2", "2 3 3 5 6 7 8 1").toString()).split(" ");
+    temp = (set->value("Terminal2","2 3 3 5 6 7 8 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Terminal2.at(row)->setText(temp.at(row));
     //电压
-    temp = (set->value("Volt", "500 500 500 500 500 500 500 500").toString()).split(" ");
+    temp = (set->value("Volt","500 500 500 500 500 500 500 500").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Volt.at(row)->setValue(temp.at(row).toDouble());
-    temp = (set->value("VoltTest", "500 500 500 500 500 500 500 500").toString().split(" "));
+    temp = (set->value("VoltTest","500 500 500 500 500 500 500 500").toString().split(" "));
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         VoltTest[row] = temp.at(row).toInt();
     //次数
-    temp = (set->value("Time", "1 1 1 1 1 1 1 1").toString()).split(" ");
+    temp = (set->value("Time","1 1 1 1 1 1 1 1").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Time.at(row)->setValue(temp.at(row).toDouble());
     //电晕
-    temp = (set->value("Flut", "0 0 0 0 0 0 0 0").toString()).split(" ");
+    temp = (set->value("Flut","0 0 0 0 0 0 0 0").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Flut.at(row)->setValue(temp.at(row).toDouble());
     //相位
-    temp = (set->value("Phase", "10 10 10 10 10 10 10 10").toString()).split(" ");
+    temp = (set->value("Phase","10 10 10 10 10 10 10 10").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Phase.at(row)->setValue(temp.at(row).toDouble());
     //面积
-    temp = (set->value("Area", "10 10 10 10 10 10 10 10").toString()).split(" ");
+    temp = (set->value("Area","10 10 10 10 10 10 10 10").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Area.at(row)->setValue(temp.at(row).toDouble());
     //差积
-    temp = (set->value("Diff", "10 10 10 10 10 10 10 10").toString()).split(" ");
+    temp = (set->value("Diff","10 10 10 10 10 10 10 10").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Diff.at(row)->setValue(temp.at(row).toDouble());
     //频率
-    temp = (set->value("Freq", "7 7 7 7 7 7 7 7").toString()).split(" ");
+    temp = (set->value("Freq","7 7 7 7 7 7 7 7").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Freq[row] = temp.at(row).toInt();
     //计算起点
-    temp = (set->value("Block0", "5 5 5 5 5 5 5 5").toString()).split(" ");
+    temp = (set->value("Block0","5 5 5 5 5 5 5 5").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Block0[row] = temp.at(row).toInt();
     //计算终点
-    temp = (set->value("Block1", "395 395 395 395 395 395 395 395").toString()).split(" ");
+    temp = (set->value("Block1","395 395 395 395 395 395 395 395").toString()).split(" ");
     for (int row=0; row < qMin(temp.size(), MAX_ROW); row++)
         Block1[row] = temp.at(row).toInt();
     //波形
@@ -914,8 +914,8 @@ void PageImp::showEvent(QShowEvent *e)
 void PageImp::SendWarnning(QString s)
 {
     QVariantHash hash;
-    hash.insert("TxAddress", "WinHome");
-    hash.insert("TxCommand", "Warnning");
+    hash.insert("TxAddress","WinHome");
+    hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("匝间异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
 }

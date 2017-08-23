@@ -96,3 +96,10 @@ void ConfigFG::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
+void ConfigFG::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    emit sendNetMsg("6004 FG");
+}
+

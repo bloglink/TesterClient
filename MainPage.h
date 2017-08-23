@@ -69,6 +69,9 @@ private:
     TestPage *test;
 
     ConfigDCR *dcr;
+    ConfigACW *acw;
+    ConfigIR *inr;
+    ConfigIND *ind;
 
     PLCPage *plc;
 };
