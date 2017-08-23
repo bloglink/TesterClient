@@ -58,6 +58,7 @@ private slots:
     void wait(int ms);
     void testInit();
     void testDCR();
+    void testINR();
     void testACW();
 private:
     QList<int> previous_window;

@@ -33,9 +33,10 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public slots:
+    void initData(QString dat);
 private slots:
     void initUI();
-    void initData(QByteArray dat);
     void saveData();
     void recvAppShow(QString win);
 private:

@@ -66,7 +66,7 @@ void ConfigACW::initUI()
     view->hideRow(3);
 }
 
-void ConfigACW::initData(QByteArray dat)
+void ConfigACW::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
@@ -215,7 +215,7 @@ void ConfigACW::saveData()
     text = doc.createTextNode(temp.join(","));
     comp2.appendChild(text);
 
-    emit sendNetMsg(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 

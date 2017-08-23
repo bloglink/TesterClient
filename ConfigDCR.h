@@ -21,6 +21,7 @@
 #include <QtXml/QDomDocument>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QLabel>
 
 #include "delegate.h"
 
@@ -34,9 +35,10 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public slots:
+    void initData(QString dat);
 private slots:
     void initUI();
-    void initData(QByteArray dat);
     void saveData();
     void autoInput();
     void autoCalculate();
@@ -46,10 +48,9 @@ private:
     QTableView *view;
     ItemModel *model;
 
-    QCheckBox *nounCheckBox;
     QLineEdit *nounLineEdit;
-    QComboBox *nounComboBox;
     QCheckBox *compensation;
+    QLineEdit *tempLineEdit;
 
     QDomDocument doc;
     QDomElement root;

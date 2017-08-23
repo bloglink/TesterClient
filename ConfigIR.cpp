@@ -22,10 +22,10 @@ void ConfigIR::initUI()
     this->setObjectName("ConfigIR");
     QStringList headers;
     headers << tr("交耐") << tr("高端") << tr("低端") << tr("电压")
-            << tr("电阻下限") << tr("电阻上限") << tr("时间") << tr("补偿1") << tr("补偿2");
-    model = new ItemModel(4, headers.size());
+            << tr("电阻下限") << tr("电阻上限") << tr("时间");
+    model = new ItemModel(5, headers.size());
     model->setHorizontalHeaderLabels(headers);
-    for (int i=0; i < 4; i++) {
+    for (int i=0; i < 5; i++) {
         for (int j=0; j < headers.size(); j++) {
             model->setData(model->index(i, j), "");
         }
@@ -60,12 +60,13 @@ void ConfigIR::initUI()
     view->hideColumn(0);
     view->hideColumn(1);
     view->hideColumn(2);
+    view->hideRow(0);
     view->hideRow(1);
     view->hideRow(2);
     view->hideRow(3);
 }
 
-void ConfigIR::initData(QByteArray dat)
+void ConfigIR::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
@@ -87,9 +88,14 @@ void ConfigIR::initData(QByteArray dat)
         if (dom.nodeName() == "port2")
             for (int i=0; i < temp.size(); i++)
                 model->item(i, 2)->setText(temp.at(i));
-        if (dom.nodeName() == "volt")
-            for (int i=0; i < temp.size(); i++)
-                model->item(i, 3)->setText(temp.at(i));
+        if (dom.nodeName() == "volt") {
+            for (int i=0; i < temp.size(); i++) {
+                if (temp.at(i) == "0")
+                    model->item(i, 3)->setText("500");
+                if (temp.at(i) == "0")
+                    model->item(i, 3)->setText("1000");
+            }
+        }
         if (dom.nodeName() == "min")
             for (int i=0; i < temp.size(); i++)
                 model->item(i, 4)->setText(temp.at(i));
@@ -99,12 +105,6 @@ void ConfigIR::initData(QByteArray dat)
         if (dom.nodeName() == "time")
             for (int i=0; i < temp.size(); i++)
                 model->item(i, 6)->setText(temp.at(i));
-        if (dom.nodeName() == "comp1")
-            for (int i=0; i < temp.size(); i++)
-                model->item(i, 7)->setText(temp.at(i));
-        if (dom.nodeName() == "comp2")
-            for (int i=0; i < temp.size(); i++)
-                model->item(i, 8)->setText(temp.at(i));
     }
 }
 
@@ -116,7 +116,7 @@ void ConfigIR::saveData()
     doc.appendChild(root);
 
     QStringList temp;
-    for (int i=0; i < 4; i++) {
+    for (int i=0; i < 5; i++) {
         if (model->item(i, 0)->checkState() == Qt::Unchecked)
             temp.append("0");
         else
@@ -128,7 +128,7 @@ void ConfigIR::saveData()
     test.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
+    for (int i=0; i < 5; i++)
         temp.append(model->item(i, 1)->text());
     QDomElement port1 = doc.createElement("port1");
     root.appendChild(port1);
@@ -136,7 +136,7 @@ void ConfigIR::saveData()
     port1.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
+    for (int i=0; i < 5; i++)
         temp.append(model->item(i, 2)->text());
     QDomElement port2 = doc.createElement("port2");
     root.appendChild(port2);
@@ -144,23 +144,27 @@ void ConfigIR::saveData()
     port2.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
-        temp.append(model->item(i, 3)->text());
+    for (int i=0; i < 5; i++) {
+        if (model->item(i, 3)->text() == "500")
+            temp.append("0");
+        else
+            temp.append("1");
+    }
     QDomElement volt = doc.createElement("volt");
     root.appendChild(volt);
     text = doc.createTextNode(temp.join(","));
     volt.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
-        temp.append(model->item(i, 4)->text());
+    for (int i=0; i < 5; i++)
+        temp.append(model->item(i, 5)->text());
     QDomElement min = doc.createElement("min");
     root.appendChild(min);
     text = doc.createTextNode(temp.join(","));
     min.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
+    for (int i=0; i < 5; i++)
         temp.append(model->item(i, 5)->text());
     QDomElement max = doc.createElement("max");
     root.appendChild(max);
@@ -168,30 +172,14 @@ void ConfigIR::saveData()
     max.appendChild(text);
 
     temp.clear();
-    for (int i=0; i < 4; i++)
+    for (int i=0; i < 5; i++)
         temp.append(model->item(i, 6)->text());
     QDomElement time = doc.createElement("time");
     root.appendChild(time);
     text = doc.createTextNode(temp.join(","));
     time.appendChild(text);
 
-    temp.clear();
-    for (int i=0; i < 4; i++)
-        temp.append(model->item(i, 7)->text());
-    QDomElement comp1 = doc.createElement("comp1");
-    root.appendChild(comp1);
-    text = doc.createTextNode(temp.join(","));
-    comp1.appendChild(text);
-
-    temp.clear();
-    for (int i=0; i < 4; i++)
-        temp.append(model->item(i, 8)->text());
-    QDomElement comp2 = doc.createElement("comp2");
-    root.appendChild(comp2);
-    text = doc.createTextNode(temp.join(","));
-    comp2.appendChild(text);
-
-    emit sendNetMsg(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 

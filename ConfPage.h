@@ -39,6 +39,7 @@ public:
 private slots:
     void initUI();
     void saveData();
+    void saveSys();
     void clickButton();
     void showButtons();
     void windowChange();

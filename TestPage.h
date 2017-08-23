@@ -46,6 +46,8 @@ signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
     void buttonTest();
+    void buttonTest1();
+    void buttonTest2();
 public slots:
     void initItems();
     void updateItems(QString items);

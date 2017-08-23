@@ -226,7 +226,30 @@ void ConfPage::saveData()
     type.appendChild(text);
 
     emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
+    saveSys();
     emit buttonClicked(NULL);
+}
+
+void ConfPage::saveSys()
+{
+    QDomText text;
+    QDomDocument doc;
+    QDomElement root = doc.createElement("Sys");
+    doc.appendChild(root);
+
+    QStringList temp;
+    for (int i=0; i < pModel->rowCount(); i++) {
+        for (int t=0; t < btnNames.size(); t++) {
+            if (btnNames.at(t) == pModel->item(i,0)->text())
+                temp.append(QString::number(t+1));
+        }
+    }
+    QDomElement item = doc.createElement("Test_Item");
+    root.appendChild(item);
+    text = doc.createTextNode(temp.join(","));
+    item.appendChild(text);
+
+    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
 }
 
 void ConfPage::clickButton()
