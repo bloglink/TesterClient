@@ -31,11 +31,11 @@ SOURCES += main.cpp\
     TestPage.cpp \
     qcustomplot.cpp \
     ConfigFG.cpp \
-    PLCPage.cpp \
     conf_resistance.cpp \
     conf_insulation.cpp \
     conf_current_ac.cpp \
-    conf_inductance.cpp
+    conf_inductance.cpp \
+    ctrl_device_232.cpp
 
 HEADERS  += \
     Histogram.h \
@@ -55,12 +55,12 @@ HEADERS  += \
     TestPage.h \
     qcustomplot.h \
     ConfigFG.h \
-    PLCPage.h \
     conf_resistance.h \
     conf_insulation.h \
     conf_current_ac.h \
     conf_inductance.h \
-    conf_delegation.h
+    conf_delegation.h \
+    ctrl_device_232.h
 
 FORMS    += \
     WinSyst.ui \
