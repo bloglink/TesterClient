@@ -25,7 +25,7 @@ void ConfigIND::initUI()
             << tr("电感下限") << tr("电感上限")
             << tr("Q值下限") << tr("Q值上限") << tr("标准电感")
             << tr("标准下限") << tr("标准上限") << tr("线路补偿1") << tr("线路补偿2");
-    model = new ItemModel(8, headers.size());
+    model = new StandardItem(8, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 8; i++) {
         for (int j=0; j < headers.size(); j++) {

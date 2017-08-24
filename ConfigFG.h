@@ -16,7 +16,7 @@
 #include <QSpinBox>
 #include <QLabel>
 
-#include "delegate.h"
+#include "conf_delegation.h"
 
 class ConfigFG : public QWidget
 {
@@ -36,7 +36,7 @@ private slots:
     void recvAppShow(QString win);
 private:
     QTableView *view;
-    ItemModel *model;
+    StandardItem *model;
 
     QCheckBox *turnCheckBox;
     QComboBox *turnComboBox;

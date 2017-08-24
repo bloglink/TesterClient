@@ -26,7 +26,7 @@ void ConfCurrent_AC::initUI()
             << tr("ARC");
     itemNames << "test" << "port1" << "port2" << "volt"
               << "min" << "max" << "time" << "freq" << "arc";
-    model = new ItemModel(5, headers.size());
+    model = new StandardItem(5, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 5; i++) {
         for (int j=0; j < headers.size(); j++) {

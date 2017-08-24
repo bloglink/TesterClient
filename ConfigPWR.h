@@ -24,7 +24,7 @@
 #include <QSpinBox>
 #include <QLabel>
 
-#include "delegate.h"
+#include "conf_delegation.h"
 #include "qcustomplot.h"
 
 class ConfigPWR : public QWidget
@@ -48,10 +48,10 @@ private slots:
     void recvAppShow(QString win);
 private:
     QTableView *view;
-    ItemModel *model;
+    StandardItem *model;
 
     QTableView *tView;
-    ItemModel *tModel;
+    StandardItem *tModel;
 
     QCheckBox *turnCheckBox;
     QComboBox *turnComboBox;

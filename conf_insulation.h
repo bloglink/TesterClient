@@ -17,7 +17,7 @@
 #include <QPushButton>
 #include <QtXml/QDomDocument>
 
-#include "delegate.h"
+#include "conf_delegation.h"
 
 class ConfInsulation : public QWidget
 {
@@ -38,7 +38,7 @@ private slots:
     void recvAppShow(QString win);
 private:
     QTableView *view;
-    ItemModel *model;
+    StandardItem *model;
 
     QDomDocument doc;
     QDomElement root;

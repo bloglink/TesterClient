@@ -26,7 +26,7 @@ void ConfResistance::initUI()
             << tr("线路补偿1") << tr("线路补偿2");
     itemNames << "test" << "port1" << "port2" << "wire" << "unit" << "min" << "max" << "std"
               << "wire_comp1" << "wire_comp2";
-    model = new ItemModel(8, headers.size());
+    model = new StandardItem(8, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 8; i++) {
         for (int j=0; j < headers.size(); j++) {
@@ -83,9 +83,9 @@ void ConfResistance::initUI()
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(compensation);
-    btnLayout->addWidget(new QLabel("标准温度",this));
+    btnLayout->addWidget(new QLabel("标准温度", this));
     btnLayout->addWidget(tempLineEdit);
-    btnLayout->addWidget(new QLabel("不平衡度",this));
+    btnLayout->addWidget(new QLabel("不平衡度", this));
     btnLayout->addWidget(nounLineEdit);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);

@@ -19,7 +19,7 @@ void ConfigFG::initUI()
             << tr("占空比下限") << tr("占空比上限")
                << tr("相位差下限") << tr("相位差上限")
             << tr("磁极数") << tr("Vcc电压") << tr("测试时间");
-    model = new ItemModel(1, headers.size());
+    model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < headers.size(); j++) {

@@ -90,7 +90,7 @@ void TestPage::initUI()
     this->setObjectName("TestPage");
     QStringList headers;
     headers << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
-    mView = new ItemModel(0, headers.size());
+    mView = new StandardItem(0, headers.size());
     mView->setHorizontalHeaderLabels(headers);
 
     view = new QTableView(this);

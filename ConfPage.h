@@ -21,7 +21,7 @@
 #include <QPalette>
 #include <QColor>
 
-#include "delegate.h"
+#include "conf_delegation.h"
 
 class ConfPage : public QWidget
 {
@@ -51,13 +51,13 @@ private slots:
     void deleteType();
 private:
     QTableView *view;
-    ItemModel *mView;
+    StandardItem *mView;
 
     QTableView *test;
-    ItemModel *mTest;
+    StandardItem *mTest;
 
     QTableView *pView;
-    ItemModel *pModel;
+    StandardItem *pModel;
 
     QLineEdit *typeLineEdit;
     QComboBox *typeComboBox;

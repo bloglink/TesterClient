@@ -25,7 +25,7 @@ void ConfigLoad::initUI()
             << tr("功率下限") << tr("功率上限")
             << tr("转速下限") << tr("转速上限") << tr("扭矩") << tr("Vcc电压")
             << tr("Vsp电压") << tr("测试时间");
-    model = new ItemModel(1, headers.size());
+    model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < headers.size(); j++) {
@@ -60,7 +60,7 @@ void ConfigLoad::initUI()
     header << tr("T0") << tr("T1") << tr("T2") << tr("T3") << tr("T4")
            << tr("T5") << tr("T6") << tr("T7") << tr("T8") << tr("T9")
            << tr("T10") << tr("T11") << tr("T12") << tr("T13");
-    tModel = new ItemModel(1, header.size());
+    tModel = new StandardItem(1, header.size());
     tModel->setHorizontalHeaderLabels(header);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < header.size(); j++) {

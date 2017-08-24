@@ -48,7 +48,6 @@ HEADERS  += \
     UdpSocket.h \
     HomePage.h \
     MainPage.h \
-    delegate.h \
     ConfigIND.h \
     ConfigPWR.h \
     ConfigLoad.h \
@@ -60,7 +59,8 @@ HEADERS  += \
     conf_resistance.h \
     conf_insulation.h \
     conf_current_ac.h \
-    conf_inductance.h
+    conf_inductance.h \
+    conf_delegation.h
 
 FORMS    += \
     WinSyst.ui \

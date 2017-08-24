@@ -41,12 +41,12 @@ public:
 };
 
 //代理类，把所有单元格中的字符居中显示
-class ItemModel : public QStandardItemModel
+class StandardItem : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    explicit ItemModel(QObject *parent = NULL) : QStandardItemModel(parent) {}
-    ItemModel(int row, int column, QObject *parent = NULL)
+    explicit StandardItem(QObject *parent = NULL) : QStandardItemModel(parent) {}
+    StandardItem(int row, int column, QObject *parent = NULL)
         : QStandardItemModel(row, column, parent) { }
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const {
         if (Qt::TextAlignmentRole == role)

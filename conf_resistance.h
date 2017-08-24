@@ -20,7 +20,7 @@
 #include <QPushButton>
 #include <QtXml/QDomDocument>
 
-#include "delegate.h"
+#include "conf_delegation.h"
 
 class ConfResistance : public QWidget
 {
@@ -41,7 +41,7 @@ private slots:
     void recvAppShow(QString win);
 private:
     QTableView *view;
-    ItemModel *model;
+    StandardItem *model;
 
     QLineEdit *nounLineEdit;
     QCheckBox *compensation;

@@ -25,7 +25,7 @@ void ConfInsulation::initUI()
             << tr("电阻下限") << tr("电阻上限") << tr("时间");
     itemNames << "test" << "port1" << "port2" << "volt"
               << "min" << "max" << "time";
-    model = new ItemModel(5, headers.size());
+    model = new StandardItem(5, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 5; i++) {
         for (int j=0; j < headers.size(); j++) {

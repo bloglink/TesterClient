@@ -58,7 +58,7 @@ void ConfPage::initUI()
     this->setObjectName("ConfPage");
     QStringList headers;
     headers << tr("电机型号");
-    mView = new ItemModel(0, headers.size());
+    mView = new StandardItem(0, headers.size());
     mView->setHorizontalHeaderLabels(headers);
 
     view = new QTableView(this);
@@ -133,7 +133,7 @@ void ConfPage::initUI()
 
     QStringList pHeaders;
     pHeaders << tr("测试项目");
-    pModel = new ItemModel(0, pHeaders.size());
+    pModel = new StandardItem(0, pHeaders.size());
     pModel->setHorizontalHeaderLabels(pHeaders);
     pModel->appendRow(new QStandardItem(""));
 
