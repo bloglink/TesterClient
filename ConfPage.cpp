@@ -158,7 +158,7 @@ void ConfPage::initUI()
     btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" <<"直耐"
              << "匝间" << "电感" << "空载" << "加载" << "FG";
     QStringList objNames;
-    objNames << "ConfigDCR" << "ConfigMAG" << "ConfigIR" << "ConfigACW" << "ConfigDCR"
+    objNames << "ConfigDCR" << "ConfigMAG" << "ConfInsulation" << "ConfigACW" << "ConfigDCR"
              << "ConfigIMP" << "ConfigIND" << "ConfigPWR" << "ConfigLoad" << "ConfigFG";
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i), this));

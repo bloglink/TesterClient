@@ -2,34 +2,29 @@
  * Copyright [2017]   <青岛艾普智能仪器有限公司>
  * All rights reserved.
  *
- * version:     0.0.0.1
+ * version:     0.1
  * author:      zhaonanlin
  * brief:       绝缘配置
 *******************************************************************************/
-#ifndef CONFIGIR_H
-#define CONFIGIR_H
+#ifndef CONFINSULATION_H
+#define CONFINSULATION_H
 
+#include <QDebug>
 #include <QWidget>
+#include <QLayout>
 #include <QTableView>
 #include <QHeaderView>
-#include <QLayout>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QComboBox>
 #include <QPushButton>
-#include <QDebug>
 #include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 
 #include "delegate.h"
 
-class ConfigIR : public QWidget
+class ConfInsulation : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfigIR(QWidget *parent = 0);
-    ~ConfigIR();
+    explicit ConfInsulation(QWidget *parent = 0);
+    ~ConfInsulation();
 
 signals:
     void sendNetMsg(QByteArray dat);
@@ -39,10 +34,15 @@ public slots:
 private slots:
     void initUI();
     void saveData();
+    void appendXmlData(int column, QString name);
     void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;
+
+    QDomDocument doc;
+    QDomElement root;
+    QStringList itemNames;
 };
 
-#endif // CONFIGIR_H
+#endif // CONFINSULATION_H

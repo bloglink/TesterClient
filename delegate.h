@@ -68,7 +68,6 @@ public:
             return 0;
         QComboBox *editor = new QComboBox(parent);
         editor->setItemDelegate(new QStyledItemDelegate());
-        editor->setEditable(true);
         for (int i=0; i < items.size(); i++)
             editor->addItem(items.at(i));
         return editor;
@@ -100,10 +99,12 @@ class SpinBox : public QItemDelegate
 {
     Q_OBJECT
 public:
+    int high;
     explicit SpinBox(QObject *parent = 0) : QItemDelegate(parent) { }
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
                           const QModelIndex &) const {
         QSpinBox *editor = new QSpinBox(parent);
+        editor->setMaximum(high);
         editor->setButtonSymbols(QAbstractSpinBox::NoButtons);
         return editor;
     }
@@ -122,6 +123,42 @@ public:
     void updateEditorGeometry(QWidget *editor,
                               const QStyleOptionViewItem &option, const QModelIndex &) const {
         editor->setGeometry(option.rect);
+    }
+    void setMaxinum(int max) {
+        high = max;
+    }
+};
+
+class DoubleSpinBox : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    double high;
+    explicit DoubleSpinBox(QObject *parent = 0) : QItemDelegate(parent) { }
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+                          const QModelIndex &) const {
+        QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
+        editor->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        return editor;
+    }
+    void setEditorData(QWidget *editor, const QModelIndex &index) const {
+        int value = index.model()->data(index, Qt::EditRole).toInt();
+        QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
+        spinBox->setValue(value);
+    }
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+                      const QModelIndex &index) const {
+        QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
+        spinBox->interpretText();
+        int value = spinBox->value();
+        model->setData(index, value, Qt::EditRole);
+    }
+    void updateEditorGeometry(QWidget *editor,
+                              const QStyleOptionViewItem &option, const QModelIndex &) const {
+        editor->setGeometry(option.rect);
+    }
+    void setMaxinum(double max) {
+        high = max;
     }
 };
 

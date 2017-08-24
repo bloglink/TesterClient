@@ -18,14 +18,14 @@
 
 #include "LoginPage.h"
 #include "UdpSocket.h"
-#include "AboutPage.h"
 #include "HomePage.h"
 #include "ConfPage.h"
 #include "TestPage.h"
 
+#include "conf_insulation.h"
+
 #include "ConfigDCR.h"
 #include "ConfigACW.h"
-#include "ConfigIR.h"
 #include "ConfigIND.h"
 #include "ConfigPWR.h"
 #include "ConfigLoad.h"
@@ -71,7 +71,7 @@ private:
 
     ConfigDCR *dcr;
     ConfigACW *acw;
-    ConfigIR *inr;
+    ConfInsulation *insulation;
     ConfigIND *ind;
 
     PLCPage *plc;

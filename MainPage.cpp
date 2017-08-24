@@ -68,10 +68,10 @@ void MainPage::initUI()
     connect(acw, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), acw, SLOT(recvAppShow(QString)));
 
-    inr = new ConfigIR(this);
-    connect(inr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(inr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), inr, SLOT(recvAppShow(QString)));
+    insulation = new ConfInsulation(this);
+    connect(insulation, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(insulation, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), insulation, SLOT(recvAppShow(QString)));
 
     ind = new ConfigIND(this);
     connect(ind, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -98,7 +98,7 @@ void MainPage::initUI()
     stack->addWidget(test);
     stack->addWidget(dcr);
     stack->addWidget(acw);
-    stack->addWidget(inr);
+    stack->addWidget(insulation);
     stack->addWidget(ind);
     stack->addWidget(pwr);
     stack->addWidget(load);
@@ -143,7 +143,7 @@ void MainPage::recvNetMsg(QString msg)
         test->updateItems(dat);
         dcr->initData(dat);
         acw->initData(dat);
-        inr->initData(dat);
+        insulation->initData(dat);
         break;
     default:
         break;

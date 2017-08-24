@@ -15,37 +15,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     Histogram.cpp \
-    Waveform.cpp \
-    PageKey.cpp \
     WinSyst.cpp \
     WinData.cpp \
-    PageDcr.cpp \
-    PageMag.cpp \
-    PageInr.cpp \
-    PageAcw.cpp \
-    PageImp.cpp \
-    PageNum.cpp \
-    PageInd.cpp \
-    PagePwr.cpp \
-    PageLvs.cpp \
-    PageLck.cpp \
-    PageOut.cpp \
     TcpClient.cpp \
-    UdpClient.cpp \
     SqlClient.cpp \
-    SerialPort.cpp \
-    MessageBox.cpp \
-    PageAmp.cpp \
     LoginPage.cpp \
     QRCodeTest.cpp \
-    SqlTableModel.cpp \
     UdpSocket.cpp \
     HomePage.cpp \
-    AboutPage.cpp \
     MainPage.cpp \
     ConfigDCR.cpp \
     ConfigACW.cpp \
-    ConfigIR.cpp \
     ConfigIND.cpp \
     ConfigPWR.cpp \
     ConfigLoad.cpp \
@@ -53,43 +33,24 @@ SOURCES += main.cpp\
     TestPage.cpp \
     qcustomplot.cpp \
     ConfigFG.cpp \
-    PLCPage.cpp
+    PLCPage.cpp \
+    conf_resistance.cpp \
+    conf_insulation.cpp
 
 HEADERS  += \
     Histogram.h \
-    Waveform.h \
-    PageKey.h \
     WinSyst.h \
     WinData.h \
-    PageDcr.h \
-    PageMag.h \
-    PageInr.h \
-    PageAcw.h \
-    PageImp.h \
-    PageNum.h \
-    PageInd.h \
-    PagePwr.h \
-    PageLvs.h \
-    PageLck.h \
-    PageOut.h \
     TcpClient.h \
-    UdpClient.h \
     SqlClient.h \
-    SerialPort.h \
-    MessageBox.h \
-    PageAmp.h \
-    define.h \
     LoginPage.h \
     QRCodeTest.h \
-    SqlTableModel.h \
     UdpSocket.h \
     HomePage.h \
-    AboutPage.h \
     MainPage.h \
     delegate.h \
     ConfigDCR.h \
     ConfigACW.h \
-    ConfigIR.h \
     ConfigIND.h \
     ConfigPWR.h \
     ConfigLoad.h \
@@ -97,23 +58,13 @@ HEADERS  += \
     TestPage.h \
     qcustomplot.h \
     ConfigFG.h \
-    PLCPage.h
+    PLCPage.h \
+    conf_resistance.h \
+    conf_insulation.h
 
 FORMS    += \
-    PageKey.ui \
     WinSyst.ui \
     WinData.ui \
-    PageDcr.ui \
-    PageMag.ui \
-    PageInr.ui \
-    PageAcw.ui \
-    PageImp.ui \
-    PageNum.ui \
-    PageInd.ui \
-    PagePwr.ui \
-    PageLvs.ui \
-    PageLck.ui \
-    PageOut.ui \
     QRCodeTest.ui
 
 RESOURCES += \

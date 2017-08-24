@@ -56,7 +56,7 @@ void TestPage::updateItems(QString dat)
             QString temp = dom.text();
             if (dom.nodeName() == "Test_3") {
                 for (int i=0; i < mView->rowCount(); i++) {
-                    if (mView->item(i, 2)->text().isEmpty()) {
+                    if (mView->item(i, 3)->text().isEmpty()) {
                         mView->item(i, 2)->setText(temp);
                         break;
                     }
