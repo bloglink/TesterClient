@@ -31,8 +31,8 @@
 #include "ConfigLoad.h"
 #include "ConfigFG.h"
 
-#include "WinData.h"
 #include "WinSyst.h"
+#include "page_sqlite.h"
 
 #include "ctrl_device_232.h"
 

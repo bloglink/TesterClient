@@ -14,10 +14,7 @@ TARGET = TesterClient
 TEMPLATE = app
 
 SOURCES += main.cpp\
-    Histogram.cpp \
     WinSyst.cpp \
-    WinData.cpp \
-    TcpClient.cpp \
     SqlClient.cpp \
     LoginPage.cpp \
     QRCodeTest.cpp \
@@ -34,13 +31,11 @@ SOURCES += main.cpp\
     conf_insulation.cpp \
     conf_current_ac.cpp \
     conf_inductance.cpp \
-    ctrl_device_232.cpp
+    ctrl_device_232.cpp \
+    page_sqlite.cpp
 
 HEADERS  += \
-    Histogram.h \
     WinSyst.h \
-    WinData.h \
-    TcpClient.h \
     SqlClient.h \
     LoginPage.h \
     QRCodeTest.h \
@@ -58,11 +53,11 @@ HEADERS  += \
     conf_current_ac.h \
     conf_inductance.h \
     conf_delegation.h \
-    ctrl_device_232.h
+    ctrl_device_232.h \
+    page_sqlite.h
 
 FORMS    += \
     WinSyst.ui \
-    WinData.ui \
     QRCodeTest.ui
 
 RESOURCES += \

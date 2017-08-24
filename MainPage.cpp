@@ -42,7 +42,7 @@ void MainPage::initUI()
     WinSyst *syst = new WinSyst(this);
     connect(syst, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
-    WinData *wdat = new WinData(this);
+    PageSqlite *wdat = new PageSqlite(this);
     connect(wdat, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     conf = new ConfPage(this);
