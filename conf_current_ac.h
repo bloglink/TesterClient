@@ -2,34 +2,29 @@
  * Copyright [2017]   <青岛艾普智能仪器有限公司>
  * All rights reserved.
  *
- * version:     0.0.0.1
+ * version:     0.1
  * author:      zhaonanlin
  * brief:       交耐配置
 *******************************************************************************/
-#ifndef CONFIGACW_H
-#define CONFIGACW_H
+#ifndef CONFCURRENTAC_H
+#define CONFCURRENTAC_H
 
+#include <QDebug>
 #include <QWidget>
+#include <QLayout>
 #include <QTableView>
 #include <QHeaderView>
-#include <QLayout>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QComboBox>
 #include <QPushButton>
-#include <QDebug>
 #include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 
 #include "delegate.h"
 
-class ConfigACW : public QWidget
+class ConfCurrent_AC : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfigACW(QWidget *parent = 0);
-    ~ConfigACW();
+    explicit ConfCurrent_AC(QWidget *parent = 0);
+    ~ConfCurrent_AC();
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
@@ -38,10 +33,15 @@ public slots:
 private slots:
     void initUI();
     void saveData();
+    void appendXmlData(int column, QString name);
     void recvAppShow(QString win);
 private:
     QTableView *view;
     ItemModel *model;
+
+    QDomDocument doc;
+    QDomElement root;
+    QStringList itemNames;
 };
 
-#endif // CONFIGACW_H
+#endif // CONFCURRENTAC_H

@@ -63,10 +63,10 @@ void MainPage::initUI()
     connect(dcr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), dcr, SLOT(recvAppShow(QString)));
 
-    acw = new ConfigACW(this);
-    connect(acw, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(acw, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), acw, SLOT(recvAppShow(QString)));
+    current_ac = new ConfCurrent_AC(this);
+    connect(current_ac, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(current_ac, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), current_ac, SLOT(recvAppShow(QString)));
 
     insulation = new ConfInsulation(this);
     connect(insulation, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -97,7 +97,7 @@ void MainPage::initUI()
     stack->addWidget(conf);
     stack->addWidget(test);
     stack->addWidget(dcr);
-    stack->addWidget(acw);
+    stack->addWidget(current_ac);
     stack->addWidget(insulation);
     stack->addWidget(ind);
     stack->addWidget(pwr);
@@ -142,7 +142,7 @@ void MainPage::recvNetMsg(QString msg)
         conf->initOther(dat);
         test->updateItems(dat);
         dcr->initData(dat);
-        acw->initData(dat);
+        current_ac->initData(dat);
         insulation->initData(dat);
         break;
     default:
@@ -154,6 +154,7 @@ void MainPage::readButtons(QByteArray win)
 {
     int WinCurrent = stack->currentIndex();
     if (win.isNull()) { //空代表返回
+        emit transmitShow(stack->widget(previous_window.last())->objectName());
         stack->setCurrentIndex(previous_window.last());
         previous_window.removeLast();
         return;

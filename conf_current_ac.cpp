@@ -4,27 +4,28 @@
  *
  * version:     0.1
  * author:      zhaonanlin
- * brief:       绝缘配置
+ * brief:       交耐配置
 *******************************************************************************/
-#include "conf_insulation.h"
+#include "conf_current_ac.h"
 
-ConfInsulation::ConfInsulation(QWidget *parent) : QWidget(parent)
+ConfCurrent_AC::ConfCurrent_AC(QWidget *parent) : QWidget(parent)
 {
     initUI();
 }
 
-ConfInsulation::~ConfInsulation()
+ConfCurrent_AC::~ConfCurrent_AC()
 {
 }
 
-void ConfInsulation::initUI()
+void ConfCurrent_AC::initUI()
 {
-    this->setObjectName("ConfInsulation");
+    this->setObjectName("ConfCurrent_AC");
     QStringList headers;
     headers << tr("交耐") << tr("高端") << tr("低端") << tr("电压")
-            << tr("电阻下限") << tr("电阻上限") << tr("时间");
+            << tr("电流下限") << tr("电流上限") << tr("时间") << tr("频率")
+            << tr("ARC");
     itemNames << "test" << "port1" << "port2" << "volt"
-              << "min" << "max" << "time";
+              << "min" << "max" << "time" << "freq" << "arc";
     model = new ItemModel(5, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 5; i++) {
@@ -33,22 +34,28 @@ void ConfInsulation::initUI()
         }
         model->item(i, 0)->setCheckable(true);
     }
-    QStringList items;
-    items << "500" << "1000";
-    ComboBox *voltage = new ComboBox;
-    voltage->setItemNames(items);
-    SpinBox *spinBox = new SpinBox;
-    spinBox->setMaxinum(500);
+    SpinBox *voltage = new SpinBox;
+    voltage->setMaxinum(3000);
+    DoubleSpinBox *currentSpinBox = new DoubleSpinBox;
+    currentSpinBox->setMaxinum(25);
     DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
     doubleSpinBox->setMaxinum(99.99);
+    QStringList items;
+    items << "50" << "60";
+    ComboBox *freq = new ComboBox;
+    freq->setItemNames(items);
+    SpinBox *arc = new SpinBox;
+    arc->setMaxinum(9);
     view = new QTableView(this);
     view->setModel(model);
-    view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->setItemDelegateForColumn(3, voltage);
-    view->setItemDelegateForColumn(4, spinBox);
-    view->setItemDelegateForColumn(5, spinBox);
+    view->setItemDelegateForColumn(4, currentSpinBox);
+    view->setItemDelegateForColumn(5, currentSpinBox);
     view->setItemDelegateForColumn(6, doubleSpinBox);
+    view->setItemDelegateForColumn(7, freq);
+    view->setItemDelegateForColumn(8, arc);
+    view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
@@ -77,13 +84,13 @@ void ConfInsulation::initUI()
     view->hideRow(3);
 }
 
-void ConfInsulation::initData(QString dat)
+void ConfCurrent_AC::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("IR").isEmpty())
+    if (docs.elementsByTagName("ACW").isEmpty())
         return;
-    QDomNodeList list = docs.elementsByTagName("IR").at(0).childNodes();
+    QDomNodeList list = docs.elementsByTagName("ACW").at(0).childNodes();
     for (int i=0; i < list.size(); i++) {
         QDomElement dom = list.at(i).toElement();
         QStringList temp = dom.text().split(",");
@@ -99,12 +106,12 @@ void ConfInsulation::initData(QString dat)
                     model->item(t, 0)->setCheckState(Qt::Unchecked);
             }
             break;
-        case 3:
+        case 7:
             for (int t=0; t < temp.size(); t++) {
                 if (temp.at(t) == "0")
-                    model->item(t, 3)->setText("500");
+                    model->item(t, 3)->setText("50");
                 else
-                    model->item(t, 3)->setText("1000");
+                    model->item(t, 3)->setText("60");
             }
             break;
         default:
@@ -115,11 +122,11 @@ void ConfInsulation::initData(QString dat)
     }
 }
 
-void ConfInsulation::saveData()
+void ConfCurrent_AC::saveData()
 {
     doc.clear();
     root.clear();
-    root = doc.createElement("IR");
+    root = doc.createElement("ACW");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
@@ -129,7 +136,7 @@ void ConfInsulation::saveData()
     emit buttonClicked(NULL);
 }
 
-void ConfInsulation::appendXmlData(int column, QString name)
+void ConfCurrent_AC::appendXmlData(int column, QString name)
 {
     QStringList temp;
     for (int i=0; i < 5; i++) {
@@ -138,8 +145,8 @@ void ConfInsulation::appendXmlData(int column, QString name)
                 temp.append("0");
             else
                 temp.append("1");
-        } else if (column == 3) {
-            if (model->item(i, 3)->text() == "500")
+        } else if (column == 7) {
+            if (model->item(i, 3)->text() == "50")
                 temp.append("0");
             else
                 temp.append("1");
@@ -153,9 +160,9 @@ void ConfInsulation::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
-void ConfInsulation::recvAppShow(QString win)
+void ConfCurrent_AC::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 IR");
+    emit sendNetMsg("6004 ACW");
 }

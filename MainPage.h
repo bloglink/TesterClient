@@ -23,9 +23,9 @@
 #include "TestPage.h"
 
 #include "conf_insulation.h"
+#include "conf_current_ac.h"
 
 #include "ConfigDCR.h"
-#include "ConfigACW.h"
 #include "ConfigIND.h"
 #include "ConfigPWR.h"
 #include "ConfigLoad.h"
@@ -70,7 +70,7 @@ private:
     TestPage *test;
 
     ConfigDCR *dcr;
-    ConfigACW *acw;
+    ConfCurrent_AC *current_ac;
     ConfInsulation *insulation;
     ConfigIND *ind;
 
