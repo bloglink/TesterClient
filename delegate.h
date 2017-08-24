@@ -138,6 +138,7 @@ public:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
                           const QModelIndex &) const {
         QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
+        editor->setMaximum(high);
         editor->setButtonSymbols(QAbstractSpinBox::NoButtons);
         return editor;
     }

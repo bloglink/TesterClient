@@ -22,10 +22,10 @@
 #include "ConfPage.h"
 #include "TestPage.h"
 
+#include "conf_resistance.h"
 #include "conf_insulation.h"
 #include "conf_current_ac.h"
 
-#include "ConfigDCR.h"
 #include "ConfigIND.h"
 #include "ConfigPWR.h"
 #include "ConfigLoad.h"
@@ -69,7 +69,7 @@ private:
     ConfPage *conf;
     TestPage *test;
 
-    ConfigDCR *dcr;
+    ConfResistance *resistance;
     ConfCurrent_AC *current_ac;
     ConfInsulation *insulation;
     ConfigIND *ind;

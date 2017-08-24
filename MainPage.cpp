@@ -58,10 +58,10 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonTest1()), this, SLOT(testDCR()));
     connect(test, SIGNAL(buttonTest2()), this, SLOT(testINR()));
 
-    dcr = new ConfigDCR(this);
-    connect(dcr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(dcr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), dcr, SLOT(recvAppShow(QString)));
+    resistance = new ConfResistance(this);
+    connect(resistance, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(resistance, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), resistance, SLOT(recvAppShow(QString)));
 
     current_ac = new ConfCurrent_AC(this);
     connect(current_ac, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -96,7 +96,7 @@ void MainPage::initUI()
     stack->addWidget(wdat);
     stack->addWidget(conf);
     stack->addWidget(test);
-    stack->addWidget(dcr);
+    stack->addWidget(resistance);
     stack->addWidget(current_ac);
     stack->addWidget(insulation);
     stack->addWidget(ind);
@@ -141,7 +141,7 @@ void MainPage::recvNetMsg(QString msg)
     case 6005:
         conf->initOther(dat);
         test->updateItems(dat);
-        dcr->initData(dat);
+        resistance->initData(dat);
         current_ac->initData(dat);
         insulation->initData(dat);
         break;

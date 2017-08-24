@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     UdpSocket.cpp \
     HomePage.cpp \
     MainPage.cpp \
-    ConfigDCR.cpp \
     ConfigIND.cpp \
     ConfigPWR.cpp \
     ConfigLoad.cpp \
@@ -35,7 +34,8 @@ SOURCES += main.cpp\
     PLCPage.cpp \
     conf_resistance.cpp \
     conf_insulation.cpp \
-    conf_current_ac.cpp
+    conf_current_ac.cpp \
+    conf_inductance.cpp
 
 HEADERS  += \
     Histogram.h \
@@ -49,7 +49,6 @@ HEADERS  += \
     HomePage.h \
     MainPage.h \
     delegate.h \
-    ConfigDCR.h \
     ConfigIND.h \
     ConfigPWR.h \
     ConfigLoad.h \
@@ -60,7 +59,8 @@ HEADERS  += \
     PLCPage.h \
     conf_resistance.h \
     conf_insulation.h \
-    conf_current_ac.h
+    conf_current_ac.h \
+    conf_inductance.h
 
 FORMS    += \
     WinSyst.ui \
