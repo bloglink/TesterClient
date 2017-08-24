@@ -24,7 +24,6 @@ SOURCES += main.cpp\
     UdpSocket.cpp \
     HomePage.cpp \
     MainPage.cpp \
-    ConfigIND.cpp \
     ConfigPWR.cpp \
     ConfigLoad.cpp \
     ConfPage.cpp \
@@ -48,7 +47,6 @@ HEADERS  += \
     UdpSocket.h \
     HomePage.h \
     MainPage.h \
-    ConfigIND.h \
     ConfigPWR.h \
     ConfigLoad.h \
     ConfPage.h \

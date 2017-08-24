@@ -73,10 +73,10 @@ void MainPage::initUI()
     connect(insulation, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), insulation, SLOT(recvAppShow(QString)));
 
-    ind = new ConfigIND(this);
-    connect(ind, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(ind, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), ind, SLOT(recvAppShow(QString)));
+    inductance = new ConfInductance(this);
+    connect(inductance, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(inductance, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), inductance, SLOT(recvAppShow(QString)));
 
     ConfigPWR *pwr = new ConfigPWR(this);
     connect(pwr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -99,7 +99,7 @@ void MainPage::initUI()
     stack->addWidget(resistance);
     stack->addWidget(current_ac);
     stack->addWidget(insulation);
-    stack->addWidget(ind);
+    stack->addWidget(inductance);
     stack->addWidget(pwr);
     stack->addWidget(load);
     stack->addWidget(fg);
@@ -112,7 +112,7 @@ void MainPage::initUI()
 
 void MainPage::initPLC()
 {
-    plc = new PLCPage(this);
+    plc = new CtrlDevice_232(this);
 }
 
 void MainPage::initUdp(QJsonObject obj)

@@ -25,8 +25,8 @@
 #include "conf_resistance.h"
 #include "conf_insulation.h"
 #include "conf_current_ac.h"
+#include "conf_inductance.h"
 
-#include "ConfigIND.h"
 #include "ConfigPWR.h"
 #include "ConfigLoad.h"
 #include "ConfigFG.h"
@@ -34,7 +34,7 @@
 #include "WinData.h"
 #include "WinSyst.h"
 
-#include "PLCPage.h"
+#include "ctrl_device_232.h"
 
 class MainPage : public QWidget
 {
@@ -72,9 +72,9 @@ private:
     ConfResistance *resistance;
     ConfCurrent_AC *current_ac;
     ConfInsulation *insulation;
-    ConfigIND *ind;
+    ConfInductance *inductance;
 
-    PLCPage *plc;
+    CtrlDevice_232 *plc;
 };
 
 #endif // MAINPAGE_H
