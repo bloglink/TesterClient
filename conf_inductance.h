@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.1
+ * author:      zhaonanlin
+ * brief:       电感配置
+*******************************************************************************/
 #ifndef CONFINDUCTANCE_H
 #define CONFINDUCTANCE_H
 
@@ -8,6 +16,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QTableView>
+#include <QMessageBox>
 #include <QHeaderView>
 #include <QPushButton>
 #include <QtXml/QDomDocument>

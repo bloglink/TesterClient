@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.1
+ * author:      zhaonanlin
+ * brief:       电感配置
+*******************************************************************************/
 #include "conf_inductance.h"
 
 ConfInductance::ConfInductance(QWidget *parent) : QWidget(parent)
@@ -7,9 +15,7 @@ ConfInductance::ConfInductance(QWidget *parent) : QWidget(parent)
 
 ConfInductance::~ConfInductance()
 {
-
 }
-
 
 void ConfInductance::initUI()
 {
@@ -201,15 +207,32 @@ void ConfInductance::saveData()
 
 void ConfInductance::autoInput()
 {
-    if (view->currentIndex().row() != 0)
-        return;
+    int r = view->currentIndex().row();
     int c = view->currentIndex().column();
     switch (c) {
     case 0x03:          // 电感单位
-    case 0x06:          // Q值下限
-    case 0x07:          // Q值上限
+        if (view->currentIndex().row() != 0)
+            return;
         for (int i=0; i < 8; i++)
             model->item(i, c)->setText(model->item(0, c)->text());
+        break;
+    case 0x04:
+    case 0x05:
+        if (model->item(r, 4)->text().isEmpty() || model->item(r, 5)->text().isEmpty())
+            return;
+        if (model->item(r, 4)->text().toDouble() > model->item(r, 5)->text().toDouble()) {
+            QMessageBox::warning(this, "警告", tr("下限大于上限"), QMessageBox::Ok);
+            model->item(r, 4)->setText("0.00");
+        }
+        break;
+    case 0x06:          // Q值下限
+    case 0x07:          // Q值上限
+        if (model->item(r, 6)->text().isEmpty() || model->item(r, 7)->text().isEmpty())
+            return;
+        if (model->item(r, 6)->text().toDouble() > model->item(r, 7)->text().toDouble()) {
+            QMessageBox::warning(this, "警告", tr("下限大于上限"), QMessageBox::Ok);
+            model->item(r, 6)->setText("0");
+        }
         break;
     default:
         break;
