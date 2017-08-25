@@ -143,7 +143,7 @@ public:
         return editor;
     }
     void setEditorData(QWidget *editor, const QModelIndex &index) const {
-        int value = index.model()->data(index, Qt::EditRole).toInt();
+        double value = index.model()->data(index, Qt::EditRole).toDouble();
         QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
         spinBox->setValue(value);
     }
@@ -151,7 +151,7 @@ public:
                       const QModelIndex &index) const {
         QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
         spinBox->interpretText();
-        int value = spinBox->value();
+        double value = spinBox->value();
         model->setData(index, value, Qt::EditRole);
     }
     void updateEditorGeometry(QWidget *editor,
