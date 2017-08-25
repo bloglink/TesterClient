@@ -43,7 +43,7 @@ void ConfInductance::initUI()
     ComboBox *comboBox = new ComboBox;
     comboBox->setItemNames(names);
     QStringList units;
-    units << tr("uH") << tr("mH") << tr("H");
+    units << tr("uH") << tr("mH");
     ComboBox *Unit = new ComboBox;
     Unit->setItemNames(units);
     DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
@@ -153,8 +153,6 @@ void ConfInductance::initData(QString dat)
                     model->item(i, 3)->setText("uH");
                 if (temp.at(i) == "1")
                     model->item(i, 3)->setText("mH");
-                if (temp.at(i) == "2")
-                    model->item(i, 3)->setText("H");
             }
             break;
         case 11:
@@ -254,8 +252,6 @@ void ConfInductance::appendXmlData(int column, QString name)
                 temp.append("0");
             else if (model->item(i, column)->text() == "mH")
                 temp.append("1");
-            else if (model->item(i, column)->text() == "H")
-                temp.append("2");
         } else {
             temp.append(model->item(i, column)->text());
         }
