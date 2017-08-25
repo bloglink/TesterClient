@@ -260,10 +260,16 @@ void ConfPage::clickButton()
         buttons.at(i)->setChecked(false);
     }
     btn->setChecked(true);
+    for (int i=0; i < pModel->rowCount(); i++) {
+        if (pModel->item(i, 0)->text() == btn->text())
+            return;
+    }
     if (pView->currentIndex().row() < 0 || (pView->currentIndex().row()+1 == pModel->rowCount())) {
         pModel->appendRow(new QStandardItem(""));
         if (pModel->rowCount() > 1)
             pModel->item(pModel->rowCount()-2, 0)->setText(btn->text());
+    } else {
+        pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
 }
 
@@ -299,6 +305,8 @@ void ConfPage::deleteItem()
 {
     int row = pView->currentIndex().row();
     if (row < 0)
+        return;
+    if (row+1 == pModel->rowCount())
         return;
     pModel->removeRow(row);
 }
