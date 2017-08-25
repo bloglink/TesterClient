@@ -160,7 +160,7 @@ void ConfPage::initUI()
     QStringList objNames;
     objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC"
              << "ConfigDCR"
-             << "ConfigIMP" << "ConfInductance" << "ConfNoLoadTest" << "ConfigLoad" << "ConfigFG";
+             << "ConfigIMP" << "ConfInductance" << "ConfNoLoadTest" << "ConfLoadTesting" << "ConfigFG";
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i), this));
         btnsLayout->addWidget(buttons.at(i));

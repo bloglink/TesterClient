@@ -27,8 +27,8 @@
 #include "conf_current_ac.h"
 #include "conf_inductance.h"
 #include "conf_noloadtest.h"
+#include "conf_loadtesting.h"
 
-#include "ConfigLoad.h"
 #include "ConfigFG.h"
 
 #include "WinSyst.h"
@@ -74,6 +74,7 @@ private:
     ConfInsulation *insulation;
     ConfInductance *inductance;
     ConfNoLoadTest *noloadtest;
+    ConfLoadTesting *loadtesting;
 
     CtrlDevice_232 *plc;
 };

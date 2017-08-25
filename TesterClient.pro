@@ -15,12 +15,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     WinSyst.cpp \
-    LoginPage.cpp \
     QRCodeTest.cpp \
     UdpSocket.cpp \
     HomePage.cpp \
     MainPage.cpp \
-    ConfigLoad.cpp \
     ConfPage.cpp \
     TestPage.cpp \
     qcustomplot.cpp \
@@ -31,16 +29,16 @@ SOURCES += main.cpp\
     conf_inductance.cpp \
     ctrl_device_232.cpp \
     page_sqlite.cpp \
-    conf_noloadtest.cpp
+    conf_noloadtest.cpp \
+    conf_loadtesting.cpp \
+    LoginPage.cpp
 
 HEADERS  += \
     WinSyst.h \
-    LoginPage.h \
     QRCodeTest.h \
     UdpSocket.h \
     HomePage.h \
     MainPage.h \
-    ConfigLoad.h \
     ConfPage.h \
     TestPage.h \
     qcustomplot.h \
@@ -52,7 +50,9 @@ HEADERS  += \
     conf_delegation.h \
     ctrl_device_232.h \
     page_sqlite.h \
-    conf_noloadtest.h
+    conf_noloadtest.h \
+    conf_loadtesting.h \
+    LoginPage.h
 
 FORMS    += \
     WinSyst.ui \

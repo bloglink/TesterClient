@@ -2,44 +2,43 @@
  * Copyright [2017]   <青岛艾普智能仪器有限公司>
  * All rights reserved.
  *
- * version:     0.0.0.1
+ * version:     0.1
  * author:      zhaonanlin
  * brief:       负载配置
 *******************************************************************************/
-#ifndef CONFIGLOAD_H
-#define CONFIGLOAD_H
+#ifndef CONFLOADTESTING_H
+#define CONFLOADTESTING_H
 
-#include <QWidget>
-#include <QTableView>
-#include <QHeaderView>
-#include <QLayout>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QPushButton>
 #include <QDebug>
-#include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include <QSpinBox>
 #include <QLabel>
+#include <QWidget>
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QTableView>
+#include <QMessageBox>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QtXml/QDomDocument>
 
 #include "conf_delegation.h"
 #include "qcustomplot.h"
 
-class ConfigLoad : public QWidget
+class ConfLoadTesting : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfigLoad(QWidget *parent = 0);
-    ~ConfigLoad();
+    explicit ConfLoadTesting(QWidget *parent = 0);
+    ~ConfLoadTesting();
 
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public slots:
+    void initData(QString dat);
 private slots:
     void initUI();
-    void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
     void sequence(void);
@@ -58,8 +57,8 @@ private:
 
     QTableView *tView;
     StandardItem *tModel;
-
+    QStringList itemNames;
     QCustomPlot *customplot;
 };
 
-#endif // CONFIGLOAD_H
+#endif // CONFLOADTESTING_H

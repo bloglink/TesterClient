@@ -2,29 +2,33 @@
  * Copyright [2017]   <青岛艾普智能仪器有限公司>
  * All rights reserved.
  *
- * version:     0.0.0.1
+ * version:     0.1
  * author:      zhaonanlin
  * brief:       负载配置
 *******************************************************************************/
-#include "ConfigLoad.h"
+#include "conf_loadtesting.h"
 
-ConfigLoad::ConfigLoad(QWidget *parent) : QWidget(parent)
+ConfLoadTesting::ConfLoadTesting(QWidget *parent) : QWidget(parent)
 {
     initUI();
 }
 
-ConfigLoad::~ConfigLoad()
+ConfLoadTesting::~ConfLoadTesting()
 {
 }
 
-void ConfigLoad::initUI()
+void ConfLoadTesting::initUI()
 {
-    this->setObjectName("ConfigLoad");
+    this->setObjectName("ConfLoadTesting");
     QStringList headers;
     headers << tr("电压") << tr("电流下限") << tr("电流上限")
             << tr("功率下限") << tr("功率上限")
             << tr("转速下限") << tr("转速上限") << tr("扭矩") << tr("Vcc电压")
             << tr("Vsp电压") << tr("测试时间");
+    itemNames << "volt" << "curr_min" << "curr_max"
+              << "pwr_min" << "pwr_max"
+              << "speed_min" << "speed_max" << "torque"
+              << "vcc_volt" << "vsp_volt" << "time";
     model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
@@ -32,20 +36,37 @@ void ConfigLoad::initUI()
             model->setData(model->index(i, j), "");
         }
     }
-
+    SpinBox *voltage = new SpinBox;
+    voltage->setMaxinum(500);
+    DoubleSpinBox *current = new DoubleSpinBox;
+    current->setMaxinum(5);
+    SpinBox *power = new SpinBox;
+    power->setMaxinum(5000);
+    SpinBox *speed = new SpinBox;
+    speed->setMaxinum(3000);
+    DoubleSpinBox *torque = new DoubleSpinBox;
+    torque->setMaxinum(20);
+    DoubleSpinBox *vcc = new DoubleSpinBox;
+    vcc->setMaxinum(15);
+    DoubleSpinBox *vsp = new DoubleSpinBox;
+    vsp->setMaxinum(15);
+    DoubleSpinBox *time = new DoubleSpinBox;
+    time->setMaxinum(99);
     view = new QTableView(this);
     view->setModel(model);
-
+    view->setItemDelegateForColumn(0, voltage);
+    view->setItemDelegateForColumn(1, current);
+    view->setItemDelegateForColumn(2, current);
+    view->setItemDelegateForColumn(3, power);
+    view->setItemDelegateForColumn(4, power);
+    view->setItemDelegateForColumn(5, speed);
+    view->setItemDelegateForColumn(6, speed);
+    view->setItemDelegateForColumn(7, torque);
+    view->setItemDelegateForColumn(8, vcc);
+    view->setItemDelegateForColumn(9, vsp);
+    view->setItemDelegateForColumn(10, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    SpinBox *spinBox = new SpinBox;
-    view->setItemDelegateForColumn(6, spinBox);
-    view->setItemDelegateForColumn(7, spinBox);
-    view->setItemDelegateForColumn(9, spinBox);
-    view->setItemDelegateForColumn(10, spinBox);
-    view->setItemDelegateForColumn(11, spinBox);
-    view->setItemDelegateForColumn(12, spinBox);
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
@@ -70,6 +91,7 @@ void ConfigLoad::initUI()
     connect(tModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(sequence()));
     tView = new QTableView(this);
     tView->setModel(tModel);
+    tView->setItemDelegateForRow(0, time);
     tView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     tView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -99,32 +121,57 @@ void ConfigLoad::initUI()
     this->setLayout(layout);
 }
 
-void ConfigLoad::initData(QByteArray dat)
+void ConfLoadTesting::initData(QString dat)
 {
-    QDomDocument doc;
-    doc.setContent(dat);
-    qDebug() << doc.toByteArray();
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("LOAD").isEmpty())
+        return;
+    QStringList items = itemNames;
+    items << "sequence";
+    QDomNodeList list = docs.elementsByTagName("LOAD").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        int index = items.indexOf(dom.nodeName());
+        if (index == -1)
+            continue;
+        switch (index) {
+        case 11:
+            for (int t=0; t < temp.size(); t++)
+                tModel->item(0, t)->setText(temp.at(t));
+            break;
+        default:
+            for (int t=0; t < temp.size(); t++)
+                model->item(t, index)->setText(temp.at(t));
+            break;
+        }
+    }
 }
 
-void ConfigLoad::saveData()
+void ConfLoadTesting::saveData()
 {
     doc.clear();
     root.clear();
-    root = doc.createElement("PWR");
+    root = doc.createElement("LOAD");
     doc.appendChild(root);
 
+    for (int i=0; i < itemNames.size(); i++)
+        appendXmlData(i, itemNames.at(i));
     QStringList temp;
-    temp << "volt" << "curr_min" << "curr_max"
-         << "pwr_min" << "pwr_max"
-         << "speed_min" << "speed_max" << "torque"
-         << "vcc_volt" << "vsp_volt" << "time";
-    for (int i=0; i < temp.size(); i++)
-        appendXmlData(i, temp.at(i));
+    for (int i=0; i < tModel->columnCount(); i++) {
+        temp.append(tModel->item(0, i)->text());
+    }
+    QDomText text = doc.createTextNode(temp.join(","));
+    QDomElement xml = doc.createElement("sequence");
+    xml.appendChild(text);
+    root.appendChild(xml);
     emit sendNetMsg(doc.toByteArray());
     emit buttonClicked(NULL);
+    initData(doc.toByteArray());
 }
 
-void ConfigLoad::appendXmlData(int column, QString name)
+void ConfLoadTesting::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
@@ -132,7 +179,7 @@ void ConfigLoad::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
-void ConfigLoad::sequence()
+void ConfLoadTesting::sequence()
 {
     customplot->clearGraphs();
     customplot->clearItems();
@@ -331,7 +378,7 @@ void ConfigLoad::sequence()
 }
 
 
-void ConfigLoad::ruler(double x)
+void ConfLoadTesting::ruler(double x)
 {
     QVector<double> xx(100), yy(100);
     for (int i=0; i < 100; i++) {
@@ -343,7 +390,7 @@ void ConfigLoad::ruler(double x)
     rulers->setData(xx, yy);
 }
 
-void ConfigLoad::wavePacket(double x1, double x2, QString name)
+void ConfLoadTesting::wavePacket(double x1, double x2, QString name)
 {
     QCPItemBracket *bracket = new QCPItemBracket(customplot);
     bracket->left->setCoords(x1, 40);
@@ -360,10 +407,9 @@ void ConfigLoad::wavePacket(double x1, double x2, QString name)
     wavePacketText->setColor(QColor(Qt::white));
 }
 
-void ConfigLoad::recvAppShow(QString win)
+void ConfLoadTesting::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
     emit sendNetMsg("6004 Load");
 }
-

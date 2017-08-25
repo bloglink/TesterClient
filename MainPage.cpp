@@ -81,11 +81,12 @@ void MainPage::initUI()
     noloadtest = new ConfNoLoadTest(this);
     connect(noloadtest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(noloadtest, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), inductance, SLOT(recvAppShow(QString)));
+    connect(this, SIGNAL(transmitShow(QString)), noloadtest, SLOT(recvAppShow(QString)));
 
-    ConfigLoad *load = new ConfigLoad(this);
-    connect(load, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(load, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    loadtesting = new ConfLoadTesting(this);
+    connect(loadtesting, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(loadtesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), loadtesting, SLOT(recvAppShow(QString)));
 
     ConfigFG *fg = new ConfigFG(this);
     connect(fg, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -102,7 +103,7 @@ void MainPage::initUI()
     stack->addWidget(insulation);
     stack->addWidget(inductance);
     stack->addWidget(noloadtest);
-    stack->addWidget(load);
+    stack->addWidget(loadtesting);
     stack->addWidget(fg);
     readButtons("HomePage");
 
@@ -147,6 +148,7 @@ void MainPage::recvNetMsg(QString msg)
         insulation->initData(dat);
         inductance->initData(dat);
         noloadtest->initData(dat);
+        loadtesting->initData(dat);
         break;
     default:
         break;
