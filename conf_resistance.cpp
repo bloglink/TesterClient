@@ -67,12 +67,14 @@ void ConfResistance::initUI()
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    nounLineEdit = new QLineEdit(this);
-    nounLineEdit->setMinimumSize(97, 35);
-    nounLineEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    tempLineEdit = new QLineEdit(this);
-    tempLineEdit->setMinimumSize(97, 35);
-    tempLineEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    nounSpinBox = new QSpinBox(this);
+    nounSpinBox->setMinimumSize(97, 35);
+    nounSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    nounSpinBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    tempSpinBox = new QSpinBox(this);
+    tempSpinBox->setMinimumSize(97, 35);
+    tempSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    tempSpinBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     compensation = new QCheckBox(this);
     compensation->setText(tr("温度补偿"));
 
@@ -84,9 +86,9 @@ void ConfResistance::initUI()
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(compensation);
     btnLayout->addWidget(new QLabel("标准温度", this));
-    btnLayout->addWidget(tempLineEdit);
+    btnLayout->addWidget(tempSpinBox);
     btnLayout->addWidget(new QLabel("不平衡度", this));
-    btnLayout->addWidget(nounLineEdit);
+    btnLayout->addWidget(nounSpinBox);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);
 
@@ -143,7 +145,7 @@ void ConfResistance::initData(QString dat)
             }
             break;
         case 10:
-            tempLineEdit->setText(temp.at(0));
+            tempSpinBox->setValue(temp.at(0).toInt());
             break;
         case 11:
             if (temp.at(0) == "1")
@@ -152,7 +154,7 @@ void ConfResistance::initData(QString dat)
                 compensation->setChecked(false);
             break;
         case 12:
-            nounLineEdit->setText(temp.at(0));
+            nounSpinBox->setValue(temp.at(0).toInt());
             break;
         default:
             for (int t=0; t < temp.size(); t++)
@@ -184,14 +186,14 @@ void ConfResistance::saveData()
     temp_comp.appendChild(text);
 
     temp.clear();
-    temp.append(tempLineEdit->text());
+    temp.append(tempSpinBox->text());
     QDomElement std_temp = doc.createElement("std_temp");
     root.appendChild(std_temp);
     text = doc.createTextNode(temp.join(","));
     std_temp.appendChild(text);
 
     temp.clear();
-    temp.append(nounLineEdit->text());
+    temp.append(nounSpinBox->text());
     QDomElement noun = doc.createElement("noun");
     root.appendChild(noun);
     text = doc.createTextNode(temp.join(","));
