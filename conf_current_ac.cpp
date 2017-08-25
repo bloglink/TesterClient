@@ -146,7 +146,7 @@ void ConfCurrent_AC::appendXmlData(int column, QString name)
             else
                 temp.append("1");
         } else if (column == 7) {
-            if (model->item(i, 3)->text() == "50")
+            if (model->item(i, 7)->text() == "50")
                 temp.append("0");
             else
                 temp.append("1");
