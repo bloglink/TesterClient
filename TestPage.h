@@ -23,7 +23,6 @@
 #include <QXmlStreamReader>
 #include <QLabel>
 #include <QGroupBox>
-#include <QPushButton>
 #include <QToolButton>
 #include <QColorDialog>
 #include <QPalette>

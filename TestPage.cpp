@@ -267,7 +267,7 @@ void TestPage::selectColor()
 {
     QPushButton *btn = qobject_cast<QPushButton *>(sender());
     QColor color = QColorDialog::getColor(Qt::white, this);
-    if(color.isValid()) {
+    if (color.isValid()) {
         btn->setStyleSheet(QString("background-color:%1").arg(color.name()));
     }
 }
@@ -355,12 +355,12 @@ void TestPage::DrawWave()
     gradient.setColorAt(1, QColor(18, 25, 34));
     wave->setBackground(QBrush(gradient)); //设置背景色
 
-    QVector<double> x(1080); //可变数组存放绘图的坐标的数据，分别存放x和y坐标的数据
+    QVector<double> x(1080);
     QVector<double> hu(1080), hv(1080), hw(1080);
     QVector<double> uy(1080), vy(1080), wy(1080);
     QVector<double> ay(1080), by(1080);
 
-    for (int i = 0; i<1080; i++) { //添加数据
+    for (int i=0; i < 1080; i++) { //添加数据
         x[i] = i;
         hu[i] = qSin((i+30)/PI/18)*20+80;
         hv[i] = qSin((i+270)/PI/18)*20+80;
@@ -372,28 +372,28 @@ void TestPage::DrawWave()
         by[i] = ((((i+9)/15)%2)  == 0) ? 1 : 10;
     }
 
-    QCPGraph *graph1 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph1 = wave->addGraph();
     graph1->setPen(QPen(Qt::yellow));
     graph1->setData(x, hu);
-    QCPGraph *graph2 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph2 = wave->addGraph();
     graph2->setPen(QPen(Qt::green));
     graph2->setData(x, hv);
-    QCPGraph *graph3 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph3 = wave->addGraph();
     graph3->setPen(QPen(Qt::red));
     graph3->setData(x, hw);
-    QCPGraph *graph4 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph4 = wave->addGraph();
     graph4->setPen(QPen(Qt::yellow));
     graph4->setData(x, uy);
-    QCPGraph *graph5 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph5 = wave->addGraph();
     graph5->setPen(QPen(Qt::green));
     graph5->setData(x, vy);
-    QCPGraph *graph6 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph6 = wave->addGraph();
     graph6->setPen(QPen(Qt::red));
     graph6->setData(x, wy);
-    QCPGraph *graph7 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph7 = wave->addGraph();
     graph7->setPen(QPen(Qt::yellow));
     graph7->setData(x, ay);
-    QCPGraph *graph8 = wave->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph8 = wave->addGraph();
     graph8->setPen(QPen(Qt::yellow));
     graph8->setData(x, by);
 
