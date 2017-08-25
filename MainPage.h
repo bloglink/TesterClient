@@ -28,7 +28,7 @@
 #include "conf_inductance.h"
 #include "conf_noloadtest.h"
 #include "conf_loadtesting.h"
-
+#include "conf_backforce.h"
 #include "ConfigFG.h"
 
 #include "WinSyst.h"
@@ -75,6 +75,7 @@ private:
     ConfInductance *inductance;
     ConfNoLoadTest *noloadtest;
     ConfLoadTesting *loadtesting;
+    ConfBackForce *backforce;
 
     CtrlDevice_232 *plc;
 };

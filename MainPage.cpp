@@ -92,6 +92,11 @@ void MainPage::initUI()
     connect(fg, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(fg, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
 
+    backforce = new ConfBackForce(this);
+    connect(backforce, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(backforce, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), backforce, SLOT(recvAppShow(QString)));
+
     stack = new QStackedWidget(this);
     stack->addWidget(home);
     stack->addWidget(syst);
@@ -105,6 +110,7 @@ void MainPage::initUI()
     stack->addWidget(noloadtest);
     stack->addWidget(loadtesting);
     stack->addWidget(fg);
+    stack->addWidget(backforce);
     readButtons("HomePage");
 
     QVBoxLayout *layout = new QVBoxLayout(this);

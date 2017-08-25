@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     page_sqlite.cpp \
     conf_noloadtest.cpp \
     conf_loadtesting.cpp \
-    LoginPage.cpp
+    LoginPage.cpp \
+    conf_backforce.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -52,7 +53,8 @@ HEADERS  += \
     page_sqlite.h \
     conf_noloadtest.h \
     conf_loadtesting.h \
-    LoginPage.h
+    LoginPage.h \
+    conf_backforce.h
 
 FORMS    += \
     WinSyst.ui \
