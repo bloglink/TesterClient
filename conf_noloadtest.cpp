@@ -48,6 +48,8 @@ void ConfNoLoadTest::initUI()
     vcc->setMaxinum(15);
     DoubleSpinBox *vsp = new DoubleSpinBox;
     vsp->setMaxinum(15);
+    DoubleSpinBox *time = new DoubleSpinBox;
+    time->setMaxinum(99);
     view = new QTableView(this);
     view->setModel(model);
     view->setItemDelegateForColumn(0, voltage);
@@ -59,7 +61,7 @@ void ConfNoLoadTest::initUI()
     view->setItemDelegateForColumn(6, speed);
     view->setItemDelegateForColumn(7, vcc);
     view->setItemDelegateForColumn(8, vsp);
-    view->setItemDelegateForColumn(9, vsp);
+    view->setItemDelegateForColumn(9, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -95,6 +97,7 @@ void ConfNoLoadTest::initUI()
     connect(tModel, SIGNAL(itemChanged(QStandardItem*)), this, SLOT(sequence()));
     tView = new QTableView(this);
     tView->setModel(tModel);
+    tView->setItemDelegateForRow(0, time);
     tView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     tView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
