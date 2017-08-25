@@ -26,8 +26,8 @@
 #include "conf_insulation.h"
 #include "conf_current_ac.h"
 #include "conf_inductance.h"
+#include "conf_noloadtest.h"
 
-#include "ConfigPWR.h"
 #include "ConfigLoad.h"
 #include "ConfigFG.h"
 
@@ -73,6 +73,7 @@ private:
     ConfCurrent_AC *current_ac;
     ConfInsulation *insulation;
     ConfInductance *inductance;
+    ConfNoLoadTest *noloadtest;
 
     CtrlDevice_232 *plc;
 };

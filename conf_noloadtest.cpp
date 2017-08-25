@@ -4,27 +4,31 @@
  *
  * version:     0.0.0.1
  * author:      zhaonanlin
- * brief:       功率配置
+ * brief:       空载配置
 *******************************************************************************/
-#include "ConfigPWR.h"
+#include "conf_noloadtest.h"
 
-ConfigPWR::ConfigPWR(QWidget *parent) : QWidget(parent)
+ConfNoLoadTest::ConfNoLoadTest(QWidget *parent) : QWidget(parent)
 {
     initUI();
 }
 
-ConfigPWR::~ConfigPWR()
+ConfNoLoadTest::~ConfNoLoadTest()
 {
 }
 
-void ConfigPWR::initUI()
+void ConfNoLoadTest::initUI()
 {
-    this->setObjectName("ConfigPWR");
+    this->setObjectName("ConfNoLoadTest");
     QStringList headers;
     headers << tr("电压") << tr("电流下限") << tr("电流上限")
             << tr("功率下限") << tr("功率上限")
             << tr("转速下限") << tr("转速上限") << tr("Vcc电压")
             << tr("Vsp电压") << tr("测试时间");
+    itemNames << "volt" << "curr_min" << "curr_max"
+              << "pwr_min" << "pwr_max"
+              << "speed_min" << "speed_max"
+              << "vcc_volt" << "vsp_volt" << "time";
     model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
@@ -32,20 +36,32 @@ void ConfigPWR::initUI()
             model->setData(model->index(i, j), "");
         }
     }
-
+    SpinBox *voltage = new SpinBox;
+    voltage->setMaxinum(500);
+    DoubleSpinBox *current = new DoubleSpinBox;
+    current->setMaxinum(5);
+    SpinBox *power = new SpinBox;
+    power->setMaxinum(5000);
+    SpinBox *speed = new SpinBox;
+    speed->setMaxinum(3000);
+    DoubleSpinBox *vcc = new DoubleSpinBox;
+    vcc->setMaxinum(15);
+    DoubleSpinBox *vsp = new DoubleSpinBox;
+    vsp->setMaxinum(15);
     view = new QTableView(this);
     view->setModel(model);
-
+    view->setItemDelegateForColumn(0, voltage);
+    view->setItemDelegateForColumn(1, current);
+    view->setItemDelegateForColumn(2, current);
+    view->setItemDelegateForColumn(3, power);
+    view->setItemDelegateForColumn(4, power);
+    view->setItemDelegateForColumn(5, speed);
+    view->setItemDelegateForColumn(6, speed);
+    view->setItemDelegateForColumn(7, vcc);
+    view->setItemDelegateForColumn(8, vsp);
+    view->setItemDelegateForColumn(9, vsp);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    SpinBox *spinBox = new SpinBox;
-    view->setItemDelegateForColumn(6, spinBox);
-    view->setItemDelegateForColumn(7, spinBox);
-    view->setItemDelegateForColumn(9, spinBox);
-    view->setItemDelegateForColumn(10, spinBox);
-    view->setItemDelegateForColumn(11, spinBox);
-    view->setItemDelegateForColumn(12, spinBox);
 
     turnCheckBox = new QCheckBox(this);
     turnCheckBox->setText(tr("空载转向"));
@@ -108,32 +124,76 @@ void ConfigPWR::initUI()
     this->setLayout(layout);
 }
 
-void ConfigPWR::initData(QByteArray dat)
+void ConfNoLoadTest::initData(QString dat)
 {
-    QDomDocument doc;
-    doc.setContent(dat);
-    qDebug() << doc.toByteArray();
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("PWR").isEmpty())
+        return;
+    QStringList items = itemNames;
+    items << "sequence" << "turn";
+    QDomNodeList list = docs.elementsByTagName("PWR").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        int index = items.indexOf(dom.nodeName());
+        if (index == -1)
+            continue;
+        switch (index) {
+        case 10:
+            for (int t=0; t < temp.size(); t++)
+                tModel->item(0, t)->setText(temp.at(t));
+            break;
+        case 11:
+            if (temp.at(0) == "0")
+                turnCheckBox->setChecked(false);
+            else
+                turnCheckBox->setChecked(true);
+            turnComboBox->setCurrentIndex(temp.at(1).toInt());
+            break;
+        default:
+            for (int t=0; t < temp.size(); t++)
+                model->item(t, index)->setText(temp.at(t));
+            break;
+        }
+    }
 }
 
-void ConfigPWR::saveData()
+void ConfNoLoadTest::saveData()
 {
     doc.clear();
     root.clear();
     root = doc.createElement("PWR");
     doc.appendChild(root);
 
+    for (int i=0; i < itemNames.size(); i++)
+        appendXmlData(i, itemNames.at(i));
     QStringList temp;
-    temp << "volt" << "curr_min" << "curr_max"
-         << "pwr_min" << "pwr_max"
-         << "speed_min" << "speed_max"
-         << "vcc_volt" << "vsp_volt" << "time";
-    for (int i=0; i < temp.size(); i++)
-        appendXmlData(i, temp.at(i));
-    emit sendNetMsg(doc.toByteArray());
+    for (int i=0; i < tModel->columnCount(); i++) {
+        temp.append(tModel->item(0, i)->text());
+    }
+    QDomText text = doc.createTextNode(temp.join(","));
+    QDomElement xml = doc.createElement("sequence");
+    xml.appendChild(text);
+    root.appendChild(xml);
+
+    temp.clear();
+    if (turnCheckBox->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    temp.append(QString::number(turnComboBox->currentIndex()));
+    text = doc.createTextNode(temp.join(","));
+    xml = doc.createElement("turn");
+    xml.appendChild(text);
+    root.appendChild(xml);
+
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
+    initData(doc.toByteArray());
 }
 
-void ConfigPWR::appendXmlData(int column, QString name)
+void ConfNoLoadTest::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
@@ -141,7 +201,7 @@ void ConfigPWR::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
-void ConfigPWR::sequence()
+void ConfNoLoadTest::sequence()
 {
     customplot->clearGraphs();
     customplot->clearItems();
@@ -228,10 +288,10 @@ void ConfigPWR::sequence()
 
     customplot->legend->clearItems();
 
-    QVector<double> x(t); //可变数组存放绘图的坐标的数据，分别存放x和y坐标的数据
+    QVector<double> x(t);
     QVector<double> hu(t), hv(t), hw(t);
 
-    for (int i = 0; i<t; i++) { //添加数据
+    for (int i=0; i < t; i++) { //添加数据
         x[i] = i;
         if (i < t0)
             hu[i] = 0;
@@ -265,18 +325,17 @@ void ConfigPWR::sequence()
             hw[i] = (t7-i)*(30/T5);
         else
             hw[i] = 0;
-
     }
 
-    QCPGraph *graph1 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph1 = customplot->addGraph();
     graph1->setPen(QPen(Qt::yellow, 2, Qt::SolidLine));
     graph1->setData(x, hu);
     graph1->setName("Vcc");
-    QCPGraph *graph2 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph2 = customplot->addGraph();
     graph2->setPen(QPen(Qt::green, 2, Qt::SolidLine));
     graph2->setData(x, hv);
     graph2->setName("Vm");
-    QCPGraph *graph3 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph3 = customplot->addGraph();
     graph3->setPen(QPen(Qt::red, 2, Qt::SolidLine));
     graph3->setData(x, hw);
     graph3->setName("Vsp");
@@ -300,20 +359,19 @@ void ConfigPWR::sequence()
     customplot->replot();
 }
 
-
-void ConfigPWR::ruler(double x)
+void ConfNoLoadTest::ruler(double x)
 {
     QVector<double> xx(100), yy(100);
     for (int i=0; i < 100; i++) {
         xx[i] = x;
         yy[i] = i%40;
     }
-    QCPGraph *rulers = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *rulers = customplot->addGraph();
     rulers->setPen(QPen(Qt::white, 1, Qt::DashDotDotLine));
     rulers->setData(xx, yy);
 }
 
-void ConfigPWR::wavePacket(double x1, double x2, QString name)
+void ConfNoLoadTest::wavePacket(double x1, double x2, QString name)
 {
     QCPItemBracket *bracket = new QCPItemBracket(customplot);
     bracket->left->setCoords(x1, 40);
@@ -330,7 +388,7 @@ void ConfigPWR::wavePacket(double x1, double x2, QString name)
     wavePacketText->setColor(QColor(Qt::white));
 }
 
-void ConfigPWR::recvAppShow(QString win)
+void ConfNoLoadTest::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;

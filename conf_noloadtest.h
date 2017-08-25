@@ -4,47 +4,46 @@
  *
  * version:     0.0.0.1
  * author:      zhaonanlin
- * brief:       功率配置
+ * brief:       空载配置
 *******************************************************************************/
-#ifndef CONFIGPWR_H
-#define CONFIGPWR_H
+#ifndef CONFNOLOADTEST_H
+#define CONFNOLOADTEST_H
 
-#include <QWidget>
-#include <QTableView>
-#include <QHeaderView>
-#include <QLayout>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QPushButton>
 #include <QDebug>
-#include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include <QSpinBox>
 #include <QLabel>
+#include <QWidget>
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QTableView>
+#include <QMessageBox>
+#include <QHeaderView>
+#include <QPushButton>
+#include <QtXml/QDomDocument>
 
 #include "conf_delegation.h"
 #include "qcustomplot.h"
 
-class ConfigPWR : public QWidget
+class ConfNoLoadTest : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfigPWR(QWidget *parent = 0);
-    ~ConfigPWR();
+    explicit ConfNoLoadTest(QWidget *parent = 0);
+    ~ConfNoLoadTest();
 
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public slots:
+    void initData(QString dat);
 private slots:
     void initUI();
-    void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
     void sequence(void);
     void ruler(double x);
-    void wavePacket(double x1,double x2, QString name);
+    void wavePacket(double x1, double x2, QString name);
     void recvAppShow(QString win);
 private:
     QTableView *view;
@@ -58,8 +57,9 @@ private:
 
     QDomDocument doc;
     QDomElement root;
+    QStringList itemNames;
 
     QCustomPlot *customplot;
 };
 
-#endif // CONFIGPWR_H
+#endif // CONFNOLOADTEST_H

@@ -78,9 +78,10 @@ void MainPage::initUI()
     connect(inductance, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), inductance, SLOT(recvAppShow(QString)));
 
-    ConfigPWR *pwr = new ConfigPWR(this);
-    connect(pwr, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(pwr, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    noloadtest = new ConfNoLoadTest(this);
+    connect(noloadtest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(noloadtest, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), inductance, SLOT(recvAppShow(QString)));
 
     ConfigLoad *load = new ConfigLoad(this);
     connect(load, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -100,7 +101,7 @@ void MainPage::initUI()
     stack->addWidget(current_ac);
     stack->addWidget(insulation);
     stack->addWidget(inductance);
-    stack->addWidget(pwr);
+    stack->addWidget(noloadtest);
     stack->addWidget(load);
     stack->addWidget(fg);
     readButtons("HomePage");
@@ -145,6 +146,7 @@ void MainPage::recvNetMsg(QString msg)
         current_ac->initData(dat);
         insulation->initData(dat);
         inductance->initData(dat);
+        noloadtest->initData(dat);
         break;
     default:
         break;

@@ -20,7 +20,6 @@ SOURCES += main.cpp\
     UdpSocket.cpp \
     HomePage.cpp \
     MainPage.cpp \
-    ConfigPWR.cpp \
     ConfigLoad.cpp \
     ConfPage.cpp \
     TestPage.cpp \
@@ -31,7 +30,8 @@ SOURCES += main.cpp\
     conf_current_ac.cpp \
     conf_inductance.cpp \
     ctrl_device_232.cpp \
-    page_sqlite.cpp
+    page_sqlite.cpp \
+    conf_noloadtest.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -40,7 +40,6 @@ HEADERS  += \
     UdpSocket.h \
     HomePage.h \
     MainPage.h \
-    ConfigPWR.h \
     ConfigLoad.h \
     ConfPage.h \
     TestPage.h \
@@ -52,7 +51,8 @@ HEADERS  += \
     conf_inductance.h \
     conf_delegation.h \
     ctrl_device_232.h \
-    page_sqlite.h
+    page_sqlite.h \
+    conf_noloadtest.h
 
 FORMS    += \
     WinSyst.ui \
