@@ -13,7 +13,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QLayout>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QCheckBox>
 #include <QTableView>
 #include <QMessageBox>
@@ -45,8 +45,8 @@ private:
     QTableView *view;
     StandardItem *model;
 
-    QLineEdit *nounLineEdit;
-    QSpinBox *avrSpinBox;
+    QSpinBox *nounSpinBox;
+    QSpinBox *avrgSpinBox;
     QComboBox *freqComboBox;
     QComboBox *connComboBox;
     QComboBox *modeComboBox;

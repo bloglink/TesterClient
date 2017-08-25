@@ -69,12 +69,13 @@ void ConfInductance::initUI()
     view->setColumnWidth(0, 50);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    nounLineEdit = new QLineEdit(this);
-    nounLineEdit->setMinimumSize(97, 35);
-    nounLineEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    avrSpinBox = new QSpinBox(this);
-    avrSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
-    avrSpinBox->setMinimumSize(97, 35);
+    nounSpinBox = new QSpinBox(this);
+    nounSpinBox->setMinimumSize(97, 35);
+    nounSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    nounSpinBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    avrgSpinBox = new QSpinBox(this);
+    avrgSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    avrgSpinBox->setMinimumSize(97, 35);
 
     freqComboBox = new QComboBox(this);
     freqComboBox->addItem("100");
@@ -103,9 +104,9 @@ void ConfInductance::initUI()
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel(tr("不平衡度")));
-    btnLayout->addWidget(nounLineEdit);
+    btnLayout->addWidget(nounSpinBox);
     btnLayout->addWidget(new QLabel(tr("平均次数")));
-    btnLayout->addWidget(avrSpinBox);
+    btnLayout->addWidget(avrgSpinBox);
     btnLayout->addWidget(new QLabel(tr("频率")));
     btnLayout->addWidget(freqComboBox);
     btnLayout->addWidget(new QLabel(tr("连接方式")));
@@ -157,13 +158,13 @@ void ConfInductance::initData(QString dat)
             }
             break;
         case 11:
-            avrSpinBox->setValue((temp.at(0)).toInt());
+            avrgSpinBox->setValue((temp.at(0)).toInt());
             freqComboBox->setCurrentIndex((temp.at(1)).toInt());
             connComboBox->setCurrentIndex((temp.at(2)).toInt());
             modeComboBox->setCurrentIndex((temp.at(3)).toInt());
             break;
         case 12:
-            nounLineEdit->setText(temp.at(0));
+            nounSpinBox->setValue(temp.at(0).toInt());
             break;
         default:
             for (int t=0; t < temp.size(); t++)
@@ -185,7 +186,7 @@ void ConfInductance::saveData()
         appendXmlData(i, itemNames.at(i));
 
     QStringList temp;
-    temp.append(QString::number(avrSpinBox->value()));
+    temp.append(QString::number(avrgSpinBox->value()));
     temp.append(QString::number(freqComboBox->currentIndex()));
     temp.append(QString::number(connComboBox->currentIndex()));
     temp.append(QString::number(modeComboBox->currentIndex()));
@@ -195,7 +196,7 @@ void ConfInductance::saveData()
     temp_comp.appendChild(text);
 
     temp.clear();
-    temp.append(nounLineEdit->text());
+    temp.append(nounSpinBox->text());
     QDomElement noun = doc.createElement("noun");
     root.appendChild(noun);
     text = doc.createTextNode(temp.join(","));
