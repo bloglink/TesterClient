@@ -328,10 +328,19 @@ void ConfPage::recvAppShow(QString win)
 
 void ConfPage::appendType()
 {
-    emit sendNetMsg("3000");
+    QString name = typeLineEdit->text();
+    if (name.isEmpty())
+        return;
+    emit sendNetMsg(QString("6006 %1").arg(name).toUtf8());
+    emit sendNetMsg("3004");
 }
 
 void ConfPage::deleteType()
 {
-    emit sendNetMsg("3000");
+    int row = view->currentIndex().row();
+    if (row < 0)
+        return;
+    QString name = mView->item(row, 0)->text();
+    emit sendNetMsg(QString("6008 %1").arg(name).toUtf8());
+    emit sendNetMsg("3004");
 }
