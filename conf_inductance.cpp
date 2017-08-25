@@ -162,7 +162,7 @@ void ConfInductance::initData(QString dat)
             modeComboBox->setCurrentIndex((temp.at(3)).toInt());
             break;
         case 12:
-            nounSpinBox->setValue(temp.at(0).toInt());
+            nounSpinBox->setValue(temp.at(0).toDouble());
             break;
         default:
             for (int t=0; t < temp.size(); t++)
