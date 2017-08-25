@@ -15,7 +15,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     WinSyst.cpp \
-    SqlClient.cpp \
     LoginPage.cpp \
     QRCodeTest.cpp \
     UdpSocket.cpp \
@@ -36,7 +35,6 @@ SOURCES += main.cpp\
 
 HEADERS  += \
     WinSyst.h \
-    SqlClient.h \
     LoginPage.h \
     QRCodeTest.h \
     UdpSocket.h \

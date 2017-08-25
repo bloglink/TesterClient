@@ -109,9 +109,9 @@ void ConfCurrent_AC::initData(QString dat)
         case 7:
             for (int t=0; t < temp.size(); t++) {
                 if (temp.at(t) == "0")
-                    model->item(t, 3)->setText("50");
+                    model->item(t, 7)->setText("50");
                 else
-                    model->item(t, 3)->setText("60");
+                    model->item(t, 7)->setText("60");
             }
             break;
         default:

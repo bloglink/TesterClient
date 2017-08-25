@@ -116,7 +116,7 @@ void ConfInductance::initUI()
     this->setLayout(layout);
 }
 
-void ConfInductance::initData(QByteArray dat)
+void ConfInductance::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
@@ -134,10 +134,10 @@ void ConfInductance::initData(QByteArray dat)
         switch (index) {
         case 0:
             for (int t=0; t < temp.size(); t++) {
-                if (temp.at(t) == "1")
-                    model->item(t, 0)->setCheckState(Qt::Checked);
-                else
+                if (temp.at(t) == "0")
                     model->item(t, 0)->setCheckState(Qt::Unchecked);
+                else
+                    model->item(t, 0)->setCheckState(Qt::Checked);
             }
             break;
         case 3:
@@ -195,7 +195,7 @@ void ConfInductance::saveData()
     text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
 
-    emit sendNetMsg(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 

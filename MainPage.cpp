@@ -144,6 +144,7 @@ void MainPage::recvNetMsg(QString msg)
         resistance->initData(dat);
         current_ac->initData(dat);
         insulation->initData(dat);
+        inductance->initData(dat);
         break;
     default:
         break;

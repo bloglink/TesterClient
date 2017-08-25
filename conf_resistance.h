@@ -18,6 +18,7 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QPushButton>
+#include <QMessageBox>
 #include <QtXml/QDomDocument>
 
 #include "conf_delegation.h"

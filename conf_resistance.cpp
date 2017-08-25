@@ -105,7 +105,7 @@ void ConfResistance::initData(QString dat)
     if (docs.elementsByTagName("DCR").isEmpty())
         return;
     QStringList items = itemNames;
-    items << "temp_comp" << "noun";
+    items << "std_temp" << "temp_comp" << "noun";
     QDomNodeList list = docs.elementsByTagName("DCR").at(0).childNodes();
     for (int i=0; i < list.size(); i++) {
         QDomElement dom = list.at(i).toElement();
@@ -116,10 +116,10 @@ void ConfResistance::initData(QString dat)
         switch (index) {
         case 0:
             for (int t=0; t < temp.size(); t++) {
-                if (temp.at(t) == "1")
-                    model->item(t, 0)->setCheckState(Qt::Checked);
-                else
+                if (temp.at(t) == "0")
                     model->item(t, 0)->setCheckState(Qt::Unchecked);
+                else
+                    model->item(t, 0)->setCheckState(Qt::Checked);
             }
             break;
         case 3:
@@ -143,13 +143,13 @@ void ConfResistance::initData(QString dat)
             }
             break;
         case 10:
+            tempLineEdit->setText(temp.at(0));
+            break;
+        case 11:
             if (temp.at(0) == "1")
                 compensation->setChecked(true);
             else
                 compensation->setChecked(false);
-            break;
-        case 11:
-            tempLineEdit->setText(temp.at(0));
             break;
         case 12:
             nounLineEdit->setText(temp.at(0));
@@ -184,6 +184,13 @@ void ConfResistance::saveData()
     temp_comp.appendChild(text);
 
     temp.clear();
+    temp.append(tempLineEdit->text());
+    QDomElement std_temp = doc.createElement("std_temp");
+    root.appendChild(std_temp);
+    text = doc.createTextNode(temp.join(","));
+    std_temp.appendChild(text);
+
+    temp.clear();
     temp.append(nounLineEdit->text());
     QDomElement noun = doc.createElement("noun");
     root.appendChild(noun);
@@ -196,14 +203,23 @@ void ConfResistance::saveData()
 
 void ConfResistance::autoInput()
 {
-    if (view->currentIndex().row() != 0)
-        return;
+    int r = view->currentIndex().row();
     int c = view->currentIndex().column();
     switch (c) {
     case 0x03:  //线圈材料
     case 0x04:  //电阻单位
-        for (int i=0; i < 8; i++) {
+        if (r != 0)
+            return;
+        for (int i=0; i < 8; i++)
             model->item(i, c)->setText(model->item(0, c)->text());
+        break;
+    case 0x05:
+    case 0x06:
+        if (model->item(r, 5)->text().isEmpty() || model->item(r, 6)->text().isEmpty())
+            return;
+        if (model->item(r, 5)->text().toDouble() > model->item(r, 6)->text().toDouble()) {
+            QMessageBox::warning(this, "警告", tr("下限大于上限"), QMessageBox::Ok);
+            model->item(r, 5)->setText("0.00");
         }
         break;
     default:
