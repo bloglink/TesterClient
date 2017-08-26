@@ -17,7 +17,7 @@ void ConfigFG::initUI()
             << tr("高电平下限") << tr("高电平上限")
             << tr("频率下限") << tr("频率上限")
             << tr("占空比下限") << tr("占空比上限")
-               << tr("相位差下限") << tr("相位差上限")
+            << tr("相位差下限") << tr("相位差上限")
             << tr("磁极数") << tr("Vcc电压") << tr("测试时间");
     model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
@@ -69,22 +69,19 @@ void ConfigFG::initData(QByteArray dat)
 
 void ConfigFG::saveData()
 {
-//    doc.clear();
-//    root.clear();
-//    root = doc.createElement("PWR");
-//    doc.appendChild(root);
+    doc.clear();
+    root.clear();
+    root = doc.createElement("FG");
+    doc.appendChild(root);
 
-//    QStringList temp;
-//    temp << "volt" << "curr_min" << "curr_max"
-//         << "pwr_min" << "pwr_max"
-//         << "speed_min" << "speed_max"
-//         << "vcc_volt" << "vcc_time" << "vcc_up"
-//         << "vdc_volt" << "vdc_time" << "vdc_up"
-//         << "vsp_volt" << "vsp_time" << "vsp_up"
-//         << "time";
-//    for (int i=0; i < temp.size(); i++)
-//        appendXmlData(i, temp.at(i));
-//    emit saveConfig(doc.toByteArray());
+    QStringList temp;
+    temp << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
+         << "freq_min" << "freq_max" << "duty_min" << "duty_max"
+         << "skewing_min" << "skewing_max"
+         << "count" << "vcc_volt" << "time";
+    for (int i=0; i < temp.size(); i++)
+        appendXmlData(i, temp.at(i));
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 
