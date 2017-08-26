@@ -10,13 +10,13 @@
 
 CtrlDevice_232::CtrlDevice_232(QWidget *parent) : QWidget(parent)
 {
-    initCom();
+//    initCom();
 }
 
 CtrlDevice_232::~CtrlDevice_232()
 {
 }
-void CtrlDevice_232::sendIO(quint16 hex)
+void CtrlDevice_232::send_IO_L(quint16 hex)
 {
     quint8 crc = 0x00;
     QByteArray msg;
@@ -33,38 +33,70 @@ void CtrlDevice_232::sendIO(quint16 hex)
     com3->write(msg);
 }
 
-quint16 CtrlDevice_232::readIO()
+void CtrlDevice_232::send_IO_R(quint16 hex)
 {
-    com3->write(QByteArray::fromHex("7B06F100F77D"));
-    quint32 timeOut = 0;
-    while (com3->bytesAvailable() < 7) {
-        wait(10);
-        timeOut++;
-        if (timeOut > 100) {
-            QMessageBox::warning(this, "", "IO板无回应", QMessageBox::Ok);
-            return 0;
-        }
-    }
-    QByteArray msg = com3->readAll();
-    quint16 hex = quint16(msg.at(3)*256) + quint8(msg.at(4));
-    return hex;
+    quint8 crc = 0x00;
+    QByteArray msg;
+    QDataStream out(&msg, QIODevice::ReadWrite);
+    out << quint8(0x7B) << quint8(0x00) << quint8(0xF2)
+        << quint8(hex/256) << quint8(hex%256)
+        << quint8(crc) << quint8(0x7D);
+    out.device()->seek(1);
+    out << quint8(msg.size());
+    out.device()->seek(msg.size()-2);
+    for (int i=1; i < msg.size()-2; i++)
+        crc += quint8(msg.at(i));
+    out << quint8(crc);
+    com6->write(msg);
 }
 
-void CtrlDevice_232::sendPlc(QString cmd)
+void CtrlDevice_232::pre_speed()
 {
-    QByteArray cmds = cmd.toUtf8();
-    cmds.append(0x0D);
-    com4->write(cmds);
-    quint32 timeOut = 0;
-    while (com4->bytesAvailable() < 7) {
-        wait(10);
-        timeOut++;
-        if (timeOut > 100) {
-            QMessageBox::warning(this, "", "PLC无回应", QMessageBox::Ok);
-            return;
-        }
-    }
-    qDebug() << com4->readAll();
+    QByteArray cmd = "%01#WCSR00010**";  //速度模式
+    cmd.append(0x0D);
+    com5->write(cmd);
+    wait(5);
+    com5->readAll();
+
+    cmd = "%01#WCSR00030**";  //方向0
+    cmd.append(0x0D);
+    com5->write(cmd);
+    wait(5);
+    com5->readAll();
+
+    cmd = "%01#WDD001000010100000000**";  //设置速度
+    cmd.append(0x0D);
+    com5->write(cmd);
+    wait(5);
+    com5->readAll();
+
+    cmd = "%01#WCSR00001**";  //启动
+    cmd.append(0x0D);
+    com5->write(cmd);
+    wait(5);
+    com5->readAll();
+}
+
+void CtrlDevice_232::add_speed(quint16 spd)
+{
+    QByteArray cmd = "%01#WDD0010000101";
+    QByteArray speed = QString("%1").arg(spd, 4, 16, QChar('0')).toUtf8();
+    cmd.append(speed.toUpper());
+    cmd.append("0000**");
+    cmd.append(0x0D);
+    qDebug() << cmd;
+//    com5->write(cmd);
+//    wait(5);
+//    com5->readAll();
+}
+
+void CtrlDevice_232::end_speed()
+{
+    QByteArray cmd = "%01#WCSR00000**";
+    cmd.append(0x0D);
+    com5->write(cmd);
+    wait(5);
+    com5->readAll();
 }
 
 void CtrlDevice_232::readPlc()
@@ -120,6 +152,8 @@ void CtrlDevice_232::initCom()
         com3->setFlowControl(QSerialPort::NoFlowControl);
         com3->setDataTerminalReady(true);
         com3->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM3打开失败", QMessageBox::Ok);
     }
     com4 = new QSerialPort("COM4", this);
     if (com4->open(QIODevice::ReadWrite)) {
@@ -130,6 +164,8 @@ void CtrlDevice_232::initCom()
         com4->setFlowControl(QSerialPort::NoFlowControl);
         com4->setDataTerminalReady(true);
         com4->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM4打开失败", QMessageBox::Ok);
     }
     com5 = new QSerialPort("COM5", this);
     if (com5->open(QIODevice::ReadWrite)) {
@@ -140,6 +176,8 @@ void CtrlDevice_232::initCom()
         com5->setFlowControl(QSerialPort::NoFlowControl);
         com5->setDataTerminalReady(true);
         com5->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM5打开失败", QMessageBox::Ok);
     }
     com6 = new QSerialPort("COM6", this);
     if (com6->open(QIODevice::ReadWrite)) {
@@ -150,6 +188,8 @@ void CtrlDevice_232::initCom()
         com6->setFlowControl(QSerialPort::NoFlowControl);
         com6->setDataTerminalReady(true);
         com6->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM6打开失败", QMessageBox::Ok);
     }
     com7 = new QSerialPort("COM7", this);
     if (com7->open(QIODevice::ReadWrite)) {
@@ -160,6 +200,8 @@ void CtrlDevice_232::initCom()
         com7->setFlowControl(QSerialPort::NoFlowControl);
         com7->setDataTerminalReady(true);
         com7->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM7打开失败", QMessageBox::Ok);
     }
     com8 = new QSerialPort("COM8", this);
     if (com8->open(QIODevice::ReadWrite)) {
@@ -170,8 +212,14 @@ void CtrlDevice_232::initCom()
         com8->setFlowControl(QSerialPort::NoFlowControl);
         com8->setDataTerminalReady(true);
         com8->setRequestToSend(false);
+    } else {
+        QMessageBox::warning(this, "", "COM8打开失败", QMessageBox::Ok);
     }
     timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(readCom()));
+    timer->start(50);
+    hexL = 0x0000;
+    hexR = 0x0000;
 }
 
 void CtrlDevice_232::wait(int ms)
@@ -180,4 +228,29 @@ void CtrlDevice_232::wait(int ms)
     t.start();
     while (t.elapsed() < ms)
         QCoreApplication::processEvents();
+}
+
+void CtrlDevice_232::readCom()
+{
+    QByteArray msg;
+    if (com3->bytesAvailable() > 7) {  //有数据读数据，无数据读状态
+        msg = com3->readAll();
+        hexL = quint16(msg.at(3)*256) + quint8(msg.at(4));
+    } else {
+        com3->write(QByteArray::fromHex("7B06F100F77D"));
+    }
+    if (com6->bytesAvailable() > 7) {  //有数据读数据，无数据读状态
+        msg = com6->readAll();
+        hexR = quint16(msg.at(3)*256) + quint8(msg.at(4));
+    } else {
+        com6->write(QByteArray::fromHex("7B06F100F77D"));
+    }
+    if ((hexL & X10) || (hexL & X11))
+        QMessageBox::warning(this, "", "启动L", QMessageBox::Ok);
+    if ((hexR & X10) || (hexR & X11))
+        QMessageBox::warning(this, "", "启动R", QMessageBox::Ok);
+    if ((hexL & X12) || (hexL & X13))
+        QMessageBox::warning(this, "", "停止L", QMessageBox::Ok);
+    if ((hexR & X12) || (hexR & X13))
+        QMessageBox::warning(this, "", "停止R", QMessageBox::Ok);
 }

@@ -47,6 +47,10 @@ signals:
     void buttonTest();
     void buttonTest1();
     void buttonTest2();
+    void buttonTest3();
+    void buttonTest4();
+    void buttonTest5();
+    void buttonTest6();
 public slots:
     void initItems();
     void updateItems(QString items);

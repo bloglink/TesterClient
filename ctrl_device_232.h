@@ -21,6 +21,29 @@
 #include <QMessageBox>
 #include <QFile>
 
+#define X01_BOM 0x0200
+#define X01_TOP 0x0100
+#define X02_TOP 0x0800
+#define X02_BOM 0x0400
+#define X03_BOM 0x1000
+#define X03_TOP 0x2000
+#define X04_TOP 0x8000
+#define X04_BOM 0x4000
+
+#define X10 0x0001
+#define X11 0x0002
+#define X12 0x0004
+#define X13 0x0008
+
+#define Y00 0x0001
+#define Y01 0x0002
+#define Y02 0x0004
+#define Y03 0x0008
+#define Y08 0x0100
+#define Y09 0x0200
+#define Y10 0x0400
+#define Y11 0x0800
+
 class CtrlDevice_232 : public QWidget
 {
     Q_OBJECT
@@ -28,13 +51,19 @@ public:
     explicit CtrlDevice_232(QWidget *parent = 0);
     ~CtrlDevice_232();
 public slots:
-    void sendIO(quint16 hex);
-    quint16 readIO();
-    void sendPlc(QString cmd);
+    void send_IO_L(quint16 hex);
+    void send_IO_R(quint16 hex);
+    void pre_speed();
+    void add_speed(quint16 spd);
+    void end_speed();
     void readPlc();
+public:
+    quint16 hexL;
+    quint16 hexR;
 private slots:
     void initCom();
     void wait(int ms);
+    void readCom();
 private:
     QSerialPort *com3;
     QSerialPort *com4;
@@ -43,6 +72,7 @@ private:
     QSerialPort *com7;
     QSerialPort *com8;
     QTimer *timer;
+
 };
 
 #endif // CTRLDEVICE_232_H

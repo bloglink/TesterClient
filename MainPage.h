@@ -60,6 +60,9 @@ private slots:
     void testDCR();
     void testINR();
     void testACW();
+    void testIND();
+    void testPWR();
+    void testLOD();
 private:
     QList<int> previous_window;
     QStackedWidget *stack;

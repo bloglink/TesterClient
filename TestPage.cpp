@@ -162,6 +162,22 @@ void TestPage::initUI()
     btnINR->setMinimumSize(97, 44);
     connect(btnINR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest2()));
 
+    QPushButton *btnACW = new QPushButton("测试交耐", this);
+    btnACW->setMinimumSize(97, 44);
+    connect(btnACW, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest3()));
+
+    QPushButton *btnIND = new QPushButton("测试电感", this);
+    btnIND->setMinimumSize(97, 44);
+    connect(btnIND, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest4()));
+
+    QPushButton *btnPWR = new QPushButton("测试空载", this);
+    btnPWR->setMinimumSize(97, 44);
+    connect(btnPWR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest5()));
+
+    QPushButton *btnLOD = new QPushButton("测试负载", this);
+    btnLOD->setMinimumSize(97, 44);
+    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
+
     QLabel *btnLogo = new QLabel(this);
     btnLogo->setPixmap(QPixmap(":/source/logo.png"));
     btnLogo->setScaledContents(true);
@@ -197,6 +213,10 @@ void TestPage::initUI()
     tLayout->setRowStretch(4, 2);
     tLayout->addWidget(btnDCR, 5, 0, 1, 2);
     tLayout->addWidget(btnINR, 6, 0, 1, 2);
+    tLayout->addWidget(btnACW, 7, 0, 1, 2);
+    tLayout->addWidget(btnIND, 8, 0, 1, 2);
+    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
+    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
     tLayout->addLayout(cLayout, 12, 0, 1, 2);
     tLayout->setRowStretch(12, 1);
 
