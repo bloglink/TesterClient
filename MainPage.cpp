@@ -93,9 +93,10 @@ void MainPage::initUI()
     connect(loadtesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), loadtesting, SLOT(recvAppShow(QString)));
 
-    ConfigFG *fg = new ConfigFG(this);
+    fg = new ConfigFG(this);
     connect(fg, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(fg, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), fg, SLOT(recvAppShow(QString)));
 
     backforce = new ConfBackForce(this);
     connect(backforce, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -160,6 +161,7 @@ void MainPage::recvNetMsg(QString msg)
         inductance->initData(dat);
         noloadtest->initData(dat);
         loadtesting->initData(dat);
+        fg->initData(dat);
         break;
     default:
         break;

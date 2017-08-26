@@ -79,6 +79,7 @@ private:
     ConfNoLoadTest *noloadtest;
     ConfLoadTesting *loadtesting;
     ConfBackForce *backforce;
+    ConfigFG *fg;
 
     CtrlDevice_232 *plc;
 };

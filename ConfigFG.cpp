@@ -19,6 +19,10 @@ void ConfigFG::initUI()
             << tr("占空比下限") << tr("占空比上限")
             << tr("相位差下限") << tr("相位差上限")
             << tr("磁极数") << tr("Vcc电压") << tr("测试时间");
+    itemNames << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
+              << "freq_min" << "freq_max" << "duty_min" << "duty_max"
+              << "skewing_min" << "skewing_max"
+              << "count" << "vcc_volt" << "time";
     model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
@@ -60,11 +64,23 @@ void ConfigFG::initUI()
     this->setLayout(layout);
 }
 
-void ConfigFG::initData(QByteArray dat)
+void ConfigFG::initData(QString dat)
 {
-    QDomDocument doc;
-    doc.setContent(dat);
-    qDebug() << doc.toByteArray();
+    QDomDocument docs;
+    docs.setContent(dat);
+    if (docs.elementsByTagName("FG").isEmpty())
+        return;
+    QStringList items = itemNames;;
+    QDomNodeList list = docs.elementsByTagName("FG").at(0).childNodes();
+    for (int i=0; i < list.size(); i++) {
+        QDomElement dom = list.at(i).toElement();
+        QStringList temp = dom.text().split(",");
+        int index = items.indexOf(dom.nodeName());
+        if (index == -1)
+            continue;
+        for (int t=0; t < temp.size(); t++)
+            model->item(t, index)->setText(temp.at(t));
+    }
 }
 
 void ConfigFG::saveData()
@@ -74,13 +90,9 @@ void ConfigFG::saveData()
     root = doc.createElement("FG");
     doc.appendChild(root);
 
-    QStringList temp;
-    temp << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
-         << "freq_min" << "freq_max" << "duty_min" << "duty_max"
-         << "skewing_min" << "skewing_max"
-         << "count" << "vcc_volt" << "time";
-    for (int i=0; i < temp.size(); i++)
-        appendXmlData(i, temp.at(i));
+    for (int i=0; i < itemNames.size(); i++)
+        appendXmlData(i, itemNames.at(i));
+    initData(doc.toByteArray());
     emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }

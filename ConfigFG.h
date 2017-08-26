@@ -28,9 +28,10 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+public:
+    void initData(QString dat);
 private slots:
     void initUI();
-    void initData(QByteArray dat);
     void saveData();
     void appendXmlData(int column, QString name);
     void recvAppShow(QString win);
@@ -43,6 +44,7 @@ private:
 
     QDomDocument doc;
     QDomElement root;
+    QStringList itemNames;
 };
 
 #endif // CONFIGFG_H
