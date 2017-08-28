@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.1
+ * author:      zhaonanlin
+ * brief:       型号管理
+*******************************************************************************/
 #ifndef CONFPAGE_H
 #define CONFPAGE_H
 
@@ -10,16 +18,13 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QDebug>
-#include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 #include <QLabel>
 #include <QGroupBox>
-#include <QPushButton>
 #include <QToolButton>
 #include <QColorDialog>
 #include <QPalette>
 #include <QColor>
+#include <QtXml/QDomDocument>
 
 #include "conf_delegation.h"
 
@@ -70,8 +75,6 @@ private:
     QToolButton *btnHide;
 
     QStringList btnNames;
-
-
 };
 
 #endif // CONFPAGE_H

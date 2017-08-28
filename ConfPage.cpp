@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright [2017]   <青岛艾普智能仪器有限公司>
+ * All rights reserved.
+ *
+ * version:     0.1
+ * author:      zhaonanlin
+ * brief:       型号管理
+*******************************************************************************/
 #include "ConfPage.h"
 
 ConfPage::ConfPage(QWidget *parent) : QWidget(parent)
@@ -112,7 +120,6 @@ void ConfPage::initUI()
 
     QGridLayout *cLayout = new QGridLayout;
     for (int i=0; i < 8; i++) {
-
         QPushButton *btn = new QPushButton(QString::number(i+1));
         colors.append(btn);
         cLayout->addWidget(btn, i/2, i%2);
@@ -228,7 +235,6 @@ void ConfPage::saveData()
     type.appendChild(text);
 
     emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
-    saveSys();
     emit buttonClicked(NULL);
 }
 
@@ -242,7 +248,7 @@ void ConfPage::saveSys()
     QStringList temp;
     for (int i=0; i < pModel->rowCount(); i++) {
         for (int t=0; t < btnNames.size(); t++) {
-            if (btnNames.at(t) == pModel->item(i,0)->text())
+            if (btnNames.at(t) == pModel->item(i, 0)->text())
                 temp.append(QString::number(t+1));
         }
     }
@@ -272,6 +278,7 @@ void ConfPage::clickButton()
     } else {
         pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
+    saveSys();
 }
 
 void ConfPage::showButtons()
@@ -297,9 +304,8 @@ void ConfPage::selectColor()
 {
     QPushButton *btn = qobject_cast<QPushButton *>(sender());
     QColor color = QColorDialog::getColor(Qt::white, this);
-    if(color.isValid()) {
+    if (color.isValid())
         btn->setStyleSheet(QString("background-color:%1").arg(color.name()));
-    }
 }
 
 void ConfPage::deleteItem()
@@ -310,6 +316,7 @@ void ConfPage::deleteItem()
     if (row+1 == pModel->rowCount())
         return;
     pModel->removeRow(row);
+    saveSys();
 }
 
 void ConfPage::autoPixmap(QString name)
