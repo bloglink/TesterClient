@@ -131,11 +131,11 @@ void ConfNoLoadTest::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("PWR").isEmpty())
+    if (docs.elementsByTagName("NOLOAD").isEmpty())
         return;
     QStringList items = itemNames;
     items << "sequence" << "turn";
-    QDomNodeList list = docs.elementsByTagName("PWR").at(0).childNodes();
+    QDomNodeList list = docs.elementsByTagName("NOLOAD").at(0).childNodes();
     for (int i=0; i < list.size(); i++) {
         QDomElement dom = list.at(i).toElement();
         QStringList temp = dom.text().split(",");
@@ -152,7 +152,7 @@ void ConfNoLoadTest::initData(QString dat)
                 turnCheckBox->setChecked(false);
             else
                 turnCheckBox->setChecked(true);
-            turnComboBox->setCurrentIndex(temp.at(1).toInt());
+//            turnComboBox->setCurrentIndex(temp.at(1).toInt());
             break;
         default:
             for (int t=0; t < temp.size(); t++)
@@ -166,7 +166,7 @@ void ConfNoLoadTest::saveData()
 {
     doc.clear();
     root.clear();
-    root = doc.createElement("PWR");
+    root = doc.createElement("NOLOAD");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
@@ -395,5 +395,5 @@ void ConfNoLoadTest::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 PWR");
+    emit sendNetMsg("6004 NOLOAD");
 }
