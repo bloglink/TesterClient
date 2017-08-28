@@ -30,20 +30,33 @@ void ConfigFG::initUI()
             model->setData(model->index(i, j), "");
         }
     }
+    SpinBox *voltage = new SpinBox;
+    voltage->setMaxinum(15);
+    SpinBox *freq = new SpinBox;
+    freq->setMaxinum(5000);
+    SpinBox *speed = new SpinBox;
+    speed->setMaxinum(3000);
+    DoubleSpinBox *vcc = new DoubleSpinBox;
+    vcc->setMaxinum(15);
+    DoubleSpinBox *vsp = new DoubleSpinBox;
+    vsp->setMaxinum(15);
+    DoubleSpinBox *time = new DoubleSpinBox;
+    time->setMaxinum(99);
 
     view = new QTableView(this);
     view->setModel(model);
-
+    view->setItemDelegateForColumn(0, voltage);
+    view->setItemDelegateForColumn(1, voltage);
+    view->setItemDelegateForColumn(2, voltage);
+    view->setItemDelegateForColumn(3, voltage);
+    view->setItemDelegateForColumn(4, freq);
+    view->setItemDelegateForColumn(5, freq);
+    view->setItemDelegateForColumn(6, speed);
+    view->setItemDelegateForColumn(7, vcc);
+    view->setItemDelegateForColumn(8, vsp);
+    view->setItemDelegateForColumn(9, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-    SpinBox *spinBox = new SpinBox;
-    view->setItemDelegateForColumn(6, spinBox);
-    view->setItemDelegateForColumn(7, spinBox);
-    view->setItemDelegateForColumn(9, spinBox);
-    view->setItemDelegateForColumn(10, spinBox);
-    view->setItemDelegateForColumn(11, spinBox);
-    view->setItemDelegateForColumn(12, spinBox);
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
