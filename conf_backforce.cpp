@@ -88,11 +88,11 @@ void ConfBackForce::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("PWR").isEmpty())
+    if (docs.elementsByTagName("BEMF").isEmpty())
         return;
     QStringList items = itemNames;
-    items << "sequence" << "turn";
-    QDomNodeList list = docs.elementsByTagName("PWR").at(0).childNodes();
+    items << "noun";
+    QDomNodeList list = docs.elementsByTagName("BEMF").at(0).childNodes();
     for (int i=0; i < list.size(); i++) {
         QDomElement dom = list.at(i).toElement();
         QStringList temp = dom.text().split(",");
