@@ -162,6 +162,7 @@ void MainPage::recvNetMsg(QString msg)
         noloadtest->initData(dat);
         loadtesting->initData(dat);
         fg->initData(dat);
+        backforce->initData(dat);
         break;
     default:
         break;
