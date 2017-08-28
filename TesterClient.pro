@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     ConfPage.cpp \
     TestPage.cpp \
     qcustomplot.cpp \
-    ConfigFG.cpp \
     conf_resistance.cpp \
     conf_insulation.cpp \
     conf_current_ac.cpp \
@@ -39,7 +38,8 @@ SOURCES += main.cpp\
     conf_loadtesting.cpp \
     LoginPage.cpp \
     conf_backforce.cpp \
-    conf_qrencode.cpp
+    conf_qrencode.cpp \
+    conf_hall.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -50,7 +50,6 @@ HEADERS  += \
     ConfPage.h \
     TestPage.h \
     qcustomplot.h \
-    ConfigFG.h \
     conf_resistance.h \
     conf_insulation.h \
     conf_current_ac.h \
@@ -62,7 +61,8 @@ HEADERS  += \
     conf_loadtesting.h \
     LoginPage.h \
     conf_backforce.h \
-    conf_qrencode.h
+    conf_qrencode.h \
+    conf_hall.h
 
 FORMS    += \
     WinSyst.ui \

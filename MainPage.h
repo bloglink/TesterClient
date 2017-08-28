@@ -29,12 +29,28 @@
 #include "conf_noloadtest.h"
 #include "conf_loadtesting.h"
 #include "conf_backforce.h"
-#include "ConfigFG.h"
+#include "conf_hall.h"
 
 #include "WinSyst.h"
 #include "page_sqlite.h"
 
 #include "ctrl_device_232.h"
+
+#define STATUS_FRE 0x00
+#define STATUS_DCR 0x01
+#define STATUS_MAG 0x02
+#define STATUS_INR 0x03
+#define STATUS_ACW 0x04
+#define STATUS_DCW 0x05
+#define STATUS_IMP 0x06
+#define STATUS_PWR 0x07
+#define STATUS_IND 0x08
+#define STATUS_LCK 0x09
+#define STATUS_LVS 0x0A
+#define STATUS_HAL 0x0B
+#define STATUS_LOD 0x0C
+#define STATUS_NLD 0x0D
+#define STATUS_BMF 0x0E
 
 class MainPage : public QWidget
 {
@@ -61,7 +77,7 @@ private slots:
     void testINR();
     void testACW();
     void testIND();
-    void testPWR();
+    void testNLD();
     void testLOD();
 private:
     QList<int> previous_window;
@@ -79,9 +95,11 @@ private:
     ConfNoLoadTest *noloadtest;
     ConfLoadTesting *loadtesting;
     ConfBackForce *backforce;
-    ConfigFG *fg;
+    ConfHall *hall;
 
     CtrlDevice_232 *plc;
+
+    int status;
 };
 
 #endif // MAINPAGE_H

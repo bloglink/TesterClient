@@ -12,6 +12,7 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
     initUI();
     initPLC();
+    status = STATUS_FRE;
 }
 
 MainPage::~MainPage()
@@ -60,7 +61,7 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonTest2()), this, SLOT(testINR()));
     connect(test, SIGNAL(buttonTest3()), this, SLOT(testACW()));
     connect(test, SIGNAL(buttonTest4()), this, SLOT(testIND()));
-    connect(test, SIGNAL(buttonTest5()), this, SLOT(testPWR()));
+    connect(test, SIGNAL(buttonTest5()), this, SLOT(testNLD()));
     connect(test, SIGNAL(buttonTest6()), this, SLOT(testLOD()));
 
     resistance = new ConfResistance(this);
@@ -149,8 +150,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 3003:
         break;
-    case 3005:
-        conf->initTypes(dat);
+    case 6000:
         break;
     case 6005:
         conf->initOther(dat);
@@ -161,8 +161,11 @@ void MainPage::recvNetMsg(QString msg)
         inductance->initData(dat);
         noloadtest->initData(dat);
         loadtesting->initData(dat);
-        fg->initData(dat);
+        hall->initData(dat);
         backforce->initData(dat);
+        break;
+    case 6017:
+        conf->initTypes(dat);
         break;
     default:
         break;
@@ -422,7 +425,7 @@ void MainPage::testLOD()
     }
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 LOD");
+    obj.insert("TxMessage","6006 LOD L");
     emit transmitJson(obj);
 }
 

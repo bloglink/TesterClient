@@ -188,8 +188,8 @@ void TestPage::initUI()
 //    btnLogo->setMinimumHeight(btnLogo->width());
 
     qrencode = new ConfQrenCode(this);
-    qrencode->setMinimumSize(180,180);
-    qrencode->setMaximumSize(180,180);
+    qrencode->setMinimumSize(90,90);
+    qrencode->setMaximumSize(90,90);
 
     DrawHistogram();
 
@@ -487,4 +487,5 @@ void TestPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     emit sendNetMsg("6008");
+    emit sendNetMsg("6004 Sys");
 }
