@@ -166,9 +166,8 @@ void ConfLoadTesting::saveData()
     QDomElement xml = doc.createElement("sequence");
     xml.appendChild(text);
     root.appendChild(xml);
-    emit sendNetMsg(doc.toByteArray());
+    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
-    initData(doc.toByteArray());
 }
 
 void ConfLoadTesting::appendXmlData(int column, QString name)
@@ -411,5 +410,5 @@ void ConfLoadTesting::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 Load");
+    emit sendNetMsg("6004 LOAD");
 }
