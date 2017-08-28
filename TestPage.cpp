@@ -178,10 +178,18 @@ void TestPage::initUI()
     btnLOD->setMinimumSize(97, 44);
     connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
 
-    QLabel *btnLogo = new QLabel(this);
-    btnLogo->setPixmap(QPixmap(":/source/logo.png"));
-    btnLogo->setScaledContents(true);
-    btnLogo->setMinimumHeight(btnLogo->width());
+    QPushButton *btnPrt = new QPushButton("测试打印", this);
+    btnPrt->setMinimumSize(97, 44);
+    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
+
+//    QLabel *btnLogo = new QLabel(this);
+//    btnLogo->setPixmap(QPixmap(":/source/logo.png"));
+//    btnLogo->setScaledContents(true);
+//    btnLogo->setMinimumHeight(btnLogo->width());
+
+    qrencode = new ConfQrenCode(this);
+    qrencode->setMinimumSize(180,180);
+    qrencode->setMaximumSize(180,180);
 
     DrawHistogram();
 
@@ -208,7 +216,7 @@ void TestPage::initUI()
     tLayout->addWidget(btnHome, 0, 0, 1, 2);
     tLayout->addWidget(btnConf, 1, 0, 1, 2);
     tLayout->addWidget(btnTest, 2, 0, 1, 2);
-    tLayout->addWidget(btnLogo, 3, 0, 1, 2);
+    tLayout->addWidget(qrencode, 3, 0, 1, 2);
     tLayout->addWidget(histogram, 4, 0, 1, 2);
     tLayout->setRowStretch(4, 2);
     tLayout->addWidget(btnDCR, 5, 0, 1, 2);
@@ -217,6 +225,7 @@ void TestPage::initUI()
     tLayout->addWidget(btnIND, 8, 0, 1, 2);
     tLayout->addWidget(btnPWR, 9, 0, 1, 2);
     tLayout->addWidget(btnLOD, 10, 0, 1, 2);
+    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
     tLayout->addLayout(cLayout, 12, 0, 1, 2);
     tLayout->setRowStretch(12, 1);
 
@@ -445,6 +454,27 @@ void TestPage::DrawWave()
     //设置坐标轴显示范围，否则只能看到默认范围
     wave->xAxis->setRange(0, 360);
     wave->yAxis->setRange(0, 101);
+}
+
+void TestPage::Printer()
+{
+    qrencode->generateString("xxx");
+    QPrinter printer;
+    // 创建打印预览对话框
+    QPrintPreviewDialog preview(&printer, this);
+    // 当要生成预览页面时，发射paintRequested()信号
+    connect(&preview, SIGNAL(paintRequested(QPrinter*)),
+            this,SLOT(printPreview(QPrinter*)));
+    preview.exec();
+}
+
+void TestPage::printPreview(QPrinter *printer)
+{
+    QPainter painter(printer);
+    QPixmap image;
+    image=image.grabWidget(qrencode,0,0,qrencode->width(),qrencode->height());
+    painter.drawPixmap(0,0,image);
+    //    textEdit->print(printer);
 }
 
 void TestPage::windowChange()

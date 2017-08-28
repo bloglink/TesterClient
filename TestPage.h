@@ -29,6 +29,7 @@
 #include <QColor>
 
 #include "conf_delegation.h"
+#include "conf_qrencode.h"
 
 #include "qcustomplot.h"
 
@@ -65,6 +66,8 @@ private slots:
     void deleteItem();
     void DrawHistogram();
     void DrawWave();
+    void Printer();
+    void printPreview(QPrinter *printer);
 private:
     QTableView *view;
     StandardItem *mView;
@@ -87,6 +90,8 @@ private:
 
     QCustomPlot *wave;
     QCustomPlot *histogram;
+
+    ConfQrenCode *qrencode;
 };
 
 #endif // TESTPAGE_H
