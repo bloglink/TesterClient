@@ -10,7 +10,7 @@
 
 CtrlDevice_232::CtrlDevice_232(QWidget *parent) : QWidget(parent)
 {
-//    initCom();
+    initCom();
 }
 
 CtrlDevice_232::~CtrlDevice_232()
@@ -155,9 +155,9 @@ void CtrlDevice_232::readPlc()
     QByteArray cmd;
     quint32 timeOut = 0;
     cmd = QByteArray::fromHex("0005");
-    com5->write(cmd);
+    com4->write(cmd);
     timeOut = 0;
-    while (com5->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 7) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -165,11 +165,11 @@ void CtrlDevice_232::readPlc()
             return;
         }
     }
-    qDebug() << com5->readAll();
+    qDebug() << com4->readAll();
     cmd = QByteArray::fromHex("0001926D00");
-    com5->write(cmd);
+    com4->write(cmd);
     timeOut = 0;
-    while (com5->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 7) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -177,11 +177,11 @@ void CtrlDevice_232::readPlc()
             return;
         }
     }
-    qDebug() << com5->readAll();
+    qDebug() << com4->readAll();
     cmd = QByteArray::fromHex("0400");
-    com5->write(cmd);
+    com4->write(cmd);
     timeOut = 0;
-    while (com5->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 7) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -189,7 +189,7 @@ void CtrlDevice_232::readPlc()
             return;
         }
     }
-    qDebug() << com5->readAll();
+    qDebug() << com4->readAll();
 }
 
 void CtrlDevice_232::initCom()
@@ -205,6 +205,7 @@ void CtrlDevice_232::initCom()
         com3->setRequestToSend(false);
     } else {
         QMessageBox::warning(this, "", "COM3打开失败", QMessageBox::Ok);
+        return;
     }
     com4 = new QSerialPort("COM4", this);
     if (com4->open(QIODevice::ReadWrite)) {
