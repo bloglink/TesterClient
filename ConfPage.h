@@ -41,6 +41,7 @@ signals:
 public:
     void initTypes(QString dat);
     void initOther(QString dat);
+    QStringList testItems();
 private slots:
     void initUI();
     void saveData();
@@ -54,6 +55,7 @@ private slots:
     void recvAppShow(QString win);
     void appendType();
     void deleteType();
+    void updateType();
 private:
     QTableView *view;
     StandardItem *mView;
@@ -75,6 +77,8 @@ private:
     QToolButton *btnHide;
 
     QStringList btnNames;
+
+    QStringList testItem;
 };
 
 #endif // CONFPAGE_H

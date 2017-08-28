@@ -52,6 +52,7 @@ void ConfPage::initOther(QString dat)
             QStringList temp = dom.text().split(",");
             if (dom.nodeName() == "Test_Item") {
                 pModel->setRowCount(0);
+                testItem = temp;
                 for (int i=0; i < temp.size(); i++) {
                     pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
                 }
@@ -59,6 +60,11 @@ void ConfPage::initOther(QString dat)
             }
         }
     }
+}
+
+QStringList ConfPage::testItems()
+{
+    return testItem;
 }
 
 void ConfPage::initUI()
@@ -72,6 +78,7 @@ void ConfPage::initUI()
     view = new QTableView(this);
     view->setModel(mView);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(updateType()));
 
     typeLineEdit = new QLineEdit(this);
     typeLineEdit->setMinimumSize(97, 35);
@@ -335,7 +342,7 @@ void ConfPage::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("3004");
+    emit sendNetMsg("6016");
     emit sendNetMsg("6004 Sys");
     emit sendNetMsg("6004 Conf");
 }
@@ -345,8 +352,10 @@ void ConfPage::appendType()
     QString name = typeLineEdit->text();
     if (name.isEmpty())
         return;
-    emit sendNetMsg(QString("6006 %1").arg(name).toUtf8());
-    emit sendNetMsg("3004");
+    emit sendNetMsg(QString("6010 %1").arg(name).toUtf8());
+    emit sendNetMsg("6016");
+    emit sendNetMsg("6004 Sys");
+    emit sendNetMsg("6004 Conf");
 }
 
 void ConfPage::deleteType()
@@ -355,6 +364,20 @@ void ConfPage::deleteType()
     if (row < 0)
         return;
     QString name = mView->item(row, 0)->text();
-    emit sendNetMsg(QString("6008 %1").arg(name).toUtf8());
-    emit sendNetMsg("3004");
+    emit sendNetMsg(QString("6012 %1").arg(name).toUtf8());
+    emit sendNetMsg("6016");
+    emit sendNetMsg("6004 Sys");
+    emit sendNetMsg("6004 Conf");
+}
+
+void ConfPage::updateType()
+{
+    int row = view->currentIndex().row();
+    if (row < 1)
+        return;
+    QString name = mView->item(row, 0)->text();
+    emit sendNetMsg(QString("6018 %1").arg(name).toUtf8());
+    emit sendNetMsg("6016");
+    emit sendNetMsg("6004 Sys");
+    emit sendNetMsg("6004 Conf");
 }
