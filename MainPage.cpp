@@ -208,133 +208,59 @@ void MainPage::testInit()
 {
     test->initItems();
     QJsonObject obj;
-    obj.insert("TxMessage","3008");
+    obj.insert("TxMessage","6020 L");
     emit transmitJson(obj);
+
+    QStringList testItems = conf->testItems();
+    for (int i=0; i < testItems.size(); i++) {
+        int cmd = testItems.at(i).toInt();
+        status = cmd;
+        switch (cmd) {
+        case STATUS_DCR:
+            testDCR();
+            break;
+        case STATUS_INR:
+            testINR();
+            break;
+        case STATUS_IND:
+            testIND();
+        case STATUS_NLD:
+            testNLD();
+            break;
+        case STATUS_LOD:
+            testLOD();
+            break;
+        default:
+            break;
+        }
+    }
+    status = STATUS_FRE;
 }
 
 void MainPage::testDCR()
 {
-//    quint16 hex = 0x0000;
-//    QStringList temp;
-
-//    plc->sendIO(Y00 | Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X01_TOP) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸1", temp.join(","), QMessageBox::Ok);
-
-//    plc->sendIO(Y00 | Y01 | Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X02_TOP) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸2", temp.join(","), QMessageBox::Ok);
-
-//    plc->sendIO(Y00 | Y01 | Y02 | Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X03_BOM) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸3", temp.join(","), QMessageBox::Ok);
-
-
-//    plc->sendIO(Y00 | Y01 | Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X03_TOP) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸3归位", temp.join(","), QMessageBox::Ok);
-
-//    plc->sendIO(Y00 | Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X02_BOM) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸2归位", temp.join(","), QMessageBox::Ok);
-
-//    plc->sendIO(Y10);
-//    temp.clear();
-//    for (int i=0; i < 20; i++) {
-//        hex = plc->readIO();
-//        temp.append(QString("%1").arg(hex, 0, 16).toUpper());
-//        if (hex & X01_BOM) {
-//            temp.append("OK");
-//            break;
-//        }
-//        wait(100);
-//    }
-//    temp.removeDuplicates();
-//    QMessageBox::warning(this, "气缸1归位", temp.join(","), QMessageBox::Ok);
-
-//    for (int i=0; i < 10; i++) {
-//        plc->sendIO(Y11);
-//        wait(200);
-//        plc->sendIO(0);
-//        wait(200);
-//    }
-//    QMessageBox::warning(this, "绿灯闪烁", temp.join(","), QMessageBox::Ok);
-
-//    for (int i=0; i < 10; i++) {
-//        plc->sendIO(Y09);
-//        wait(200);
-//        plc->sendIO(0);
-//        wait(200);
-//    }
-//    QMessageBox::warning(this, "红灯闪烁", temp.join(","), QMessageBox::Ok);
-
-//    for (int i=0; i < 10; i++) {
-//        plc->sendIO(Y08);
-//        wait(200);
-//    }
-//    QMessageBox::warning(this, "蜂鸣器", temp.join(","), QMessageBox::Ok);
-
-//    plc->sendIO(0);
-
+    qDebug() << conf->testItems();
     QJsonObject obj;
-    obj.insert("TxMessage","6006 DCR");
+    obj.insert("TxMessage","6006 DCR L");
     emit transmitJson(obj);
+    quint32 timeOut = 0;
+    status = STATUS_DCR;
+    while (1) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 1000) {
+            QMessageBox::warning(this, "电阻", "电阻测试超时", QMessageBox::Ok);
+            break;
+        }
+        if (status != STATUS_DCR)
+            break;
+    }
 }
 
 void MainPage::testINR()
 {
     QJsonObject obj;
-    obj.insert("TxMessage","6006 IR");
+    obj.insert("TxMessage","6006 IR L");
     emit transmitJson(obj);
 }
 
@@ -345,7 +271,7 @@ void MainPage::testACW()
     plc->send_IO_L(Y03 | Y10);
     timeOut = 0;
     while (1) {
-        if (plc->hexL & X04_TOP) {
+        if (plc->hexL & X04_TARGET) {
             QMessageBox::warning(this, "气缸4", "气缸4到位", QMessageBox::Ok);
             break;
         }
@@ -360,7 +286,7 @@ void MainPage::testACW()
     plc->send_IO_L(Y10);
     timeOut = 0;
     while (1) {
-        if (plc->hexL & X04_BOM) {
+        if (plc->hexL & X04_ORIGIN) {
             QMessageBox::warning(this, "气缸4", "气缸4归位", QMessageBox::Ok);
             break;
         }
@@ -374,24 +300,24 @@ void MainPage::testACW()
     plc->send_IO_L(0);
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 ACW");
+    obj.insert("TxMessage","6006 ACW L");
     emit transmitJson(obj);
 }
 
 void MainPage::testIND()
 {
     QJsonObject obj;
-    obj.insert("TxMessage","6006 IND");
+    obj.insert("TxMessage","6006 IND L");
     emit transmitJson(obj);
 }
 
-void MainPage::testPWR()
+void MainPage::testNLD()
 {
     quint16 timeOut = 0x0000;
     plc->send_IO_L(Y00 | Y10);
     timeOut = 0;
     while (1) {
-        if (plc->hexL & X01_TOP) {
+        if (plc->hexL & X01_TARGET) {
             QMessageBox::warning(this, "气缸1", "气缸1到位", QMessageBox::Ok);
             break;
         }
@@ -404,7 +330,7 @@ void MainPage::testPWR()
     }
     plc->send_IO_L(Y00 | Y01 | Y10);
     while (1) {
-        if (plc->hexL & X02_TOP) {
+        if (plc->hexL & X02_TARGET) {
             QMessageBox::warning(this, "气缸2", "气缸2到位", QMessageBox::Ok);
             break;
         }
@@ -417,7 +343,7 @@ void MainPage::testPWR()
     }
     plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
     while (1) {
-        if (plc->hexL & X03_BOM) {
+        if (plc->hexL & X03_TARGET) {
             QMessageBox::warning(this, "气缸3", "气缸3到位", QMessageBox::Ok);
             break;
         }
@@ -432,7 +358,7 @@ void MainPage::testPWR()
     plc->send_IO_L(Y00 | Y01 | Y10);
     timeOut = 0;
     while (1) {
-        if (plc->hexL & X03_TOP) {
+        if (plc->hexL & X03_ORIGIN) {
             QMessageBox::warning(this, "气缸3", "气缸3归位", QMessageBox::Ok);
             break;
         }
@@ -445,7 +371,7 @@ void MainPage::testPWR()
     }
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 PWR");
+    obj.insert("TxMessage","6006 PWR L");
     emit transmitJson(obj);
 }
 
@@ -454,7 +380,7 @@ void MainPage::testLOD()
     quint16 timeOut = 0x0000;
     plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
     while (1) {
-        if (plc->hexL & X03_BOM) {
+        if (plc->hexL & X03_TARGET) {
             QMessageBox::warning(this, "气缸3", "气缸3到位", QMessageBox::Ok);
             break;
         }
@@ -483,7 +409,7 @@ void MainPage::testLOD()
     plc->send_IO_L(Y00 | Y01 | Y10);
     timeOut = 0;
     while (1) {
-        if (plc->hexL & X03_TOP) {
+        if (plc->hexL & X03_ORIGIN) {
             QMessageBox::warning(this, "气缸3", "气缸3归位", QMessageBox::Ok);
             break;
         }

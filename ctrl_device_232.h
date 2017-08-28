@@ -21,14 +21,14 @@
 #include <QMessageBox>
 #include <QFile>
 
-#define X01_BOM 0x0200
-#define X01_TOP 0x0100
-#define X02_TOP 0x0800
-#define X02_BOM 0x0400
-#define X03_BOM 0x1000
-#define X03_TOP 0x2000
-#define X04_TOP 0x8000
-#define X04_BOM 0x4000
+#define X01_TARGET 0x0100
+#define X01_ORIGIN 0x0200
+#define X02_TARGET 0x0400
+#define X02_ORIGIN 0x0800
+#define X03_TARGET 0x1000
+#define X03_ORIGIN 0x2000
+#define X04_TARGET 0x4000
+#define X04_ORIGIN 0x8000
 
 #define X10 0x0001
 #define X11 0x0002
