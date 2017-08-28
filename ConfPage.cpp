@@ -155,13 +155,13 @@ void ConfPage::initUI()
 
     QVBoxLayout *btnsLayout = new QVBoxLayout;
 
-    btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" <<"直耐"
-             << "匝间" << "电感" << "空载" << "加载" << "FG" << "BEMF";
+    btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" << "直耐"
+             << "匝间" << "电参" << "电感" << "堵转" << "低启"
+             << "霍尔" << "负载" << "空载" << "BEMF";
     QStringList objNames;
-    objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC"
-             << "ConfigDCR"
-             << "ConfigIMP" << "ConfInductance" << "ConfNoLoadTest" << "ConfLoadTesting" << "ConfigFG"
-             << "ConfBackForce";
+    objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC" << "x"
+             << "ConfigIMP" << "x" << "ConfInductance" << "x" << "x" << "ConfigFG"
+             << "ConfLoadTesting" << "ConfNoLoadTest"  << "ConfBackForce";
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i), this));
         btnsLayout->addWidget(buttons.at(i));
