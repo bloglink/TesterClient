@@ -9,7 +9,13 @@ CONFIG   += serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-
+linux{
+LIBS += /usr/lib/i386-linux-gnu/libqrencode.so
+}
+win32{
+LIBS+= E:\Code\TesterClient\qrcodelib.lib
+LIBS+= E:\Code\TesterClient\qrcodelib.dll
+}
 TARGET = TesterClient
 TEMPLATE = app
 
@@ -32,7 +38,8 @@ SOURCES += main.cpp\
     conf_noloadtest.cpp \
     conf_loadtesting.cpp \
     LoginPage.cpp \
-    conf_backforce.cpp
+    conf_backforce.cpp \
+    conf_qrencode.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -54,7 +61,8 @@ HEADERS  += \
     conf_noloadtest.h \
     conf_loadtesting.h \
     LoginPage.h \
-    conf_backforce.h
+    conf_backforce.h \
+    conf_qrencode.h
 
 FORMS    += \
     WinSyst.ui \
