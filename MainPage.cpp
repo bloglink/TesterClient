@@ -465,13 +465,17 @@ void MainPage::testLOD()
         }
     }
     plc->pre_speed();
+    QMessageBox::warning(this, "伺服", "伺服速度启动", QMessageBox::Ok);
     for (int i=0; i < 10; i++) {
-        plc->add_speed(0xff00/(10-i));
+        plc->add_speed(6000*i);
+        wait(100);
     }
     wait(1500);
     for (int i=0; i < 10; i++) {
-        plc->add_speed(0xff00/(i+1));
+        plc->add_speed(60000-6000*i);
+        wait(100);
     }
+
     wait(1500);
     plc->end_speed();
     wait(50);

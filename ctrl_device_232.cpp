@@ -52,42 +52,93 @@ void CtrlDevice_232::send_IO_R(quint16 hex)
 
 void CtrlDevice_232::pre_speed()
 {
-    QByteArray cmd = "%01#WCSR00010**";  //速度模式
+    quint32 timeOut = 0;
+    QString temp = "%01#WCSR00010**";  //速度模式
+    QByteArray cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
-    wait(5);
-    com5->readAll();
+    timeOut = 0;
+    while (com5->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            QMessageBox::warning(this, "速度模式", "PLC无回应", QMessageBox::Ok);
+            return;
+        }
+    }
+    qDebug() << com5->readAll();
+//    QMessageBox::warning(this, "速度模式", com5->readAll(), QMessageBox::Ok);
 
-    cmd = "%01#WCSR00030**";  //方向0
+    temp = "%01#WCSR00030**";  //方向0
+    cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
-    wait(5);
-    com5->readAll();
+    timeOut = 0;
+    while (com5->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            QMessageBox::warning(this, "方向", "PLC无回应", QMessageBox::Ok);
+            return;
+        }
+    }
+    qDebug() << com5->readAll();
+//    QMessageBox::warning(this, "方向", com5->readAll(), QMessageBox::Ok);
 
-    cmd = "%01#WDD001000010100000000**";  //设置速度
+    temp = "%01#WDD001000010100000000**";  //设置速度
+    cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
-    wait(5);
-    com5->readAll();
+    timeOut = 0;
+    while (com5->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            QMessageBox::warning(this, "设置速度", "PLC无回应", QMessageBox::Ok);
+            return;
+        }
+    }
+    qDebug() << com5->readAll();
+//    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
 
-    cmd = "%01#WCSR00001**";  //启动
+    temp = "%01#WCSR00001**";  //启动
+    cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
-    wait(5);
-    com5->readAll();
+    timeOut = 0;
+    while (com5->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            QMessageBox::warning(this, "启动", "PLC无回应", QMessageBox::Ok);
+            return;
+        }
+    }
+    qDebug() << com5->readAll();
+//    QMessageBox::warning(this, "启动", com5->readAll(), QMessageBox::Ok);
 }
 
 void CtrlDevice_232::add_speed(quint16 spd)
 {
+    quint32 timeOut = 0;
     QByteArray cmd = "%01#WDD0010000101";
     QByteArray speed = QString("%1").arg(spd, 4, 16, QChar('0')).toUtf8();
     cmd.append(speed.toUpper());
     cmd.append("0000**");
+    cmd = "%01#WDD0010000101F0000000**";  //设置速度
     cmd.append(0x0D);
-    qDebug() << cmd;
-//    com5->write(cmd);
-//    wait(5);
-//    com5->readAll();
+    com5->write(cmd);
+    timeOut = 0;
+    while (com5->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            QMessageBox::warning(this, "设置速度", "PLC无回应", QMessageBox::Ok);
+            return;
+        }
+    }
+    qDebug() << com5->readAll();
+//    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
 }
 
 void CtrlDevice_232::end_speed()
@@ -158,7 +209,7 @@ void CtrlDevice_232::initCom()
     com4 = new QSerialPort("COM4", this);
     if (com4->open(QIODevice::ReadWrite)) {
         com4->setBaudRate(9600);
-        com4->setParity(QSerialPort::OddParity);
+        com4->setParity(QSerialPort::NoParity);
         com4->setDataBits(QSerialPort::Data8);
         com4->setStopBits(QSerialPort::OneStop);
         com4->setFlowControl(QSerialPort::NoFlowControl);
@@ -170,7 +221,7 @@ void CtrlDevice_232::initCom()
     com5 = new QSerialPort("COM5", this);
     if (com5->open(QIODevice::ReadWrite)) {
         com5->setBaudRate(9600);
-        com5->setParity(QSerialPort::NoParity);
+        com5->setParity(QSerialPort::OddParity);
         com5->setDataBits(QSerialPort::Data8);
         com5->setStopBits(QSerialPort::OneStop);
         com5->setFlowControl(QSerialPort::NoFlowControl);
@@ -194,7 +245,7 @@ void CtrlDevice_232::initCom()
     com7 = new QSerialPort("COM7", this);
     if (com7->open(QIODevice::ReadWrite)) {
         com7->setBaudRate(9600);
-        com7->setParity(QSerialPort::OddParity);
+        com7->setParity(QSerialPort::NoParity);
         com7->setDataBits(QSerialPort::Data8);
         com7->setStopBits(QSerialPort::OneStop);
         com7->setFlowControl(QSerialPort::NoFlowControl);
@@ -206,7 +257,7 @@ void CtrlDevice_232::initCom()
     com8 = new QSerialPort("COM8", this);
     if (com8->open(QIODevice::ReadWrite)) {
         com8->setBaudRate(9600);
-        com8->setParity(QSerialPort::NoParity);
+        com8->setParity(QSerialPort::OddParity);
         com8->setDataBits(QSerialPort::Data8);
         com8->setStopBits(QSerialPort::OneStop);
         com8->setFlowControl(QSerialPort::NoFlowControl);
