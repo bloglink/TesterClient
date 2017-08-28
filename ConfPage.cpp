@@ -167,7 +167,7 @@ void ConfPage::initUI()
              << "霍尔" << "负载" << "空载" << "BEMF";
     QStringList objNames;
     objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC" << "x"
-             << "ConfigIMP" << "x" << "ConfInductance" << "x" << "x" << "ConfigFG"
+             << "ConfigIMP" << "x" << "ConfInductance" << "x" << "x" << "ConfHall"
              << "ConfLoadTesting" << "ConfNoLoadTest"  << "ConfBackForce";
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i), this));
@@ -177,6 +177,12 @@ void ConfPage::initUI()
         buttons.at(i)->setCheckable(true);
         connect(buttons.at(i), SIGNAL(clicked(bool)), this, SLOT(clickButton()));
     }
+    buttons.at(1)->hide();
+    buttons.at(4)->hide();
+    buttons.at(5)->hide();
+    buttons.at(6)->hide();
+    buttons.at(8)->hide();
+    buttons.at(9)->hide();
 
     QPushButton *btnDelete = new QPushButton("删除项目", this);
     btnDelete->setMinimumSize(97, 35);

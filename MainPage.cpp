@@ -93,10 +93,10 @@ void MainPage::initUI()
     connect(loadtesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), loadtesting, SLOT(recvAppShow(QString)));
 
-    fg = new ConfigFG(this);
-    connect(fg, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(fg, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), fg, SLOT(recvAppShow(QString)));
+    hall = new ConfHall(this);
+    connect(hall, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(hall, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), hall, SLOT(recvAppShow(QString)));
 
     backforce = new ConfBackForce(this);
     connect(backforce, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -115,7 +115,7 @@ void MainPage::initUI()
     stack->addWidget(inductance);
     stack->addWidget(noloadtest);
     stack->addWidget(loadtesting);
-    stack->addWidget(fg);
+    stack->addWidget(hall);
     stack->addWidget(backforce);
     readButtons("HomePage");
 

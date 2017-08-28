@@ -1,5 +1,5 @@
-#ifndef CONFIGFG_H
-#define CONFIGFG_H
+#ifndef CONFHALL_H
+#define CONFHALL_H
 
 #include <QWidget>
 #include <QTableView>
@@ -18,12 +18,12 @@
 
 #include "conf_delegation.h"
 
-class ConfigFG : public QWidget
+class ConfHall : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfigFG(QWidget *parent = 0);
-    ~ConfigFG();
+    explicit ConfHall(QWidget *parent = 0);
+    ~ConfHall();
 
 signals:
     void sendNetMsg(QByteArray dat);
@@ -47,4 +47,4 @@ private:
     QStringList itemNames;
 };
 
-#endif // CONFIGFG_H
+#endif // CONFHALL_H

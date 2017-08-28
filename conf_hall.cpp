@@ -1,17 +1,18 @@
-#include "ConfigFG.h"
+#include "conf_hall.h"
 
-ConfigFG::ConfigFG(QWidget *parent) : QWidget(parent)
+ConfHall::ConfHall(QWidget *parent) : QWidget(parent)
 {
-    initUI();
+initUI();
 }
 
-ConfigFG::~ConfigFG()
+
+ConfHall::~ConfHall()
 {
 }
 
-void ConfigFG::initUI()
+void ConfHall::initUI()
 {
-    this->setObjectName("ConfigFG");
+    this->setObjectName("ConfHall");
     QStringList headers;
     headers << tr("低电平下限") << tr("低电平上限")
             << tr("高电平下限") << tr("高电平上限")
@@ -34,14 +35,17 @@ void ConfigFG::initUI()
     voltage->setMaxinum(15);
     SpinBox *freq = new SpinBox;
     freq->setMaxinum(5000);
-    SpinBox *speed = new SpinBox;
-    speed->setMaxinum(3000);
-    DoubleSpinBox *vcc = new DoubleSpinBox;
-    vcc->setMaxinum(15);
-    DoubleSpinBox *vsp = new DoubleSpinBox;
-    vsp->setMaxinum(15);
+    DoubleSpinBox *skewing = new DoubleSpinBox;
+    skewing->setMaxinum(360);
+    SpinBox *duty = new SpinBox;
+    duty->setMaxinum(100);
+    SpinBox *count = new SpinBox;
+    count->setMaxinum(10);
     DoubleSpinBox *time = new DoubleSpinBox;
     time->setMaxinum(99);
+    DoubleSpinBox *vcc = new DoubleSpinBox;
+    vcc->setMaxinum(15);
+
 
     view = new QTableView(this);
     view->setModel(model);
@@ -51,10 +55,13 @@ void ConfigFG::initUI()
     view->setItemDelegateForColumn(3, voltage);
     view->setItemDelegateForColumn(4, freq);
     view->setItemDelegateForColumn(5, freq);
-    view->setItemDelegateForColumn(6, speed);
-    view->setItemDelegateForColumn(7, vcc);
-    view->setItemDelegateForColumn(8, vsp);
-    view->setItemDelegateForColumn(9, time);
+    view->setItemDelegateForColumn(6, duty);
+    view->setItemDelegateForColumn(7, duty);
+    view->setItemDelegateForColumn(8, skewing);
+    view->setItemDelegateForColumn(9, skewing);
+    view->setItemDelegateForColumn(10, count);
+    view->setItemDelegateForColumn(11, vcc);
+    view->setItemDelegateForColumn(12, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -77,14 +84,14 @@ void ConfigFG::initUI()
     this->setLayout(layout);
 }
 
-void ConfigFG::initData(QString dat)
+void ConfHall::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
-    if (docs.elementsByTagName("FG").isEmpty())
+    if (docs.elementsByTagName("HALL").isEmpty())
         return;
     QStringList items = itemNames;;
-    QDomNodeList list = docs.elementsByTagName("FG").at(0).childNodes();
+    QDomNodeList list = docs.elementsByTagName("HALL").at(0).childNodes();
     for (int i=0; i < list.size(); i++) {
         QDomElement dom = list.at(i).toElement();
         QStringList temp = dom.text().split(",");
@@ -96,11 +103,11 @@ void ConfigFG::initData(QString dat)
     }
 }
 
-void ConfigFG::saveData()
+void ConfHall::saveData()
 {
     doc.clear();
     root.clear();
-    root = doc.createElement("FG");
+    root = doc.createElement("HALL");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
@@ -110,7 +117,7 @@ void ConfigFG::saveData()
     emit buttonClicked(NULL);
 }
 
-void ConfigFG::appendXmlData(int column, QString name)
+void ConfHall::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
@@ -118,10 +125,9 @@ void ConfigFG::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
-void ConfigFG::recvAppShow(QString win)
+void ConfHall::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 FG");
+    emit sendNetMsg("6004 HALL");
 }
-
