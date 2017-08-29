@@ -249,8 +249,10 @@ void MainPage::testInit()
         default:
             break;
         }
-        if (status == STATUS_OVER)
+        if (status == STATUS_OVER) {
+            QMessageBox::warning(this, "警告", "您停止了测试", QMessageBox::Ok);
             break;
+        }
     }
     if (test->updateResult()) {
         plc->send_IO(station, Y11 | Y08);  // 绿灯加蜂鸣器
@@ -488,6 +490,35 @@ void MainPage::testStop()
     QJsonObject obj;
     obj.insert("TxMessage",QString("6022 %1").arg(station));
     emit transmitJson(obj);
+    status = STATUS_OVER;
+}
+
+void MainPage::testStopAction()
+{
+    bool cylinder = false;
+    plc->send_IO(station, Y00 | Y02 | Y10);  // 气缸2松开
+    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y02 | Y10);  // 气缸1归位
+    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y10);  // 气缸全部归位
+    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 }
 
 void MainPage::testTimeOut()
@@ -495,6 +526,7 @@ void MainPage::testTimeOut()
     QJsonObject obj;
     obj.insert("TxMessage",QString("6026"));
     emit transmitJson(obj);
+    status = STATUS_OVER;
 }
 
 void MainPage::recvIOMsg(QString msg)

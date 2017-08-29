@@ -84,6 +84,7 @@ private slots:
     void testNLD();
     void testLOD();
     void testStop();
+    void testStopAction();
     void testTimeOut();
     void recvIOMsg(QString msg);
     bool readCylinderL(quint16 s);
