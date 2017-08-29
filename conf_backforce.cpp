@@ -8,16 +8,16 @@
 *******************************************************************************/
 #include "conf_backforce.h"
 
-ConfBackForce::ConfBackForce(QWidget *parent) : QWidget(parent)
+ConfBackEMFTest::ConfBackEMFTest(QWidget *parent) : QWidget(parent)
 {
     initUI();
 }
 
-ConfBackForce::~ConfBackForce()
+ConfBackEMFTest::~ConfBackEMFTest()
 {
 }
 
-void ConfBackForce::initUI()
+void ConfBackEMFTest::initUI()
 {
     this->setObjectName("ConfBackForce");
     QStringList headers;
@@ -54,7 +54,7 @@ void ConfBackForce::initUI()
     view->setItemDelegateForColumn(5, voltage);
     view->setItemDelegateForColumn(6, speed);
     view->setItemDelegateForColumn(7, turn);
-    view->setItemDelegateForColumn(7, skewing);
+    view->setItemDelegateForColumn(8, skewing);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -84,7 +84,7 @@ void ConfBackForce::initUI()
     this->setLayout(layout);
 }
 
-void ConfBackForce::initData(QString dat)
+void ConfBackEMFTest::initData(QString dat)
 {
     QDomDocument docs;
     docs.setContent(dat);
@@ -111,7 +111,7 @@ void ConfBackForce::initData(QString dat)
     }
 }
 
-void ConfBackForce::saveData()
+void ConfBackEMFTest::saveData()
 {
     doc.clear();
     root.clear();
@@ -133,7 +133,7 @@ void ConfBackForce::saveData()
     initData(doc.toByteArray());
 }
 
-void ConfBackForce::appendXmlData(int column, QString name)
+void ConfBackEMFTest::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
@@ -141,7 +141,7 @@ void ConfBackForce::appendXmlData(int column, QString name)
     root.appendChild(xml);
 }
 
-void ConfBackForce::recvAppShow(QString win)
+void ConfBackEMFTest::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;

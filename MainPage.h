@@ -103,8 +103,8 @@ private:
     ConfInductance *inductance;
     ConfNoLoadTest *noloadtest;
     ConfLoadTesting *loadtesting;
-    ConfBackForce *backforce;
-    ConfHall *hall;
+    ConfBackEMFTest *backemftest;
+    ConfHall *halltesting;
 
     CtrlDevice_232 *plc;
 

@@ -25,12 +25,12 @@
 #include "conf_delegation.h"
 #include "qcustomplot.h"
 
-class ConfBackForce : public QWidget
+class ConfBackEMFTest : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ConfBackForce(QWidget *parent = 0);
-    ~ConfBackForce();
+    explicit ConfBackEMFTest(QWidget *parent = 0);
+    ~ConfBackEMFTest();
 
 signals:
     void sendNetMsg(QByteArray dat);

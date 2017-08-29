@@ -95,15 +95,15 @@ void MainPage::initUI()
     connect(loadtesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), loadtesting, SLOT(recvAppShow(QString)));
 
-    hall = new ConfHall(this);
-    connect(hall, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(hall, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), hall, SLOT(recvAppShow(QString)));
+    halltesting = new ConfHall(this);
+    connect(halltesting, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(halltesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), halltesting, SLOT(recvAppShow(QString)));
 
-    backforce = new ConfBackForce(this);
-    connect(backforce, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(backforce, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), backforce, SLOT(recvAppShow(QString)));
+    backemftest = new ConfBackEMFTest(this);
+    connect(backemftest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(backemftest, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), backemftest, SLOT(recvAppShow(QString)));
 
     stack = new QStackedWidget(this);
     stack->addWidget(home);
@@ -117,8 +117,8 @@ void MainPage::initUI()
     stack->addWidget(inductance);
     stack->addWidget(noloadtest);
     stack->addWidget(loadtesting);
-    stack->addWidget(hall);
-    stack->addWidget(backforce);
+    stack->addWidget(halltesting);
+    stack->addWidget(backemftest);
     readButtons("HomePage");
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -148,14 +148,10 @@ void MainPage::recvNetMsg(QString msg)
     int cmd = msg.mid(0, a).toInt();
     QString dat = msg.mid(a+1, msg.size());
     switch (cmd) {
-    case 3001:
-        break;
-    case 3003:
-        break;
-    case 6001:
+    case 6001:  // 自检信息
         emit sendNetMsg("6001");
         break;
-    case 6005:
+    case 6005:  // 上传配置
         conf->initOther(dat);
         test->updateItems(dat);
         resistance->initData(dat);
@@ -164,14 +160,18 @@ void MainPage::recvNetMsg(QString msg)
         inductance->initData(dat);
         noloadtest->initData(dat);
         loadtesting->initData(dat);
-        hall->initData(dat);
-        backforce->initData(dat);
+        halltesting->initData(dat);
+        backemftest->initData(dat);
         break;
-    case 6007:
+    case 6007:  // 单项测试完成
         status = STATUS_FREE;
         qDebug() << dat;
         break;
-    case 6017:
+    case 6015:  // 空载启动完成
+        qDebug() << "noload";
+        plc->readPlc();
+        break;
+    case 6017:  // 上传测试型号
         conf->initTypes(dat);
         break;
     default:
@@ -545,7 +545,7 @@ bool MainPage::waitTimeOut(quint16 s)
     while (1) {
         wait(10);
         timeOut++;
-        if (timeOut > 1000) {
+        if (timeOut > 2000) {
             QMessageBox::warning(this, "超时", QString("测试超时:%1").arg(s), QMessageBox::Ok);
             testTimeOut();
             return false;
