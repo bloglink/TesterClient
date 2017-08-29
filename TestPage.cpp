@@ -333,6 +333,8 @@ void TestPage::DrawHistogram()
     histogram = new QCustomPlot(this);
     histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
     histogram->yAxis->setTicks(false);
+    histogram->yAxis2->setTicks(false);
+    histogram->xAxis2->setTicks(false);
     histogram->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
     histogram->axisRect()->setupFullAxesBox();
 
@@ -344,9 +346,9 @@ void TestPage::DrawHistogram()
     x1[0] = 1;
     y1[0] = 100;
     x2[0] = 2;
-    y2[0] = 94;
+    y2[0] = 100;
     x3[0] = 3;
-    y3[0] = 6;
+    y3[0] = 1;
 
     QCPBars *bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars1->setWidth(0.9);
@@ -385,9 +387,12 @@ void TestPage::DrawHistogram()
     textTicker->addTicks(ticks, labels);
     histogram->xAxis->setTicker(textTicker);
     histogram->xAxis->setTickLabelRotation(0);
-    histogram->xAxis->setSubTicks(false);
-    histogram->xAxis->setTickLength(0, 1);
-    histogram->xAxis->setRange(0.5, 3.5);
+    histogram->xAxis->setTicks(false);  // 下标尺
+    histogram->xAxis2->setTicks(false);  // 上标尺
+    histogram->xAxis->setSubTicks(false);  // 下细标尺
+    histogram->xAxis2->setSubTicks(false);  // 上细标尺
+    histogram->xAxis->setTickLength(0, 1);  // x轴标尺步长
+    histogram->xAxis->setRange(0.5, 3.5);  // x轴范围
     histogram->xAxis->setBasePen(QPen(Qt::black));
     histogram->xAxis->setTickPen(QPen(Qt::black));
     histogram->xAxis->grid()->setVisible(false);
@@ -416,19 +421,19 @@ void TestPage::DrawWave()
         uy[i] = ((((i+360+180)/180)%2) == 0) ? 41 : 50;
         vy[i] = ((((i+360+60)/180)%2)  == 0) ? 31 : 40;
         wy[i] = ((((i+360-60)/180)%2)  == 0) ? 21 : 30;
-        ay[i] = ((((i+17)/15)%2) == 0) ? 11 : 20;
-        by[i] = ((((i+9)/15)%2)  == 0) ? 1 : 10;
+//        ay[i] = ((((i+17)/15)%2) == 0) ? 11 : 20;
+//        by[i] = ((((i+9)/15)%2)  == 0) ? 1 : 10;
     }
 
-    QCPGraph *graph1 = wave->addGraph();
-    graph1->setPen(QPen(Qt::yellow));
-    graph1->setData(x, hu);
-    QCPGraph *graph2 = wave->addGraph();
-    graph2->setPen(QPen(Qt::green));
-    graph2->setData(x, hv);
-    QCPGraph *graph3 = wave->addGraph();
-    graph3->setPen(QPen(Qt::red));
-    graph3->setData(x, hw);
+//    QCPGraph *graph1 = wave->addGraph();
+//    graph1->setPen(QPen(Qt::yellow));
+//    graph1->setData(x, hu);
+//    QCPGraph *graph2 = wave->addGraph();
+//    graph2->setPen(QPen(Qt::green));
+//    graph2->setData(x, hv);
+//    QCPGraph *graph3 = wave->addGraph();
+//    graph3->setPen(QPen(Qt::red));
+//    graph3->setData(x, hw);
     QCPGraph *graph4 = wave->addGraph();
     graph4->setPen(QPen(Qt::yellow));
     graph4->setData(x, uy);
@@ -472,7 +477,7 @@ void TestPage::DrawWave()
 
     //设置坐标轴显示范围，否则只能看到默认范围
     wave->xAxis->setRange(0, 360);
-    wave->yAxis->setRange(0, 101);
+    wave->yAxis->setRange(20, 51);
 }
 
 void TestPage::Printer()
