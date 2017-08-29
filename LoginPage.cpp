@@ -104,7 +104,6 @@ void LoginPage::initUI()
     layout->setMargin(0);
     layout->setSpacing(0);
     this->setLayout(layout);
-
     this->resize(500, 360);
 }
 
@@ -131,12 +130,14 @@ void LoginPage::initData()
 void LoginPage::saveData()
 {
     QStringList items;
-    for (int i=0; i < svr->count(); i++)
+    items.append(svr->currentText());
+    for (int i=0; i < svr->count(); i++) {
+        if (svr->itemText(i) == svr->currentText())
+            continue;
         items.append(svr->itemText(i));
-    if (!items.contains(svr->currentText()))
-        items.append(svr->currentText());
+    }
     if (items.size() > SAVE_MAX)  // 最多存储5条
-        items.removeFirst();
+        items.removeLast();
     QByteArray save_svr = QString(items.join("@")).toUtf8();
     ini->setValue("svr",  save_svr.toBase64());
     items.clear();
@@ -168,7 +169,7 @@ void LoginPage::login()
     QJsonObject obj;
     obj.insert("host_addr", svr->currentText());
     obj.insert("host_port", prt->currentText());
-    obj.insert("TxMessage","1666");
+    obj.insert("TxMessage","6000");
     emit sendJson(obj);
 
     QTimer *timer = new QTimer(this);
@@ -183,13 +184,13 @@ void LoginPage::login()
 void LoginPage::loginTimeOut()
 {
     QMessageBox::warning(this, "", tr("连接超时:设备无回应, 请重新连接"));
-    this->reject();
+    this->accept();
 }
 
 void LoginPage::recvNetMsg(QString msg)
 {
     QString TxMessage = msg.split(" ").at(0);
-    if (TxMessage.toInt() == 1666)
+    if (TxMessage.toInt() == 6001)
         this->accept();
 }
 
