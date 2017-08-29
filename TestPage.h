@@ -55,6 +55,7 @@ signals:
 public slots:
     void initItems();
     void updateItems(QString items);
+    bool updateResult();
 private slots:
     void initUI();
     void saveData();
@@ -92,6 +93,9 @@ private:
     QCustomPlot *histogram;
 
     ConfQrenCode *qrencode;
+
+    QLabel *station;
+    QLabel *judge;
 };
 
 #endif // TESTPAGE_H

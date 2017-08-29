@@ -23,6 +23,8 @@ void TestPage::initItems()
         mView->item(i, 2)->setText("");
         mView->item(i, 3)->setText("");
     }
+    station->setText("左");
+    judge->setText("--");
 }
 
 void TestPage::updateItems(QString dat)
@@ -83,6 +85,20 @@ void TestPage::updateItems(QString dat)
             }
         }
     }
+}
+
+bool TestPage::updateResult()
+{
+    for (int i=0; i < mView->rowCount(); i++) {
+        if (mView->item(i, 3)->text() != "OK") {
+            judge->setStyleSheet("font:55pt;color:red");
+            judge->setText("NG");
+            return false;
+        }
+    }
+    judge->setStyleSheet("font:55pt;color:green");
+    judge->setText("OK");
+    return true;
 }
 
 void TestPage::initUI()
@@ -202,12 +218,12 @@ void TestPage::initUI()
         color->setStyleSheet("background-color:#191919");
     }
 
-    QLabel *station = new QLabel(this);
+    station = new QLabel(this);
     station->setStyleSheet("font:50pt;color:yellow");
     station->setText("左");
     station->setAlignment(Qt::AlignCenter);
 
-    QLabel *judge = new QLabel(this);
+    judge = new QLabel(this);
     judge->setStyleSheet("font:55pt;color:green");
     judge->setText("OK");
     judge->setAlignment(Qt::AlignCenter);
