@@ -71,7 +71,7 @@ void CtrlDevice_232::pre_speed()
     qDebug() << com5->readAll();
 //    QMessageBox::warning(this, "速度模式", com5->readAll(), QMessageBox::Ok);
 
-    temp = "%01#WCSR00030**";  //方向0
+    temp = "%01#WCSR00031**";  //方向1
     cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
@@ -123,12 +123,13 @@ void CtrlDevice_232::pre_speed()
 void CtrlDevice_232::add_speed(quint16 spd)
 {
     quint32 timeOut = 0;
+    quint16 temp = spd/256 + (spd%256)*256;
     QByteArray cmd = "%01#WDD0010000101";
-    QByteArray speed = QString("%1").arg(spd, 4, 16, QChar('0')).toUtf8();
+    QByteArray speed = QString("%1").arg(temp, 4, 16, QChar('0')).toUtf8();
     cmd.append(speed.toUpper());
     cmd.append("0000**");
-    cmd = "%01#WDD0010000101F0000000**";  //设置速度
     cmd.append(0x0D);
+    qDebug() << cmd;
     com5->write(cmd);
     timeOut = 0;
     while (com5->bytesAvailable() < 7) {
@@ -159,7 +160,7 @@ void CtrlDevice_232::readPlc()
     cmd = QByteArray::fromHex("0005");
     com4->write(cmd);
     timeOut = 0;
-    while (com4->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 1) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -171,7 +172,7 @@ void CtrlDevice_232::readPlc()
     cmd = QByteArray::fromHex("0001926D00");
     com4->write(cmd);
     timeOut = 0;
-    while (com4->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 2) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -183,7 +184,7 @@ void CtrlDevice_232::readPlc()
     cmd = QByteArray::fromHex("0400");
     com4->write(cmd);
     timeOut = 0;
-    while (com4->bytesAvailable() < 14) {
+    while (com4->bytesAvailable() < 7) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {

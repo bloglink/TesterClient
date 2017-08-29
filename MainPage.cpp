@@ -418,10 +418,10 @@ void MainPage::testNLD()
     wait(100);
     // 气缸3压紧
     if (station == 0x14) {
-        plc->send_IO_R(Y00 | Y01 | Y02 | Y10);
+        plc->send_IO_R(Y02 | Y10);
         cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     } else {
-        plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
+        plc->send_IO_L(Y02 | Y10);
         cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     }
     if (!cylinder) {
@@ -431,16 +431,16 @@ void MainPage::testNLD()
     wait(100);
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 PWR 19");
+    obj.insert("TxMessage","6006 NOLAOD");
     emit transmitJson(obj);
-    wait(3000);
+    waitTimeOut(STATUS_NLD);
 
     // 气缸3上升
     if (station == 0x14) {
-        plc->send_IO_R(Y00 | Y01 | Y10);
+        plc->send_IO_R(Y10);
         cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     } else {
-        plc->send_IO_L(Y00 | Y01 | Y10);
+        plc->send_IO_L(Y10);
         cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
     if (!cylinder) {
@@ -507,19 +507,24 @@ void MainPage::testLOD()
     wait(100);
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 LOD 19");
+    obj.insert("TxMessage","6006 LOAD");
     emit transmitJson(obj);
     wait(1500);
 
     plc->pre_speed();
-    QMessageBox::warning(this, "伺服", "伺服速度启动", QMessageBox::Ok);
+
     for (int i=0; i < 10; i++) {
-        plc->add_speed(6000*i);
+        plc->add_speed(100*i);
         wait(100);
     }
+    plc->readPlc();
+    quint16 speed = plc->speed;
+    quint16 torque = plc->torque;
+    QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
+    QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
     wait(1500);
     for (int i=0; i < 10; i++) {
-        plc->add_speed(60000-6000*i);
+        plc->add_speed(1000-100*i);
         wait(100);
     }
 
@@ -528,10 +533,10 @@ void MainPage::testLOD()
     wait(100);
     // 气缸2松开
     if (station == 0x14) {
-        plc->send_IO_R(Y00 | Y10);
+        plc->send_IO_R(Y00 | Y02 | Y10);
         cylinder = readCylinderR(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     } else {
-        plc->send_IO_L(Y00 | Y10);
+        plc->send_IO_L(Y00 | Y02 | Y10);
         cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     }
     if (!cylinder) {
@@ -541,10 +546,10 @@ void MainPage::testLOD()
     wait(100);
     // 气缸1归位
     if (station == 0x14) {
-        plc->send_IO_R(Y10);
+        plc->send_IO_R(Y02 | Y10);
         cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     } else {
-        plc->send_IO_L(Y10);
+        plc->send_IO_L(Y02 | Y10);
         cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     }
     if (!cylinder) {
@@ -554,10 +559,10 @@ void MainPage::testLOD()
     wait(100);
     // 气缸3上升
     if (station == 0x14) {
-        plc->send_IO_R(Y00 | Y01 | Y10);
+        plc->send_IO_R(Y10);
         cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     } else {
-        plc->send_IO_L(Y00 | Y01 | Y10);
+        plc->send_IO_L(Y10);
         cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
     if (!cylinder) {
@@ -607,7 +612,7 @@ bool MainPage::readCylinderL(quint16 s)
 {
     quint16 timeOut = 0x0000;
     while (1) {
-        if (plc->hexL & s)
+        if ((plc->hexL & 0xFF00) == s)
             return true;
         wait(100);
         timeOut++;
@@ -623,7 +628,7 @@ bool MainPage::readCylinderR(quint16 s)
 {
     quint16 timeOut = 0x0000;
     while (1) {
-        if (plc->hexR & s)
+        if ((plc->hexR & 0xFF00) == s)
             return true;
         wait(100);
         timeOut++;
