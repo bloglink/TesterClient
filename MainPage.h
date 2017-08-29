@@ -87,7 +87,6 @@ private slots:
     void testTimeOut();
     void recvIOMsg(QString msg);
     bool readCylinderL(quint16 s);
-    bool readCylinderR(quint16 s);
     bool waitTimeOut(quint16 s);
 private:
     QList<int> previous_window;

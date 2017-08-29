@@ -30,19 +30,19 @@
 #define X04_TARGET 0x4000
 #define X04_ORIGIN 0x8000
 
-#define X10 0x0001
-#define X11 0x0002
-#define X12 0x0004
-#define X13 0x0008
+#define X10 0x0001  // 启动
+#define X11 0x0002  // 启动
+#define X12 0x0004  // 停止
+#define X13 0x0008  // 停止
 
-#define Y00 0x0001
-#define Y01 0x0002
-#define Y02 0x0004
-#define Y03 0x0008
-#define Y08 0x0100
-#define Y09 0x0200
-#define Y10 0x0400
-#define Y11 0x0800
+#define Y00 0x0001  // 台下起降气缸1
+#define Y01 0x0002  // 台下夹紧气缸2
+#define Y02 0x0004  // 台上压紧气缸3
+#define Y03 0x0008  // 台上耐压气缸4
+#define Y08 0x0100  // 蜂鸣器
+#define Y09 0x0200  // 红灯
+#define Y10 0x0400  // 黄灯
+#define Y11 0x0800  // 绿灯
 
 class CtrlDevice_232 : public QWidget
 {
@@ -53,8 +53,7 @@ public:
 signals:
     void recvMsg(QString msg);
 public slots:
-    void send_IO_L(quint16 hex);
-    void send_IO_R(quint16 hex);
+    void send_IO(quint16 station, quint16 hex);
     void pre_speed();
     void add_speed(quint16 spd);
     void end_speed();

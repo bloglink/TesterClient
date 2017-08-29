@@ -18,24 +18,8 @@ CtrlDevice_232::CtrlDevice_232(QWidget *parent) : QWidget(parent)
 CtrlDevice_232::~CtrlDevice_232()
 {
 }
-void CtrlDevice_232::send_IO_L(quint16 hex)
-{
-    quint8 crc = 0x00;
-    QByteArray msg;
-    QDataStream out(&msg, QIODevice::ReadWrite);
-    out << quint8(0x7B) << quint8(0x00) << quint8(0xF2)
-        << quint8(hex/256) << quint8(hex%256)
-        << quint8(crc) << quint8(0x7D);
-    out.device()->seek(1);
-    out << quint8(msg.size());
-    out.device()->seek(msg.size()-2);
-    for (int i=1; i < msg.size()-2; i++)
-        crc += quint8(msg.at(i));
-    out << quint8(crc);
-    com3->write(msg);
-}
 
-void CtrlDevice_232::send_IO_R(quint16 hex)
+void CtrlDevice_232::send_IO(quint16 station, quint16 hex)
 {
     quint8 crc = 0x00;
     QByteArray msg;
@@ -49,7 +33,10 @@ void CtrlDevice_232::send_IO_R(quint16 hex)
     for (int i=1; i < msg.size()-2; i++)
         crc += quint8(msg.at(i));
     out << quint8(crc);
-    com6->write(msg);
+    if (station == 0x13)
+        com3->write(msg);
+    if (station == 0x14)
+        com6->write(msg);
 }
 
 void CtrlDevice_232::pre_speed()
@@ -69,7 +56,7 @@ void CtrlDevice_232::pre_speed()
         }
     }
     qDebug() << com5->readAll();
-//    QMessageBox::warning(this, "速度模式", com5->readAll(), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "速度模式", com5->readAll(), QMessageBox::Ok);
 
     temp = "%01#WCSR00031**";  //方向1
     cmd = temp.toUtf8();
@@ -85,7 +72,7 @@ void CtrlDevice_232::pre_speed()
         }
     }
     qDebug() << com5->readAll();
-//    QMessageBox::warning(this, "方向", com5->readAll(), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "方向", com5->readAll(), QMessageBox::Ok);
 
     temp = "%01#WDD001000010100000000**";  //设置速度
     cmd = temp.toUtf8();
@@ -101,7 +88,7 @@ void CtrlDevice_232::pre_speed()
         }
     }
     qDebug() << com5->readAll();
-//    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
 
     temp = "%01#WCSR00001**";  //启动
     cmd = temp.toUtf8();
@@ -117,7 +104,7 @@ void CtrlDevice_232::pre_speed()
         }
     }
     qDebug() << com5->readAll();
-//    QMessageBox::warning(this, "启动", com5->readAll(), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "启动", com5->readAll(), QMessageBox::Ok);
 }
 
 void CtrlDevice_232::add_speed(quint16 spd)
@@ -141,7 +128,7 @@ void CtrlDevice_232::add_speed(quint16 spd)
         }
     }
     qDebug() << com5->readAll();
-//    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "设置速度", com5->readAll(), QMessageBox::Ok);
 }
 
 void CtrlDevice_232::end_speed()
@@ -210,7 +197,7 @@ void CtrlDevice_232::initCom()
         com3->setRequestToSend(false);
     } else {
         QMessageBox::warning(this, "", "COM3打开失败", QMessageBox::Ok);
-        return;
+        //        return;
     }
     com4 = new QSerialPort("COM4", this);
     if (com4->open(QIODevice::ReadWrite)) {
