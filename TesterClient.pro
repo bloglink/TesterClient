@@ -21,7 +21,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     WinSyst.cpp \
-    QRCodeTest.cpp \
     UdpSocket.cpp \
     HomePage.cpp \
     MainPage.cpp \
@@ -43,7 +42,6 @@ SOURCES += main.cpp\
 
 HEADERS  += \
     WinSyst.h \
-    QRCodeTest.h \
     UdpSocket.h \
     HomePage.h \
     MainPage.h \
@@ -65,8 +63,7 @@ HEADERS  += \
     conf_hall.h
 
 FORMS    += \
-    WinSyst.ui \
-    QRCodeTest.ui
+    WinSyst.ui
 
 RESOURCES += \
     image.qrc \

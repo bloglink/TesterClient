@@ -36,7 +36,7 @@
 
 #include "ctrl_device_232.h"
 
-#define STATUS_FRE 0x00
+
 #define STATUS_DCR 0x01
 #define STATUS_MAG 0x02
 #define STATUS_INR 0x03
@@ -51,6 +51,10 @@
 #define STATUS_LOD 0x0C
 #define STATUS_NLD 0x0D
 #define STATUS_BMF 0x0E
+
+#define STATUS_FREE 0x00
+#define STATUS_OVER 0xFF
+#define STATUS_PREP 0xFE
 
 class MainPage : public QWidget
 {
@@ -79,6 +83,12 @@ private slots:
     void testIND();
     void testNLD();
     void testLOD();
+    void testStop();
+    void testTimeOut();
+    void recvIOMsg(QString msg);
+    bool readCylinderL(quint16 s);
+    bool readCylinderR(quint16 s);
+    bool waitTimeOut(quint16 s);
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -100,6 +110,8 @@ private:
     CtrlDevice_232 *plc;
 
     int status;
+    int station;
+    int timeOut;
 };
 
 #endif // MAINPAGE_H

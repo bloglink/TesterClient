@@ -11,6 +11,8 @@
 CtrlDevice_232::CtrlDevice_232(QWidget *parent) : QWidget(parent)
 {
     initCom();
+    hexL = 0x0000;
+    hexR = 0x0000;
 }
 
 CtrlDevice_232::~CtrlDevice_232()
@@ -181,7 +183,7 @@ void CtrlDevice_232::readPlc()
     cmd = QByteArray::fromHex("0400");
     com4->write(cmd);
     timeOut = 0;
-    while (com4->bytesAvailable() < 7) {
+    while (com4->bytesAvailable() < 14) {
         wait(10);
         timeOut++;
         if (timeOut > 100) {
@@ -189,7 +191,9 @@ void CtrlDevice_232::readPlc()
             return;
         }
     }
-    qDebug() << com4->readAll();
+    QByteArray msg = com4->readAll();
+    speed = quint8(msg.at(3)) + quint8(msg.at(4))*256;
+    torque = quint8(msg.at(5)) + quint16(msg.at(6))*256;
 }
 
 void CtrlDevice_232::initCom()
@@ -298,11 +302,11 @@ void CtrlDevice_232::readCom()
         com6->write(QByteArray::fromHex("7B06F100F77D"));
     }
     if ((hexL & X10) || (hexL & X11))
-        QMessageBox::warning(this, "", "启动L", QMessageBox::Ok);
+        emit recvMsg("StartL");
     if ((hexR & X10) || (hexR & X11))
-        QMessageBox::warning(this, "", "启动R", QMessageBox::Ok);
+        emit recvMsg("StartR");
     if ((hexL & X12) || (hexL & X13))
-        QMessageBox::warning(this, "", "停止L", QMessageBox::Ok);
+        emit recvMsg("StopL");
     if ((hexR & X12) || (hexR & X13))
-        QMessageBox::warning(this, "", "停止R", QMessageBox::Ok);
+        emit recvMsg("StopR");
 }

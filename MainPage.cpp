@@ -12,7 +12,8 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
     initUI();
     initPLC();
-    status = STATUS_FRE;
+    status = STATUS_FREE;
+    station = 0x13;
 }
 
 MainPage::~MainPage()
@@ -128,6 +129,7 @@ void MainPage::initUI()
 void MainPage::initPLC()
 {
     plc = new CtrlDevice_232(this);
+    connect(plc, SIGNAL(recvMsg(QString)), this, SLOT(recvIOMsg(QString)));
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -150,7 +152,8 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 3003:
         break;
-    case 6000:
+    case 6001:
+        emit sendNetMsg("6001");
         break;
     case 6005:
         conf->initOther(dat);
@@ -163,6 +166,10 @@ void MainPage::recvNetMsg(QString msg)
         loadtesting->initData(dat);
         hall->initData(dat);
         backforce->initData(dat);
+        break;
+    case 6007:
+        status = STATUS_FREE;
+        qDebug() << dat;
         break;
     case 6017:
         conf->initTypes(dat);
@@ -211,8 +218,11 @@ void MainPage::testInit()
 {
     test->initItems();
     QJsonObject obj;
-    obj.insert("TxMessage","6020 L");
+    obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);
+
+    plc->send_IO_L(Y10);
+    readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
 
     QStringList testItems = conf->testItems();
     for (int i=0; i < testItems.size(); i++) {
@@ -225,6 +235,9 @@ void MainPage::testInit()
         case STATUS_INR:
             testINR();
             break;
+        case STATUS_ACW:
+            testACW();
+            break;
         case STATUS_IND:
             testIND();
         case STATUS_NLD:
@@ -236,164 +249,268 @@ void MainPage::testInit()
         default:
             break;
         }
+        if (status == STATUS_OVER)
+            break;
     }
-    status = STATUS_FRE;
+    status = STATUS_FREE;
 }
 
 void MainPage::testDCR()
 {
-    qDebug() << conf->testItems();
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+
     QJsonObject obj;
-    obj.insert("TxMessage","6006 DCR L");
+    obj.insert("TxMessage","6006 DCR");
     emit transmitJson(obj);
-    quint32 timeOut = 0;
-    status = STATUS_DCR;
-    while (1) {
-        wait(10);
-        timeOut++;
-        if (timeOut > 1000) {
-            QMessageBox::warning(this, "电阻", "电阻测试超时", QMessageBox::Ok);
-            break;
-        }
-        if (status != STATUS_DCR)
-            break;
+    waitTimeOut(STATUS_DCR);
+
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
 }
 
 void MainPage::testINR()
 {
+    bool cylinder = false;
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    if (station == 0x14) {
+        plc->send_IO_R(Y03 | Y10);
+        readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    } else {
+        plc->send_IO_L(Y03 | Y10);
+        readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    }
+    wait(100);
+
     QJsonObject obj;
-    obj.insert("TxMessage","6006 IR L");
+    obj.insert("TxMessage","6006 IR");
     emit transmitJson(obj);
+    waitTimeOut(STATUS_INR);
+
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(500);
 }
 
 void MainPage::testACW()
 {
-    quint16 timeOut = 0x0000;
-
-    plc->send_IO_L(Y03 | Y10);
-    timeOut = 0;
-    while (1) {
-        if (plc->hexL & X04_TARGET) {
-            QMessageBox::warning(this, "气缸4", "气缸4到位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸4", "气缸4到位超时", QMessageBox::Ok);
-            break;
-        }
+    bool cylinder = false;
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
-    wait(3000);
-    plc->send_IO_L(Y10);
-    timeOut = 0;
-    while (1) {
-        if (plc->hexL & X04_ORIGIN) {
-            QMessageBox::warning(this, "气缸4", "气缸4归位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸4", "气缸4归位超时", QMessageBox::Ok);
-            break;
-        }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
     }
-    plc->send_IO_L(0);
+    wait(100);
+    if (station == 0x14) {
+        plc->send_IO_R(Y03 | Y10);
+        readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    } else {
+        plc->send_IO_L(Y03 | Y10);
+        readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    }
+    wait(100);
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 ACW L");
+    obj.insert("TxMessage","6006 ACW");
     emit transmitJson(obj);
+    waitTimeOut(STATUS_ACW);
+
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(500);
 }
 
 void MainPage::testIND()
 {
+    bool cylinder = false;
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
     QJsonObject obj;
-    obj.insert("TxMessage","6006 IND L");
+    obj.insert("TxMessage","6006 IND");
     emit transmitJson(obj);
+    waitTimeOut(STATUS_INR);
+
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(500);
 }
 
 void MainPage::testNLD()
 {
-    quint16 timeOut = 0x0000;
-    plc->send_IO_L(Y00 | Y10);
-    timeOut = 0;
-    while (1) {
-        if (plc->hexL & X01_TARGET) {
-            QMessageBox::warning(this, "气缸1", "气缸1到位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸1", "气缸1到位超时", QMessageBox::Ok);
-            break;
-        }
+    bool cylinder = false;
+    // 气缸归位
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
-    plc->send_IO_L(Y00 | Y01 | Y10);
-    while (1) {
-        if (plc->hexL & X02_TARGET) {
-            QMessageBox::warning(this, "气缸2", "气缸2到位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸2", "气缸2到位超时", QMessageBox::Ok);
-            break;
-        }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
     }
-    plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
-    while (1) {
-        if (plc->hexL & X03_TARGET) {
-            QMessageBox::warning(this, "气缸3", "气缸3到位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸3", "气缸3到位超时", QMessageBox::Ok);
-            break;
-        }
+    wait(100);
+    // 气缸3压紧
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y01 | Y02 | Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
     }
-    wait(3000);
-    plc->send_IO_L(Y00 | Y01 | Y10);
-    timeOut = 0;
-    while (1) {
-        if (plc->hexL & X03_ORIGIN) {
-            QMessageBox::warning(this, "气缸3", "气缸3归位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸3", "气缸3归位超时", QMessageBox::Ok);
-            break;
-        }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
     }
+    wait(100);
 
     QJsonObject obj;
-    obj.insert("TxMessage","6006 PWR L");
+    obj.insert("TxMessage","6006 PWR 19");
     emit transmitJson(obj);
+    wait(3000);
+
+    // 气缸3上升
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y01 | Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y01 | Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 }
 
 void MainPage::testLOD()
 {
-    quint16 timeOut = 0x0000;
-    plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
-    while (1) {
-        if (plc->hexL & X03_TARGET) {
-            QMessageBox::warning(this, "气缸3", "气缸3到位", QMessageBox::Ok);
-            break;
-        }
-        wait(100);
-        timeOut++;
-        if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸3", "气缸3到位超时", QMessageBox::Ok);
-            break;
-        }
+    bool cylinder = false;
+    // 气缸归位
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
     }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    // 气缸1上升
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y10);
+        cylinder = readCylinderR(X01_TARGET | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y10);
+        cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    // 气缸2夹紧
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y01 | Y10);
+        cylinder = readCylinderR(X01_TARGET | X02_TARGET | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y01 | Y10);
+        cylinder = readCylinderL(X01_TARGET | X02_TARGET | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    // 气缸3压紧
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y01 | Y02 | Y10);
+        cylinder = readCylinderR(X01_TARGET | X02_TARGET | X03_TARGET | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y01 | Y02 | Y10);
+        cylinder = readCylinderL(X01_TARGET | X02_TARGET | X03_TARGET | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    QJsonObject obj;
+    obj.insert("TxMessage","6006 LOD 19");
+    emit transmitJson(obj);
+    wait(1500);
+
     plc->pre_speed();
     QMessageBox::warning(this, "伺服", "伺服速度启动", QMessageBox::Ok);
     for (int i=0; i < 10; i++) {
@@ -408,24 +525,130 @@ void MainPage::testLOD()
 
     wait(1500);
     plc->end_speed();
-    wait(50);
-    plc->send_IO_L(Y00 | Y01 | Y10);
-    timeOut = 0;
+    wait(100);
+    // 气缸2松开
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y10);
+        cylinder = readCylinderR(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y10);
+        cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    // 气缸1归位
+    if (station == 0x14) {
+        plc->send_IO_R(Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+    // 气缸3上升
+    if (station == 0x14) {
+        plc->send_IO_R(Y00 | Y01 | Y10);
+        cylinder = readCylinderR(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    } else {
+        plc->send_IO_L(Y00 | Y01 | Y10);
+        cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    }
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+}
+
+void MainPage::testStop()
+{
+    QJsonObject obj;
+    obj.insert("TxMessage",QString("6022 %1").arg(station));
+    emit transmitJson(obj);
+}
+
+void MainPage::testTimeOut()
+{
+    QJsonObject obj;
+    obj.insert("TxMessage",QString("6026"));
+    emit transmitJson(obj);
+}
+
+void MainPage::recvIOMsg(QString msg)
+{
+    if (msg == "StartL") {
+        if (status != STATUS_FREE)
+            return;
+        status = STATUS_PREP;
+        station = 0x13;
+        QTimer::singleShot(10, this, SLOT(testThread()));
+    }
+    if (msg == "StartR") {
+        if (status != STATUS_FREE)
+            return;
+        status = STATUS_PREP;
+        station = 0x14;
+        QTimer::singleShot(10, this, SLOT(testThread()));
+    }
+    if (msg == "StopL" || msg == "StopR") {
+        testStop();
+        testTimeOut();
+    }
+}
+
+bool MainPage::readCylinderL(quint16 s)
+{
+    quint16 timeOut = 0x0000;
     while (1) {
-        if (plc->hexL & X03_ORIGIN) {
-            QMessageBox::warning(this, "气缸3", "气缸3归位", QMessageBox::Ok);
-            break;
-        }
+        if (plc->hexL & s)
+            return true;
         wait(100);
         timeOut++;
         if (timeOut > 50) {
-            QMessageBox::warning(this, "气缸3", "气缸3归位超时", QMessageBox::Ok);
-            break;
+            QString temp = QString("气缸到位超时:%1!=%2").arg(s, 4, 16, QChar('0')).arg(plc->hexL, 4, 16, QChar('0'));
+            QMessageBox::warning(this, "气缸", temp, QMessageBox::Ok);
+            return false;
         }
     }
+}
 
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 LOD L");
-    emit transmitJson(obj);
+bool MainPage::readCylinderR(quint16 s)
+{
+    quint16 timeOut = 0x0000;
+    while (1) {
+        if (plc->hexR & s)
+            return true;
+        wait(100);
+        timeOut++;
+        if (timeOut > 50) {
+            QString temp = QString("气缸到位超时:%1!=%2").arg(s, 4, 16, QChar('0')).arg(plc->hexR, 4, 16, QChar('0'));
+            QMessageBox::warning(this, "气缸", temp, QMessageBox::Ok);
+            return false;
+        }
+    }
+}
+
+bool MainPage::waitTimeOut(quint16 s)
+{
+    status = s;
+    timeOut = 0;
+    while (1) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 1000) {
+            QMessageBox::warning(this, "超时", QString("测试超时:%1").arg(s), QMessageBox::Ok);
+            testTimeOut();
+            return false;
+        }
+        if (status != s)
+            return true;
+    }
 }
 

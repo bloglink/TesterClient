@@ -25,8 +25,8 @@
 #define X01_ORIGIN 0x0200
 #define X02_TARGET 0x0400
 #define X02_ORIGIN 0x0800
-#define X03_TARGET 0x1000
-#define X03_ORIGIN 0x2000
+#define X03_TARGET 0x2000
+#define X03_ORIGIN 0x1000
 #define X04_TARGET 0x4000
 #define X04_ORIGIN 0x8000
 
@@ -50,6 +50,8 @@ class CtrlDevice_232 : public QWidget
 public:
     explicit CtrlDevice_232(QWidget *parent = 0);
     ~CtrlDevice_232();
+signals:
+    void recvMsg(QString msg);
 public slots:
     void send_IO_L(quint16 hex);
     void send_IO_R(quint16 hex);
@@ -60,6 +62,8 @@ public slots:
 public:
     quint16 hexL;
     quint16 hexR;
+    quint16 speed;
+    quint16 torque;
 private slots:
     void initCom();
     void wait(int ms);
