@@ -216,7 +216,7 @@ void MainPage::testThread()
 
 void MainPage::testInit()
 {
-    test->initItems();
+    test->initItems(station);
     QJsonObject obj;
     obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);

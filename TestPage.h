@@ -53,7 +53,7 @@ signals:
     void buttonTest5();
     void buttonTest6();
 public slots:
-    void initItems();
+    void initItems(quint16 station);
     void updateItems(QString items);
     bool updateResult();
 private slots:

@@ -17,13 +17,16 @@ TestPage::~TestPage()
 {
 }
 
-void TestPage::initItems()
+void TestPage::initItems(quint16 s)
 {
     for (int i=0; i < mView->rowCount(); i++) {
         mView->item(i, 2)->setText("");
         mView->item(i, 3)->setText("");
     }
-    station->setText("左");
+    if (s == 0x13)
+        station->setText("左");
+    else
+        station->setText("右");
     judge->setText("--");
 }
 
