@@ -9,6 +9,8 @@
 #ifndef CONFPAGE_H
 #define CONFPAGE_H
 
+#include <QFile>
+#include <QDir>
 #include <QWidget>
 #include <QTableView>
 #include <QHeaderView>
@@ -24,6 +26,7 @@
 #include <QColorDialog>
 #include <QPalette>
 #include <QColor>
+#include <QSettings>
 #include <QtXml/QDomDocument>
 
 #include "conf_delegation.h"
@@ -38,13 +41,14 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
-public:
+public slots:
     void initTypes(QString dat);
     void initOther(QString dat);
     QStringList testItems();
+    void readSettings();
+    void saveSettings();
 private slots:
     void initUI();
-    void saveData();
     void saveSys();
     void clickButton();
     void showButtons();
@@ -56,6 +60,8 @@ private slots:
     void appendType();
     void deleteType();
     void updateType();
+    void queryType();
+    QString CurrentSettings();
 private:
     QTableView *view;
     StandardItem *mView;
@@ -79,6 +85,8 @@ private:
     QStringList btnNames;
 
     QStringList testItem;
+
+    QStringList FileNames;
 };
 
 #endif // CONFPAGE_H

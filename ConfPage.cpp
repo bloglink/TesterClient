@@ -67,6 +67,33 @@ QStringList ConfPage::testItems()
     return testItem;
 }
 
+void ConfPage::readSettings()
+{
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("Conf");
+
+    QStringList temp = ini->value("color").toString().split(",");
+    for (int i=0; i < temp.size(); i++) {
+        colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
+    }
+
+    temp = ini->value("type").toString().split(",");
+    typeComboBox->setCurrentText(temp.at(0));
+    ini->endGroup();
+    ini->beginGroup("Sys");
+    temp = ini->value("Test_Item", "1").toString().split(",");
+    pModel->setRowCount(0);
+    testItem = temp;
+    for (int i=0; i < temp.size(); i++) {
+        pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
+    }
+    pModel->appendRow(new QStandardItem);
+    qDebug() << temp;
+}
+
 void ConfPage::initUI()
 {
     this->setObjectName("ConfPage");
@@ -95,7 +122,7 @@ void ConfPage::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel("型号名称", this));
@@ -223,8 +250,15 @@ void ConfPage::initUI()
     this->setLayout(layout);
 }
 
-void ConfPage::saveData()
+void ConfPage::saveSettings()
 {
+    emit sendNetMsg("6004 Conf");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("Conf");
+
     QDomText text;
     QDomDocument doc;
     QDomElement root = doc.createElement("Conf");
@@ -239,6 +273,7 @@ void ConfPage::saveData()
     root.appendChild(color);
     text = doc.createTextNode(temp.join(","));
     color.appendChild(text);
+    ini->setValue("color", temp.join(","));
 
     temp.clear();
     temp.append(typeComboBox->currentText());
@@ -246,6 +281,7 @@ void ConfPage::saveData()
     root.appendChild(type);
     text = doc.createTextNode(temp.join(","));
     type.appendChild(text);
+    ini->setValue("type", temp.join(","));
 
     emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
     emit buttonClicked(NULL);
@@ -253,6 +289,13 @@ void ConfPage::saveData()
 
 void ConfPage::saveSys()
 {
+    emit sendNetMsg("6004 Sys");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("Sys");
+
     QDomText text;
     QDomDocument doc;
     QDomElement root = doc.createElement("Sys");
@@ -269,6 +312,7 @@ void ConfPage::saveSys()
     root.appendChild(item);
     text = doc.createTextNode(temp.join(","));
     item.appendChild(text);
+    ini->setValue("Test_Item", temp.join(","));
 
     emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
 }
@@ -342,9 +386,9 @@ void ConfPage::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6016");
-    emit sendNetMsg("6004 Sys");
-    emit sendNetMsg("6004 Conf");
+    queryType();
+    readSettings();
+
 }
 
 void ConfPage::appendType()
@@ -352,22 +396,28 @@ void ConfPage::appendType()
     QString name = typeLineEdit->text();
     if (name.isEmpty())
         return;
-    emit sendNetMsg(QString("6010 %1").arg(name).toUtf8());
-    emit sendNetMsg("6016");
-    emit sendNetMsg("6004 Sys");
-    emit sendNetMsg("6004 Conf");
+    QString c = mView->item(0,0)->text();
+    QString Source = QString("./config/%1.ini").arg(c);
+    QString Target = QString("./config/%1.ini").arg(name);
+    QFile *s = new QFile(Source);
+    s->copy(Target);
+    s->close();
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("GLOBAL");
+    ini->setValue("FileInUse", name);
+
+    queryType();
 }
 
 void ConfPage::deleteType()
 {
-    int row = view->currentIndex().row();
-    if (row < 0)
-        return;
-    QString name = mView->item(row, 0)->text();
-    emit sendNetMsg(QString("6012 %1").arg(name).toUtf8());
-    emit sendNetMsg("6016");
-    emit sendNetMsg("6004 Sys");
-    emit sendNetMsg("6004 Conf");
+    QString name = mView->item(0, 0)->text();
+
+    QString Target = QString("./config/%1.ini").arg(name);
+    QFile::remove(Target);
+
+    queryType();
 }
 
 void ConfPage::updateType()
@@ -376,8 +426,43 @@ void ConfPage::updateType()
     if (row < 1)
         return;
     QString name = mView->item(row, 0)->text();
-    emit sendNetMsg(QString("6018 %1").arg(name).toUtf8());
-    emit sendNetMsg("6016");
-    emit sendNetMsg("6004 Sys");
-    emit sendNetMsg("6004 Conf");
+
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("GLOBAL");
+    ini->setValue("FileInUse", name);
+
+    queryType();
+}
+
+void ConfPage::queryType()
+{
+    QDir dir("./config");
+    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    dir.setSorting(QDir::Size | QDir::Reversed);
+
+    FileNames.clear();
+    QFileInfoList list = dir.entryInfoList();
+    for (int i=0; i < list.size(); i++)
+        FileNames.append(list.at(i).fileName());
+
+    if (FileNames.isEmpty())
+        FileNames.append("Bash_File.ini");
+
+    mView->setRowCount(0);
+    mView->appendRow(new QStandardItem(CurrentSettings()));
+    for (int i=0; i < FileNames.size(); i++) {
+        QString type = FileNames.at(i);
+        type = type.remove(".ini");
+        if (type == CurrentSettings())
+            continue;
+        mView->appendRow(new QStandardItem(type.remove(".ini")));
+    }
+}
+
+QString ConfPage::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }
