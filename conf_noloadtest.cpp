@@ -76,7 +76,7 @@ void ConfNoLoadTest::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(turnCheckBox);
@@ -127,22 +127,20 @@ void ConfNoLoadTest::initUI()
     this->setLayout(layout);
 }
 
-void ConfNoLoadTest::initData(QString dat)
+void ConfNoLoadTest::readSettings()
 {
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (docs.elementsByTagName("NOLOAD").isEmpty())
-        return;
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("NOLOAD");
+
     QStringList items = itemNames;
     items << "sequence" << "turn";
-    QDomNodeList list = docs.elementsByTagName("NOLOAD").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        int index = items.indexOf(dom.nodeName());
-        if (index == -1)
-            continue;
-        switch (index) {
+
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = ini->value(items.at(i), "0").toString().split(",");
+        switch (i) {
         case 10:
             for (int t=0; t < temp.size(); t++)
                 tModel->item(0, t)->setText(temp.at(t));
@@ -152,25 +150,31 @@ void ConfNoLoadTest::initData(QString dat)
                 turnCheckBox->setChecked(false);
             else
                 turnCheckBox->setChecked(true);
-//            turnComboBox->setCurrentIndex(temp.at(1).toInt());
             break;
         default:
             for (int t=0; t < temp.size(); t++)
-                model->item(t, index)->setText(temp.at(t));
+                model->item(t, i)->setText(temp.at(t));
             break;
         }
     }
 }
 
-void ConfNoLoadTest::saveData()
+void ConfNoLoadTest::saveSettings()
 {
+    emit sendNetMsg("6004 NOLOAD");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("NOLOAD");
+
     doc.clear();
     root.clear();
     root = doc.createElement("NOLOAD");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
+        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
     QStringList temp;
     for (int i=0; i < tModel->columnCount(); i++) {
         temp.append(tModel->item(0, i)->text());
@@ -179,6 +183,7 @@ void ConfNoLoadTest::saveData()
     QDomElement xml = doc.createElement("sequence");
     xml.appendChild(text);
     root.appendChild(xml);
+    ini->setValue("sequence", temp.join(","));
 
     temp.clear();
     if (turnCheckBox->isChecked())
@@ -190,18 +195,19 @@ void ConfNoLoadTest::saveData()
     xml = doc.createElement("turn");
     xml.appendChild(text);
     root.appendChild(xml);
+    ini->setValue("turn", temp.join(","));
 
     emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
-    initData(doc.toByteArray());
 }
 
-void ConfNoLoadTest::appendXmlData(int column, QString name)
+QString ConfNoLoadTest::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);
+    return model->item(0, column)->text();
 }
 
 void ConfNoLoadTest::sequence()
@@ -395,5 +401,12 @@ void ConfNoLoadTest::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 NOLOAD");
+    readSettings();
+}
+
+QString ConfNoLoadTest::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }

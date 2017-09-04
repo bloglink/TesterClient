@@ -36,15 +36,16 @@ signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
 public slots:
-    void initData(QString dat);
+    void readSettings();
+    void saveSettings();
 private slots:
     void initUI();
-    void saveData();
-    void appendXmlData(int column, QString name);
+    QString appendXmlData(int column, QString name);
     void sequence(void);
     void ruler(double x);
     void wavePacket(double x1, double x2, QString name);
     void recvAppShow(QString win);
+    QString CurrentSettings();
 private:
     QTableView *view;
     StandardItem *model;
