@@ -42,7 +42,7 @@ void CtrlDevice_232::send_IO(quint16 station, quint16 hex)
 void CtrlDevice_232::pre_speed()
 {
     quint32 timeOut = 0;
-    QString temp = "%01#WCSR00010**";  //速度模式
+    QString temp = "%01#WCSR00011**";  //速度模式
     QByteArray cmd = temp.toUtf8();
     cmd.append(0x0D);
     com5->write(cmd);
@@ -111,10 +111,10 @@ void CtrlDevice_232::add_speed(quint16 spd)
 {
     quint32 timeOut = 0;
     quint16 temp = spd/256 + (spd%256)*256;
-    QByteArray cmd = "%01#WDD0010000101";
+    QByteArray cmd = "%01#WDD00100001010000";
     QByteArray speed = QString("%1").arg(temp, 4, 16, QChar('0')).toUtf8();
     cmd.append(speed.toUpper());
-    cmd.append("0000**");
+    cmd.append("**");
     cmd.append(0x0D);
     qDebug() << cmd;
     com5->write(cmd);
@@ -197,7 +197,7 @@ void CtrlDevice_232::initCom()
         com3->setRequestToSend(false);
     } else {
         QMessageBox::warning(this, "", "COM3打开失败", QMessageBox::Ok);
-        //        return;
+                return;
     }
     com4 = new QSerialPort("COM4", this);
     if (com4->open(QIODevice::ReadWrite)) {

@@ -440,9 +440,10 @@ void MainPage::testLOD()
     wait(1500);
 
     plc->pre_speed();
+    int load = loadtesting->readLoad()*2446;
 
-    for (int i=0; i < 10; i++) {
-        plc->add_speed(100*i);
+    for (int i=0; i < 11; i++) {
+        plc->add_speed(load/10*i);
         wait(100);
     }
     plc->readPlc();
@@ -451,8 +452,8 @@ void MainPage::testLOD()
     QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
     QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
     wait(1500);
-    for (int i=0; i < 10; i++) {
-        plc->add_speed(1000-100*i);
+    for (int i=0; i < 11; i++) {
+        plc->add_speed(load/10*(10-i));
         wait(100);
     }
 
