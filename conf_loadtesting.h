@@ -37,6 +37,7 @@ signals:
     void buttonClicked(QByteArray win);
 public slots:
     void initData(QString dat);
+    double readLoad();
 private slots:
     void initUI();
     void saveData();

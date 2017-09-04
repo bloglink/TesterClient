@@ -149,6 +149,11 @@ void ConfLoadTesting::initData(QString dat)
     }
 }
 
+double ConfLoadTesting::readLoad()
+{
+    return model->item(0, 7)->text().toDouble();
+}
+
 void ConfLoadTesting::saveData()
 {
     doc.clear();
