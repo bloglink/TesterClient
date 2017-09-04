@@ -81,7 +81,7 @@ void ConfResistance::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(compensation);
@@ -100,22 +100,70 @@ void ConfResistance::initUI()
     this->setLayout(layout);
 }
 
-void ConfResistance::initData(QString dat)
+void ConfResistance::saveSettings()
 {
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (docs.elementsByTagName("DCR").isEmpty())
-        return;
+    emit sendNetMsg("6004 DCR");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetDcr");
+
+    QDomText text;
+    doc.clear();
+    root.clear();
+    root = doc.createElement("DCR");
+    doc.appendChild(root);
+
+    for (int i=0; i < itemNames.size(); i++) {
+        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
+    }
+
+    QStringList temp;
+    if (compensation->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    QDomElement temp_comp = doc.createElement("temp_comp");
+    root.appendChild(temp_comp);
+    text = doc.createTextNode(temp.join(","));
+    temp_comp.appendChild(text);
+    ini->setValue("temp_comp", temp.join(","));
+
+    temp.clear();
+    temp.append(tempSpinBox->text());
+    QDomElement std_temp = doc.createElement("std_temp");
+    root.appendChild(std_temp);
+    text = doc.createTextNode(temp.join(","));
+    std_temp.appendChild(text);
+    ini->setValue("std_temp", temp.join(","));
+
+    temp.clear();
+    temp.append(nounSpinBox->text());
+    QDomElement noun = doc.createElement("noun");
+    root.appendChild(noun);
+    text = doc.createTextNode(temp.join(","));
+    noun.appendChild(text);
+    ini->setValue("noun", temp.join(","));
+
+    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
+    emit buttonClicked(NULL);
+}
+
+void ConfResistance::readSettings()
+{
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetDcr");
+
     QStringList items = itemNames;
     items << "std_temp" << "temp_comp" << "noun";
-    QDomNodeList list = docs.elementsByTagName("DCR").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        int index = items.indexOf(dom.nodeName());
-        if (index == -1)
-            continue;
-        switch (index) {
+
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = ini->value(items.at(i), "0,0,0,0,0,0,0,0").toString().split(",");
+        switch (i) {
         case 0:
             for (int t=0; t < temp.size(); t++) {
                 if (temp.at(t) == "0")
@@ -125,23 +173,23 @@ void ConfResistance::initData(QString dat)
             }
             break;
         case 3:
-            for (int i=0; i < temp.size(); i++) {
-                if (temp.at(i) == "0")
-                    model->item(i, 3)->setText("铜");
-                if (temp.at(i) == "1")
-                    model->item(i, 3)->setText("铝");
-                if (temp.at(i) == "2")
-                    model->item(i, 3)->setText("铜铝");
+            for (int t=0; t < temp.size(); t++) {
+                if (temp.at(t) == "0")
+                    model->item(t, 3)->setText("铜");
+                if (temp.at(t) == "1")
+                    model->item(t, 3)->setText("铝");
+                if (temp.at(t) == "2")
+                    model->item(t, 3)->setText("铜铝");
             }
             break;
         case 4:
-            for (int i=0; i < temp.size(); i++) {
-                if (temp.at(i) == "0")
-                    model->item(i, 4)->setText("mΩ");
-                if (temp.at(i) == "1")
-                    model->item(i, 4)->setText("Ω");
-                if (temp.at(i) == "2")
-                    model->item(i, 4)->setText("kΩ");
+            for (int t=0; t < temp.size(); t++) {
+                if (temp.at(t) == "0")
+                    model->item(t, 4)->setText("mΩ");
+                if (temp.at(t) == "1")
+                    model->item(t, 4)->setText("Ω");
+                if (temp.at(t) == "2")
+                    model->item(t, 4)->setText("kΩ");
             }
             break;
         case 10:
@@ -158,49 +206,10 @@ void ConfResistance::initData(QString dat)
             break;
         default:
             for (int t=0; t < temp.size(); t++)
-                model->item(t, index)->setText(temp.at(t));
+                model->item(t, i)->setText(temp.at(t));
             break;
         }
     }
-}
-
-void ConfResistance::saveData()
-{
-    QDomText text;
-    doc.clear();
-    root.clear();
-    root = doc.createElement("DCR");
-    doc.appendChild(root);
-
-    for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
-
-    QStringList temp;
-    if (compensation->isChecked())
-        temp.append("1");
-    else
-        temp.append("0");
-    QDomElement temp_comp = doc.createElement("temp_comp");
-    root.appendChild(temp_comp);
-    text = doc.createTextNode(temp.join(","));
-    temp_comp.appendChild(text);
-
-    temp.clear();
-    temp.append(tempSpinBox->text());
-    QDomElement std_temp = doc.createElement("std_temp");
-    root.appendChild(std_temp);
-    text = doc.createTextNode(temp.join(","));
-    std_temp.appendChild(text);
-
-    temp.clear();
-    temp.append(nounSpinBox->text());
-    QDomElement noun = doc.createElement("noun");
-    root.appendChild(noun);
-    text = doc.createTextNode(temp.join(","));
-    noun.appendChild(text);
-
-    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
-    emit buttonClicked(NULL);
 }
 
 void ConfResistance::autoInput()
@@ -229,7 +238,7 @@ void ConfResistance::autoInput()
     }
 }
 
-void ConfResistance::appendXmlData(int column, QString name)
+QString ConfResistance::appendXmlData(int column, QString name)
 {
     QStringList temp;
     for (int i=0; i < 8; i++) {
@@ -260,11 +269,19 @@ void ConfResistance::appendXmlData(int column, QString name)
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);
+    return temp.join(",");
 }
 
 void ConfResistance::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 DCR");
+    readSettings();
+}
+
+QString ConfResistance::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }
