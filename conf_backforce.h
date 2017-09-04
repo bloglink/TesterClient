@@ -37,11 +37,13 @@ signals:
     void buttonClicked(QByteArray win);
 public slots:
     void initData(QString dat);
+    void readSettings();
+    void saveSettings();
 private slots:
     void initUI();
-    void saveData();
-    void appendXmlData(int column, QString name);
+    QString appendXmlData(int column, QString name);
     void recvAppShow(QString win);
+    QString CurrentSettings();
 private:
     QTableView *view;
     StandardItem *model;

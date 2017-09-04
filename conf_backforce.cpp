@@ -66,7 +66,7 @@ void ConfBackEMFTest::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel("不平衡度", this));
@@ -111,15 +111,48 @@ void ConfBackEMFTest::initData(QString dat)
     }
 }
 
-void ConfBackEMFTest::saveData()
+void ConfBackEMFTest::readSettings()
 {
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("BEMF");
+
+    QStringList items = itemNames;
+    items << "noun";
+
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = ini->value(items.at(i), "0").toString().split(",");
+        switch (i) {
+        case 9:
+            nounSpinBox->setValue(temp.at(0).toInt());
+            break;
+        default:
+            for (int t=0; t < temp.size(); t++)
+                model->item(t, i)->setText(temp.at(t));
+            break;
+        }
+    }
+}
+
+void ConfBackEMFTest::saveSettings()
+{
+    emit sendNetMsg("6004 BEMF");
+
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("BEMF");
+
     doc.clear();
     root.clear();
     root = doc.createElement("BEMF");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
+        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
 
     QStringList temp;
     temp.append(nounSpinBox->text());
@@ -127,23 +160,32 @@ void ConfBackEMFTest::saveData()
     root.appendChild(noun);
     QDomText text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
+    ini->setValue("noun", temp.join(","));
 
     emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
     initData(doc.toByteArray());
 }
 
-void ConfBackEMFTest::appendXmlData(int column, QString name)
+QString ConfBackEMFTest::appendXmlData(int column, QString name)
 {
     QDomText text = doc.createTextNode(model->item(0, column)->text());
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);
+    return model->item(0, column)->text();
 }
 
 void ConfBackEMFTest::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 BEMF");
+    readSettings();
+}
+
+QString ConfBackEMFTest::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }
