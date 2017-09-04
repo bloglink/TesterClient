@@ -150,18 +150,11 @@ void MainPage::recvNetMsg(QString msg)
     switch (cmd) {
     case 6001:  // 自检信息
         emit sendNetMsg("6001");
+        sendSettings();
         break;
     case 6005:  // 上传配置
         conf->initOther(dat);
         test->updateItems(dat);
-        resistance->initData(dat);
-        current_ac->initData(dat);
-        insulation->initData(dat);
-        inductance->initData(dat);
-        noloadtest->initData(dat);
-        loadtesting->initData(dat);
-        halltesting->initData(dat);
-        backemftest->initData(dat);
         break;
     case 6007:  // 单项测试完成
         status = STATUS_FREE;
@@ -169,7 +162,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6015:  // 空载启动完成
         qDebug() << "noload";
-        plc->readPlc();
+//        plc->readPlc();
         break;
     case 6017:  // 上传测试型号
         conf->initTypes(dat);
@@ -199,6 +192,15 @@ void MainPage::readButtons(QByteArray win)
     if (previous_window.size() > 10) { // 最大嵌套10层
         previous_window.removeFirst();
     }
+}
+
+void MainPage::sendSettings()
+{
+    resistance->readSettings();
+    resistance->saveSettings();
+
+    insulation->readSettings();
+    insulation->saveSettings();
 }
 
 void MainPage::wait(int ms)
@@ -240,11 +242,18 @@ void MainPage::testInit()
             break;
         case STATUS_IND:
             testIND();
+            break;
+        case STATUS_HAL:
+            testHAL();
+            break;
         case STATUS_NLD:
             testNLD();
             break;
         case STATUS_LOD:
             testLOD();
+            break;
+        case STATUS_EMF:
+            testEMF();
             break;
         default:
             break;
@@ -365,6 +374,14 @@ void MainPage::testIND()
     wait(500);
 }
 
+void MainPage::testHAL()
+{
+    QJsonObject obj;
+    obj.insert("TxMessage","6006 HALL");
+    emit transmitJson(obj);
+    waitTimeOut(STATUS_HAL);
+}
+
 void MainPage::testNLD()
 {
     bool cylinder = false;
@@ -399,6 +416,94 @@ void MainPage::testNLD()
 }
 
 void MainPage::testLOD()
+{
+    bool cylinder = false;
+
+    plc->send_IO(station, Y10);  // 气缸全部归位
+    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y00 | Y10);  // 气缸1上升
+    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y00 | Y01 | Y10);  // 气缸2夹紧
+    cylinder = readCylinderL(X01_TARGET | X02_TARGET | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y00 | Y01 | Y02 | Y10);  // 气缸3压紧
+    cylinder = readCylinderL(X01_TARGET | X02_TARGET | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    QJsonObject obj;
+    obj.insert("TxMessage","6006 LOAD");
+    emit transmitJson(obj);
+    wait(1500);
+
+    plc->pre_speed();
+    int load = loadtesting->readLoad()*2446;
+
+    for (int i=0; i < 11; i++) {
+        plc->add_speed(load/10*i);
+        wait(100);
+    }
+    plc->readPlc();
+    quint16 speed = plc->speed;
+    quint16 torque = plc->torque;
+    QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
+    QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
+    wait(1500);
+    for (int i=0; i < 11; i++) {
+        plc->add_speed(load/10*(10-i));
+        wait(100);
+    }
+
+    wait(1500);
+    plc->end_speed();
+    wait(100);
+
+    plc->send_IO(station, Y00 | Y02 | Y10);  // 气缸2松开
+    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y02 | Y10);  // 气缸1归位
+    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    plc->send_IO(station, Y10);  // 气缸全部归位
+    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+}
+
+void MainPage::testEMF()
 {
     bool cylinder = false;
 

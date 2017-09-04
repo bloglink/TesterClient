@@ -50,7 +50,7 @@
 #define STATUS_HAL 0x0B
 #define STATUS_LOD 0x0C
 #define STATUS_NLD 0x0D
-#define STATUS_BMF 0x0E
+#define STATUS_EMF 0x0E
 
 #define STATUS_FREE 0x00
 #define STATUS_OVER 0xFF
@@ -74,6 +74,7 @@ private slots:
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
+    void sendSettings();
     void testThread();
     void wait(int ms);
     void testInit();
@@ -81,8 +82,10 @@ private slots:
     void testINR();
     void testACW();
     void testIND();
+    void testHAL();
     void testNLD();
     void testLOD();
+    void testEMF();
     void testStop();
     void testStopAction();
     void testTimeOut();

@@ -96,6 +96,7 @@ bool TestPage::updateResult()
         if (mView->item(i, 3)->text() != "OK") {
             judge->setStyleSheet("font:55pt;color:red");
             judge->setText("NG");
+            qDebug() << i;
             return false;
         }
     }
@@ -435,13 +436,13 @@ void TestPage::DrawWave()
 //    graph3->setPen(QPen(Qt::red));
 //    graph3->setData(x, hw);
     QCPGraph *graph4 = wave->addGraph();
-    graph4->setPen(QPen(Qt::yellow));
+    graph4->setPen(QPen(Qt::yellow, 2));
     graph4->setData(x, uy);
     QCPGraph *graph5 = wave->addGraph();
-    graph5->setPen(QPen(Qt::green));
+    graph5->setPen(QPen(Qt::green, 2));
     graph5->setData(x, vy);
     QCPGraph *graph6 = wave->addGraph();
-    graph6->setPen(QPen(Qt::red));
+    graph6->setPen(QPen(Qt::red, 2));
     graph6->setData(x, wy);
     QCPGraph *graph7 = wave->addGraph();
     graph7->setPen(QPen(Qt::yellow));
@@ -477,7 +478,7 @@ void TestPage::DrawWave()
 
     //设置坐标轴显示范围，否则只能看到默认范围
     wave->xAxis->setRange(0, 360);
-    wave->yAxis->setRange(20, 51);
+    wave->yAxis->setRange(20, 61);
 }
 
 void TestPage::Printer()

@@ -109,7 +109,7 @@ void LoginPage::initUI()
 
 void LoginPage::initData()
 {
-    ini = new QSettings("conf.ini",  QSettings::IniFormat);
+    ini = new QSettings("./nandflash/global.ini",  QSettings::IniFormat);
     ini->setIniCodec("GB18030");
     ini->beginGroup("LOGIN");
     QStringList items;
