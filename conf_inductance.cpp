@@ -100,7 +100,7 @@ void ConfInductance::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel(tr("不平衡度")));
@@ -123,22 +123,20 @@ void ConfInductance::initUI()
     this->setLayout(layout);
 }
 
-void ConfInductance::initData(QString dat)
+void ConfInductance::readSettings()
 {
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (docs.elementsByTagName("IND").isEmpty())
-        return;
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetInd");
+
     QStringList items = itemNames;
     items << "mode" << "noun";
-    QDomNodeList list = docs.elementsByTagName("IND").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        int index = items.indexOf(dom.nodeName());
-        if (index == -1)
-            continue;
-        switch (index) {
+
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = ini->value(items.at(i), "0,0,0,0,0,0,0,0").toString().split(",");
+        switch (i) {
         case 0:
             for (int t=0; t < temp.size(); t++) {
                 if (temp.at(t) == "0")
@@ -148,11 +146,11 @@ void ConfInductance::initData(QString dat)
             }
             break;
         case 3:
-            for (int i=0; i < temp.size(); i++) {
-                if (temp.at(i) == "0")
-                    model->item(i, 3)->setText("uH");
-                if (temp.at(i) == "1")
-                    model->item(i, 3)->setText("mH");
+            for (int t=0; t < temp.size(); t++) {
+                if (temp.at(t) == "0")
+                    model->item(t, 3)->setText("uH");
+                if (temp.at(t) == "1")
+                    model->item(t, 3)->setText("mH");
             }
             break;
         case 11:
@@ -166,14 +164,21 @@ void ConfInductance::initData(QString dat)
             break;
         default:
             for (int t=0; t < temp.size(); t++)
-                model->item(t, index)->setText(temp.at(t));
+                model->item(t, i)->setText(temp.at(t));
             break;
         }
     }
 }
 
-void ConfInductance::saveData()
+void ConfInductance::saveSettings()
 {
+    emit sendNetMsg("6004 IND");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetInd");
+
     QDomText text;
     doc.clear();
     root.clear();
@@ -181,17 +186,18 @@ void ConfInductance::saveData()
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
+        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
 
     QStringList temp;
     temp.append(QString::number(avrgSpinBox->value()));
     temp.append(QString::number(freqComboBox->currentIndex()));
     temp.append(QString::number(connComboBox->currentIndex()));
     temp.append(QString::number(modeComboBox->currentIndex()));
-    QDomElement temp_comp = doc.createElement("mode");
-    root.appendChild(temp_comp);
+    QDomElement mode = doc.createElement("mode");
+    root.appendChild(mode);
     text = doc.createTextNode(temp.join(","));
-    temp_comp.appendChild(text);
+    mode.appendChild(text);
+    ini->setValue("mode", temp.join(","));
 
     temp.clear();
     temp.append(nounSpinBox->text());
@@ -199,6 +205,7 @@ void ConfInductance::saveData()
     root.appendChild(noun);
     text = doc.createTextNode(temp.join(","));
     noun.appendChild(text);
+    ini->setValue("noun", temp.join(","));
 
     emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
@@ -238,7 +245,7 @@ void ConfInductance::autoInput()
     }
 }
 
-void ConfInductance::appendXmlData(int column, QString name)
+QString ConfInductance::appendXmlData(int column, QString name)
 {
     QStringList temp;
     for (int i=0; i < 8; i++) {
@@ -260,11 +267,19 @@ void ConfInductance::appendXmlData(int column, QString name)
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);
+    return temp.join(",");
 }
 
 void ConfInductance::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 IND");
+    readSettings();
+}
+
+QString ConfInductance::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }
