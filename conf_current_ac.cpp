@@ -60,7 +60,7 @@ void ConfCurrent_AC::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
@@ -84,20 +84,19 @@ void ConfCurrent_AC::initUI()
     view->hideRow(3);
 }
 
-void ConfCurrent_AC::initData(QString dat)
+void ConfCurrent_AC::readSettings()
 {
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (docs.elementsByTagName("ACW").isEmpty())
-        return;
-    QDomNodeList list = docs.elementsByTagName("ACW").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        int index = itemNames.indexOf(dom.nodeName());
-        if (index == -1)
-            continue;
-        switch (index) {
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetAcw");
+
+    QStringList items = itemNames;
+
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = ini->value(items.at(i), "0,0,0,0,0").toString().split(",");
+        switch (i) {
         case 0:
             for (int t=0; t < temp.size(); t++) {
                 if (temp.at(t) == "1")
@@ -116,27 +115,34 @@ void ConfCurrent_AC::initData(QString dat)
             break;
         default:
             for (int t=0; t < temp.size(); t++)
-                model->item(t, index)->setText(temp.at(t));
+                model->item(t, i)->setText(temp.at(t));
             break;
         }
     }
 }
 
-void ConfCurrent_AC::saveData()
+void ConfCurrent_AC::saveSettings()
 {
+    emit sendNetMsg("6004 ACW");
+    //当前使用的测试项目
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("SetAcw");
+
     doc.clear();
     root.clear();
     root = doc.createElement("ACW");
     doc.appendChild(root);
 
     for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
+        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
 
     emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
     emit buttonClicked(NULL);
 }
 
-void ConfCurrent_AC::appendXmlData(int column, QString name)
+QString ConfCurrent_AC::appendXmlData(int column, QString name)
 {
     QStringList temp;
     for (int i=0; i < 5; i++) {
@@ -158,11 +164,19 @@ void ConfCurrent_AC::appendXmlData(int column, QString name)
     QDomElement xml = doc.createElement(name);
     xml.appendChild(text);
     root.appendChild(xml);
+    return temp.join(",");
 }
 
 void ConfCurrent_AC::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    emit sendNetMsg("6004 ACW");
+    readSettings();
+}
+
+QString ConfCurrent_AC::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
 }

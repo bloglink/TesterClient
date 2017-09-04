@@ -201,6 +201,9 @@ void MainPage::sendSettings()
 
     insulation->readSettings();
     insulation->saveSettings();
+
+    current_ac->readSettings();
+    current_ac->saveSettings();
 }
 
 void MainPage::wait(int ms)
