@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     LoginPage.cpp \
     conf_backforce.cpp \
     conf_qrencode.cpp \
-    conf_hall.cpp
+    conf_hall.cpp \
+    wt330.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -60,7 +61,8 @@ HEADERS  += \
     LoginPage.h \
     conf_backforce.h \
     conf_qrencode.h \
-    conf_hall.h
+    conf_hall.h \
+    wt330.h
 
 FORMS    += \
     WinSyst.ui
