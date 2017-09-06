@@ -17,6 +17,47 @@ ConfLoadTesting::~ConfLoadTesting()
 {
 }
 
+void ConfLoadTesting::initSettings(QJsonObject obj)
+{
+    QStringList items = itemNames;
+    items << "sequence";
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = obj.value(items.at(i)).toString().split(",");
+        if (items.at(i) == "sequence") {
+            for (int t=0; t < temp.size(); t++)
+                tModel->item(0, t)->setText(temp.at(t));
+        } else {
+            for (int t=0; t < temp.size(); t++)
+                mView->item(t, i)->setText(temp.at(t));
+        }
+    }
+}
+
+void ConfLoadTesting::readSettings()
+{
+    QJsonObject obj;
+    QStringList items = itemNames;
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp;
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+        obj.insert(items.at(i), temp.join(","));
+    }
+    QStringList temp;
+    for (int i=0; i < tModel->columnCount(); i++) {
+        double x = tModel->item(0, i)->text().toDouble();
+        temp.append(QString::number(x));
+    }
+    obj.insert("sequence", temp.join(","));
+
+    QJsonObject array;
+    array.insert("LOAD", obj);
+    emit sendAppCmd(array);
+    emit buttonClicked(NULL);
+}
+
 void ConfLoadTesting::initUI()
 {
     this->setObjectName("ConfLoadTesting");
@@ -24,16 +65,16 @@ void ConfLoadTesting::initUI()
     headers << tr("电压") << tr("电流下限") << tr("电流上限")
             << tr("功率下限") << tr("功率上限")
             << tr("转速下限") << tr("转速上限") << tr("扭矩") << tr("Vcc电压")
-            << tr("Vsp电压") << tr("测试时间");
+            << tr("Vsp电压") << tr("测试时间") << tr("驱动器") << tr("电源");
     itemNames << "volt" << "curr_min" << "curr_max"
               << "pwr_min" << "pwr_max"
               << "speed_min" << "speed_max" << "torque"
-              << "vcc_volt" << "vsp_volt" << "time";
-    model = new StandardItem(1, headers.size());
-    model->setHorizontalHeaderLabels(headers);
+              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power";
+    mView = new StandardItem(1, headers.size());
+    mView->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < headers.size(); j++) {
-            model->setData(model->index(i, j), "");
+            mView->setData(mView->index(i, j), "");
         }
     }
     SpinBox *voltage = new SpinBox;
@@ -52,8 +93,12 @@ void ConfLoadTesting::initUI()
     vsp->setMaxinum(15);
     DoubleSpinBox *time = new DoubleSpinBox;
     time->setMaxinum(99);
+    ComboBox *dirver = new ComboBox;
+    QStringList mode;
+    mode << "0" << "1";
+    dirver->setItemNames(mode);
     view = new QTableView(this);
-    view->setModel(model);
+    view->setModel(mView);
     view->setItemDelegateForColumn(0, voltage);
     view->setItemDelegateForColumn(1, current);
     view->setItemDelegateForColumn(2, current);
@@ -65,13 +110,15 @@ void ConfLoadTesting::initUI()
     view->setItemDelegateForColumn(8, vcc);
     view->setItemDelegateForColumn(9, vsp);
     view->setItemDelegateForColumn(10, time);
+    view->setItemDelegateForColumn(11, dirver);
+    view->setItemDelegateForColumn(12, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
@@ -119,76 +166,6 @@ void ConfLoadTesting::initUI()
     layout->setStretch(2, 3);
     layout->setStretch(4, 1);
     this->setLayout(layout);
-}
-
-double ConfLoadTesting::readLoad()
-{
-    return model->item(0, 7)->text().toDouble();
-}
-
-void ConfLoadTesting::readSettings()
-{
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("LOAD");
-
-    QStringList items = itemNames;
-    items << "sequence";
-
-    for (int i=0; i < items.size(); i++) {
-        QStringList temp = ini->value(items.at(i), "0").toString().split(",");
-        switch (i) {
-        case 11:
-            for (int t=0; t < temp.size(); t++)
-                tModel->item(0, t)->setText(temp.at(t));
-            break;
-        default:
-            for (int t=0; t < temp.size(); t++)
-                model->item(t, i)->setText(temp.at(t));
-            break;
-        }
-    }
-}
-
-void ConfLoadTesting::saveSettings()
-{
-    emit sendNetMsg("6004 LOAD");
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("LOAD");
-
-    doc.clear();
-    root.clear();
-    root = doc.createElement("LOAD");
-    doc.appendChild(root);
-
-    for (int i=0; i < itemNames.size(); i++)
-        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
-    QStringList temp;
-    for (int i=0; i < tModel->columnCount(); i++) {
-        temp.append(tModel->item(0, i)->text());
-    }
-    QDomText text = doc.createTextNode(temp.join(","));
-    QDomElement xml = doc.createElement("sequence");
-    xml.appendChild(text);
-    root.appendChild(xml);
-    ini->setValue("sequence", temp.join(","));
-
-    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
-    emit buttonClicked(NULL);
-}
-
-QString ConfLoadTesting::appendXmlData(int column, QString name)
-{
-    QDomText text = doc.createTextNode(model->item(0, column)->text());
-    QDomElement xml = doc.createElement(name);
-    xml.appendChild(text);
-    root.appendChild(xml);
-    return model->item(0, column)->text();
 }
 
 void ConfLoadTesting::sequence()
@@ -419,16 +396,3 @@ void ConfLoadTesting::wavePacket(double x1, double x2, QString name)
     wavePacketText->setColor(QColor(Qt::white));
 }
 
-void ConfLoadTesting::recvAppShow(QString win)
-{
-    if (win != this->objectName())
-        return;
-    readSettings();
-}
-
-QString ConfLoadTesting::CurrentSettings()
-{
-    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
-    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
-    return n.remove(".ini");
-}
