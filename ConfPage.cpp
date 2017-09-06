@@ -17,49 +17,73 @@ ConfPage::~ConfPage()
 {
 }
 
-void ConfPage::initTypes(QString dat)
+void ConfPage::initSettings(QJsonObject obj)
 {
-    QStringList names = dat.split(" ");
-    mView->setRowCount(0);
-    for (int i=0; i < names.size(); i++) {
-        mView->appendRow(new QStandardItem(names.at(i)));
+    QStringList items;
+    items << "color" << "type";
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = obj.value(items.at(i)).toString().split(",");
+        if (items.at(i) == "color") {
+            for (int t=0; t < temp.size(); t++)
+                colors.at(t)->setStyleSheet(QString("background-color:%1").arg(temp.at(t)));
+        } else if (items.at(i) == "type") {
+            typeComboBox->setCurrentText(temp.at(0));
+        }
     }
 }
 
-void ConfPage::initOther(QString dat)
+void ConfPage::initSysItems(QJsonObject obj)
 {
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (!docs.elementsByTagName("Conf").isEmpty()) {
-        QDomNodeList list = docs.elementsByTagName("Conf").at(0).childNodes();
-        for (int i=0; i < list.size(); i++) {
-            QDomElement dom = list.at(i).toElement();
-            QStringList temp = dom.text().split(",");
-            if (dom.nodeName() == "color") {
-                for (int i=0; i < temp.size(); i++) {
-                    colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
-                }
+    QStringList items;
+    items << "Test_Item";
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = obj.value(items.at(i)).toString().split(",");
+        if (items.at(i) == "Test_Item") {
+            pModel->setRowCount(0);
+            testItem = temp;
+            for (int i=0; i < temp.size(); i++) {
+                pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
             }
-            if (dom.nodeName() == "type") {
-                typeComboBox->setCurrentText(temp.at(0));
-            }
+            pModel->appendRow(new QStandardItem);
         }
     }
-    if (!docs.elementsByTagName("Sys").isEmpty()) {
-        QDomNodeList list = docs.elementsByTagName("Sys").at(0).childNodes();
-        for (int i=0; i < list.size(); i++) {
-            QDomElement dom = list.at(i).toElement();
-            QStringList temp = dom.text().split(",");
-            if (dom.nodeName() == "Test_Item") {
-                pModel->setRowCount(0);
-                testItem = temp;
-                for (int i=0; i < temp.size(); i++) {
-                    pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
-                }
-                pModel->appendRow(new QStandardItem);
-            }
+}
+
+void ConfPage::readSettings()
+{
+    QJsonObject obj;
+    QStringList temp;
+    for (int i=0; i < colors.size(); i++) {
+        QPalette palette = colors.at(i)->palette();
+        temp.append(palette.color(QPalette::Background).name());
+    }
+    obj.insert("color", temp.join(","));
+
+    temp.clear();
+    temp.append(typeComboBox->currentText());
+    obj.insert("type", temp.join(","));
+
+    QJsonObject array;
+    array.insert("Conf", obj);
+    emit sendAppCmd(array);
+    emit buttonClicked(NULL);
+}
+
+void ConfPage::readSysItems()
+{
+    QJsonObject obj;
+    QStringList temp;
+    for (int i=0; i < pModel->rowCount(); i++) {
+        for (int t=0; t < btnNames.size(); t++) {
+            if (btnNames.at(t) == pModel->item(i, 0)->text())
+                temp.append(QString::number(t+1));
         }
     }
+    obj.insert("Test_Item", temp.join(","));
+
+    QJsonObject array;
+    array.insert("Sys", obj);
+    emit sendAppCmd(array);
 }
 
 QStringList ConfPage::testItems()
@@ -67,36 +91,10 @@ QStringList ConfPage::testItems()
     return testItem;
 }
 
-void ConfPage::readSettings()
-{
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("Conf");
-
-    QStringList temp = ini->value("color").toString().split(",");
-    for (int i=0; i < temp.size(); i++) {
-        colors.at(i)->setStyleSheet(QString("background-color:%1").arg(temp.at(i)));
-    }
-
-    temp = ini->value("type").toString().split(",");
-    typeComboBox->setCurrentText(temp.at(0));
-    ini->endGroup();
-    ini->beginGroup("Sys");
-    temp = ini->value("Test_Item", "1").toString().split(",");
-    pModel->setRowCount(0);
-    testItem = temp;
-    for (int i=0; i < temp.size(); i++) {
-        pModel->appendRow(new QStandardItem(btnNames.at(temp.at(i).toInt()-1)));
-    }
-    pModel->appendRow(new QStandardItem);
-    qDebug() << temp;
-}
-
 void ConfPage::initUI()
 {
     this->setObjectName("ConfPage");
+
     QStringList headers;
     headers << tr("电机型号");
     mView = new StandardItem(0, headers.size());
@@ -122,7 +120,7 @@ void ConfPage::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel("型号名称", this));
@@ -250,73 +248,6 @@ void ConfPage::initUI()
     this->setLayout(layout);
 }
 
-void ConfPage::saveSettings()
-{
-    emit sendNetMsg("6004 Conf");
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("Conf");
-
-    QDomText text;
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Conf");
-    doc.appendChild(root);
-
-    QStringList temp;
-    for (int i=0; i < colors.size(); i++) {
-        QPalette palette = colors.at(i)->palette();
-        temp.append(palette.color(QPalette::Background).name());
-    }
-    QDomElement color = doc.createElement("color");
-    root.appendChild(color);
-    text = doc.createTextNode(temp.join(","));
-    color.appendChild(text);
-    ini->setValue("color", temp.join(","));
-
-    temp.clear();
-    temp.append(typeComboBox->currentText());
-    QDomElement type = doc.createElement("type");
-    root.appendChild(type);
-    text = doc.createTextNode(temp.join(","));
-    type.appendChild(text);
-    ini->setValue("type", temp.join(","));
-
-    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
-    emit buttonClicked(NULL);
-}
-
-void ConfPage::saveSys()
-{
-    emit sendNetMsg("6004 Sys");
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("Sys");
-
-    QDomText text;
-    QDomDocument doc;
-    QDomElement root = doc.createElement("Sys");
-    doc.appendChild(root);
-
-    QStringList temp;
-    for (int i=0; i < pModel->rowCount(); i++) {
-        for (int t=0; t < btnNames.size(); t++) {
-            if (btnNames.at(t) == pModel->item(i, 0)->text())
-                temp.append(QString::number(t+1));
-        }
-    }
-    QDomElement item = doc.createElement("Test_Item");
-    root.appendChild(item);
-    text = doc.createTextNode(temp.join(","));
-    item.appendChild(text);
-    ini->setValue("Test_Item", temp.join(","));
-
-    emit sendNetMsg((doc.toByteArray()).insert(0, "6002 "));
-}
-
 void ConfPage::clickButton()
 {
     QPushButton *btn = qobject_cast<QPushButton *>(sender());
@@ -335,7 +266,7 @@ void ConfPage::clickButton()
     } else {
         pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
-    saveSys();
+    readSysItems();
 }
 
 void ConfPage::showButtons()
@@ -373,7 +304,7 @@ void ConfPage::deleteItem()
     if (row+1 == pModel->rowCount())
         return;
     pModel->removeRow(row);
-    saveSys();
+    readSysItems();
 }
 
 void ConfPage::autoPixmap(QString name)
@@ -387,8 +318,6 @@ void ConfPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     queryType();
-    readSettings();
-
 }
 
 void ConfPage::appendType()
@@ -413,9 +342,17 @@ void ConfPage::appendType()
 void ConfPage::deleteType()
 {
     QString name = mView->item(0, 0)->text();
+    if (mView->rowCount() == 1)
+        return;
 
     QString Target = QString("./config/%1.ini").arg(name);
     QFile::remove(Target);
+
+    name = mView->item(1, 0)->text();
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("GLOBAL");
+    ini->setValue("FileInUse", name);
 
     queryType();
 }

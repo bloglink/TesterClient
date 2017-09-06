@@ -27,7 +27,7 @@
 #include <QPalette>
 #include <QColor>
 #include <QSettings>
-#include <QtXml/QDomDocument>
+#include <QJsonObject>
 
 #include "conf_delegation.h"
 
@@ -41,15 +41,15 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+    void sendAppCmd(QJsonObject obj);
 public slots:
-    void initTypes(QString dat);
-    void initOther(QString dat);
-    QStringList testItems();
+    void initSettings(QJsonObject obj);
+    void initSysItems(QJsonObject obj);
     void readSettings();
-    void saveSettings();
+    void readSysItems();
+    QStringList testItems();
 private slots:
     void initUI();
-    void saveSys();
     void clickButton();
     void showButtons();
     void windowChange();
