@@ -20,7 +20,7 @@
 #include <QHeaderView>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QtXml/QDomDocument>
+#include <QJsonObject>
 
 #include "conf_delegation.h"
 
@@ -31,28 +31,22 @@ public:
     explicit ConfResistance(QWidget *parent = 0);
     ~ConfResistance();
 signals:
-    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+    void sendAppCmd(QJsonObject obj);
 public slots:
+    void initSettings(QJsonObject obj);
     void readSettings();
-    void saveSettings();
 private slots:
     void initUI();
     void autoInput();
-    QString appendXmlData(int column, QString name);
-    void recvAppShow(QString win);
-    QString CurrentSettings();
 private:
     QTableView *view;
-    StandardItem *model;
+    StandardItem *mView;
 
     QSpinBox *nounSpinBox;
     QSpinBox *tempSpinBox;
     QCheckBox *compensation;
 
-
-    QDomDocument doc;
-    QDomElement root;
     QStringList itemNames;
 };
 
