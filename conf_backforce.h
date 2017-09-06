@@ -20,7 +20,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QPushButton>
-#include <QtXml/QDomDocument>
+#include <QJsonObject>
 
 #include "conf_delegation.h"
 #include "qcustomplot.h"
@@ -31,29 +31,19 @@ class ConfBackEMFTest : public QWidget
 public:
     explicit ConfBackEMFTest(QWidget *parent = 0);
     ~ConfBackEMFTest();
-
 signals:
-    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+    void sendAppCmd(QJsonObject obj);
 public slots:
-    void initData(QString dat);
+    void initSettings(QJsonObject obj);
     void readSettings();
-    void saveSettings();
 private slots:
     void initUI();
-    QString appendXmlData(int column, QString name);
-    void recvAppShow(QString win);
-    QString CurrentSettings();
 private:
     QTableView *view;
-    StandardItem *model;
-
+    StandardItem *mView;
     QSpinBox *nounSpinBox;
-
-    QDomDocument doc;
-    QDomElement root;
     QStringList itemNames;
-
     QCustomPlot *customplot;
 };
 
