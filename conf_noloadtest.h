@@ -20,7 +20,7 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QPushButton>
-#include <QtXml/QDomDocument>
+#include <QJsonObject>
 
 #include "conf_delegation.h"
 #include "qcustomplot.h"
@@ -31,35 +31,25 @@ class ConfNoLoadTest : public QWidget
 public:
     explicit ConfNoLoadTest(QWidget *parent = 0);
     ~ConfNoLoadTest();
-
 signals:
-    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
+    void sendAppCmd(QJsonObject obj);
 public slots:
+    void initSettings(QJsonObject obj);
     void readSettings();
-    void saveSettings();
 private slots:
     void initUI();
-    QString appendXmlData(int column, QString name);
     void sequence(void);
     void ruler(double x);
     void wavePacket(double x1, double x2, QString name);
-    void recvAppShow(QString win);
-    QString CurrentSettings();
 private:
     QTableView *view;
-    StandardItem *model;
-
+    StandardItem *mView;
     QTableView *tView;
     StandardItem *tModel;
-
     QCheckBox *turnCheckBox;
     QComboBox *turnComboBox;
-
-    QDomDocument doc;
-    QDomElement root;
     QStringList itemNames;
-
     QCustomPlot *customplot;
 };
 

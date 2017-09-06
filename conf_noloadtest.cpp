@@ -17,6 +17,60 @@ ConfNoLoadTest::~ConfNoLoadTest()
 {
 }
 
+void ConfNoLoadTest::initSettings(QJsonObject obj)
+{
+    QStringList items = itemNames;
+    items << "sequence" << "turn";
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = obj.value(items.at(i)).toString().split(",");
+        if (items.at(i) == "sequence") {
+            for (int t=0; t < temp.size(); t++)
+                tModel->item(0, t)->setText(temp.at(t));
+        } else if (items.at(i) == "turn"){
+            if (temp.at(0) == "0")
+                turnCheckBox->setChecked(false);
+            else
+                turnCheckBox->setChecked(true);
+        } else {
+            for (int t=0; t < temp.size(); t++)
+                mView->item(t, i)->setText(temp.at(t));
+        }
+    }
+}
+
+void ConfNoLoadTest::readSettings()
+{
+    QJsonObject obj;
+    QStringList items = itemNames;
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp;
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+        obj.insert(items.at(i), temp.join(","));
+    }
+    QStringList temp;
+    for (int i=0; i < tModel->columnCount(); i++) {
+        double x = tModel->item(0, i)->text().toDouble();
+        temp.append(QString::number(x));
+    }
+    obj.insert("sequence", temp.join(","));
+
+    temp.clear();
+    if (turnCheckBox->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    temp.append(QString::number(turnComboBox->currentIndex()));
+    obj.insert("turn", temp.join(","));
+
+    QJsonObject array;
+    array.insert("NOLOAD", obj);
+    emit sendAppCmd(array);
+    emit buttonClicked(NULL);
+}
+
 void ConfNoLoadTest::initUI()
 {
     this->setObjectName("ConfNoLoadTest");
@@ -29,11 +83,11 @@ void ConfNoLoadTest::initUI()
               << "pwr_min" << "pwr_max"
               << "speed_min" << "speed_max"
               << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power";
-    model = new StandardItem(1, headers.size());
-    model->setHorizontalHeaderLabels(headers);
+    mView = new StandardItem(1, headers.size());
+    mView->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < headers.size(); j++) {
-            model->setData(model->index(i, j), "");
+            mView->setData(mView->index(i, j), "");
         }
     }
     SpinBox *voltage = new SpinBox;
@@ -55,7 +109,7 @@ void ConfNoLoadTest::initUI()
     mode << "0" << "1";
     dirver->setItemNames(mode);
     view = new QTableView(this);
-    view->setModel(model);
+    view->setModel(mView);
     view->setItemDelegateForColumn(0, voltage);
     view->setItemDelegateForColumn(1, current);
     view->setItemDelegateForColumn(2, current);
@@ -67,6 +121,7 @@ void ConfNoLoadTest::initUI()
     view->setItemDelegateForColumn(8, vsp);
     view->setItemDelegateForColumn(9, time);
     view->setItemDelegateForColumn(10, dirver);
+    view->setItemDelegateForColumn(11, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -81,7 +136,7 @@ void ConfNoLoadTest::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(turnCheckBox);
@@ -130,89 +185,6 @@ void ConfNoLoadTest::initUI()
     layout->setStretch(2, 3);
     layout->setStretch(4, 1);
     this->setLayout(layout);
-}
-
-void ConfNoLoadTest::readSettings()
-{
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("NOLOAD");
-
-    QStringList items = itemNames;
-    items << "sequence" << "turn";
-
-    for (int i=0; i < items.size(); i++) {
-        QStringList temp = ini->value(items.at(i), "0").toString().split(",");
-        switch (i) {
-        case 12:
-            for (int t=0; t < temp.size(); t++)
-                tModel->item(0, t)->setText(temp.at(t));
-            break;
-        case 13:
-            if (temp.at(0) == "0")
-                turnCheckBox->setChecked(false);
-            else
-                turnCheckBox->setChecked(true);
-            break;
-        default:
-            for (int t=0; t < temp.size(); t++)
-                model->item(t, i)->setText(temp.at(t));
-            break;
-        }
-    }
-}
-
-void ConfNoLoadTest::saveSettings()
-{
-    emit sendNetMsg("6004 NOLOAD");
-    //当前使用的测试项目
-    QString t = QString("./config/%1.ini").arg(CurrentSettings());
-    QSettings *ini = new QSettings(t, QSettings::IniFormat);
-    ini->setIniCodec("GB18030");
-    ini->beginGroup("NOLOAD");
-
-    doc.clear();
-    root.clear();
-    root = doc.createElement("NOLOAD");
-    doc.appendChild(root);
-
-    for (int i=0; i < itemNames.size(); i++)
-        ini->setValue(itemNames.at(i), appendXmlData(i, itemNames.at(i)));
-    QStringList temp;
-    for (int i=0; i < tModel->columnCount(); i++) {
-        temp.append(tModel->item(0, i)->text());
-    }
-    QDomText text = doc.createTextNode(temp.join(","));
-    QDomElement xml = doc.createElement("sequence");
-    xml.appendChild(text);
-    root.appendChild(xml);
-    ini->setValue("sequence", temp.join(","));
-
-    temp.clear();
-    if (turnCheckBox->isChecked())
-        temp.append("1");
-    else
-        temp.append("0");
-    temp.append(QString::number(turnComboBox->currentIndex()));
-    text = doc.createTextNode(temp.join(","));
-    xml = doc.createElement("turn");
-    xml.appendChild(text);
-    root.appendChild(xml);
-    ini->setValue("turn", temp.join(","));
-
-    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
-    emit buttonClicked(NULL);
-}
-
-QString ConfNoLoadTest::appendXmlData(int column, QString name)
-{
-    QDomText text = doc.createTextNode(model->item(0, column)->text());
-    QDomElement xml = doc.createElement(name);
-    xml.appendChild(text);
-    root.appendChild(xml);
-    return model->item(0, column)->text();
 }
 
 void ConfNoLoadTest::sequence()
@@ -400,18 +372,4 @@ void ConfNoLoadTest::wavePacket(double x1, double x2, QString name)
     wavePacketText->setText(name);
     wavePacketText->setFont(QFont(font().family(), 10));
     wavePacketText->setColor(QColor(Qt::white));
-}
-
-void ConfNoLoadTest::recvAppShow(QString win)
-{
-    if (win != this->objectName())
-        return;
-    readSettings();
-}
-
-QString ConfNoLoadTest::CurrentSettings()
-{
-    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
-    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
-    return n.remove(".ini");
 }
