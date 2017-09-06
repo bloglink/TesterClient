@@ -46,16 +46,14 @@ bool WT330::readThread()
         QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
         cmd.append(0x0A);
         com->write(cmd);  // 读取电参
-        return true;
+    } else {
+        tempByte.append(com->readAll());
+        QStringList temp = QString(tempByte).split(",");
+        if (temp.size() >= 30) {
+            meter = temp;
+            tempByte.clear();
+        }
     }
-
-    tempByte.append(com->readAll());
-    QStringList temp = QString(tempByte).split(",");
-    if (temp.size() == 30) {
-        meter = temp;
-        tempByte.clear();
-    }
-
     return true;
 }
 

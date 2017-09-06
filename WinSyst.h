@@ -49,7 +49,7 @@ private slots:
     void InitWindows(void);
     void InitButtons(void);
     void ReadButtons(int id);
-    void InitSettings(void);
+    void readSettings(void);
     void SaveSettings(void);
     void SetDateTime(void);
     void SetPassword(void);
@@ -57,9 +57,9 @@ private slots:
     void SendWinCmdStartMode(void);
     void WriteLog(QByteArray msg);
     QString GetLocalHostIP(void);
-    virtual void showEvent(QShowEvent *);
     void ReadHardWareSpace(void);
     void SendWarnning(QString s);
+    void recvAppShow(QString win);
 private:
     QString password;
     QFile *file;

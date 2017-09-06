@@ -11,6 +11,7 @@
 
 #include <QWidget>
 #include <QStackedWidget>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QLayout>
@@ -93,13 +94,13 @@ public:
     ~MainPage();
 
     bool login();
+    void readSettings();
 private slots:
     void initUI();
     void initPLC();
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
-    void sendSettings();
     void testThread();
     void wait(int ms);
     void testInit();
@@ -117,6 +118,11 @@ private slots:
     void recvIOMsg(QString msg);
     bool readCylinderL(quint16 s);
     bool waitTimeOut(quint16 s);
+
+    void saveSettings();
+    QString CurrentSettings();
+    void recvAppCmd(QJsonObject obj);
+    void sendXmlCmd(QJsonObject obj);
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -144,6 +150,8 @@ private:
     int status;
     int station;
     int timeOut;
+
+    QJsonObject conf_array;
 };
 
 #endif // MAINPAGE_H

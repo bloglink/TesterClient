@@ -99,7 +99,7 @@ void WinSyst::ReadButtons(int id)
     }
 }
 
-void WinSyst::InitSettings()
+void WinSyst::readSettings()
 {
     QSettings *g_ini = new QSettings(INI_PATH, QSettings::IniFormat);
     g_ini->setIniCodec("GB18030");
@@ -226,14 +226,6 @@ QString WinSyst::GetLocalHostIP()
     return result.toString();
 }
 
-void WinSyst::showEvent(QShowEvent *e)
-{
-    ReadHardWareSpace();
-    InitSettings();
-    ui->StackWinSyst->setCurrentIndex(1);
-    e->accept();
-}
-
 void WinSyst::ReadHardWareSpace()
 {
 #ifdef __arm__
@@ -261,6 +253,13 @@ void WinSyst::SendWarnning(QString s)
     hash.insert("TxCommand","Warnning");
     hash.insert("TxMessage", tr("系统异常:\n%1").arg(s));
     emit SendVariant(QVariant::fromValue(hash));
+}
+
+void WinSyst::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    readSettings();
 }
 
 /*********************************END OF FILE**********************************/

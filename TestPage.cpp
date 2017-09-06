@@ -512,5 +512,4 @@ void TestPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     emit sendNetMsg("6008");
-    emit sendNetMsg("6004 Sys");
 }

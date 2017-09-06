@@ -49,6 +49,7 @@ void MainPage::initUI()
     connect(wdat, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     conf = new ConfPage(this);
+    connect(conf, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(conf, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(conf, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), conf, SLOT(recvAppShow(QString)));
@@ -66,44 +67,36 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonTest6()), this, SLOT(testEMF()));
 
     resistance = new ConfResistance(this);
+    connect(resistance, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(resistance, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(resistance, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), resistance, SLOT(recvAppShow(QString)));
 
     current_ac = new ConfCurrent_AC(this);
+    connect(current_ac, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(current_ac, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(current_ac, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), current_ac, SLOT(recvAppShow(QString)));
 
     insulation = new ConfInsulation(this);
+    connect(insulation, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(insulation, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(insulation, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), insulation, SLOT(recvAppShow(QString)));
 
     inductance = new ConfInductance(this);
+    connect(inductance, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(inductance, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(inductance, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), inductance, SLOT(recvAppShow(QString)));
 
     noloadtest = new ConfNoLoadTest(this);
+    connect(noloadtest, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(noloadtest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(noloadtest, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), noloadtest, SLOT(recvAppShow(QString)));
 
     loadtesting = new ConfLoadTesting(this);
+    connect(loadtesting, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(loadtesting, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(loadtesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), loadtesting, SLOT(recvAppShow(QString)));
 
     halltesting = new ConfHall(this);
+    connect(halltesting, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(halltesting, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(halltesting, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), halltesting, SLOT(recvAppShow(QString)));
 
     backemftest = new ConfBackEMFTest(this);
+    connect(backemftest, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(backemftest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
-    connect(backemftest, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
-    connect(this, SIGNAL(transmitShow(QString)), backemftest, SLOT(recvAppShow(QString)));
 
     stack = new QStackedWidget(this);
     stack->addWidget(home);
@@ -151,10 +144,8 @@ void MainPage::recvNetMsg(QString msg)
     switch (cmd) {
     case 6001:  // 自检信息
         emit sendNetMsg("6001");
-        sendSettings();
         break;
     case 6005:  // 上传配置
-        conf->initOther(dat);
         test->updateItems(dat);
         break;
     case 6007:  // 单项测试完成
@@ -163,10 +154,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6015:  // 空载启动完成
         qDebug() << "noload";
-//        plc->readPlc();
-        break;
-    case 6017:  // 上传测试型号
-        conf->initTypes(dat);
+        //        plc->readPlc();
         break;
     default:
         break;
@@ -184,8 +172,8 @@ void MainPage::readButtons(QByteArray win)
     }
     for (int i=0; i < stack->count(); i++) {
         if (stack->widget(i)->objectName() == win) {
-            emit transmitShow(win);
             stack->setCurrentIndex(i);
+            emit transmitShow(win);
             break;
         }
     }
@@ -193,18 +181,6 @@ void MainPage::readButtons(QByteArray win)
     if (previous_window.size() > 10) { // 最大嵌套10层
         previous_window.removeFirst();
     }
-}
-
-void MainPage::sendSettings()
-{
-    resistance->readSettings();
-    resistance->saveSettings();
-
-    insulation->readSettings();
-    insulation->saveSettings();
-
-    current_ac->readSettings();
-    current_ac->saveSettings();
 }
 
 void MainPage::wait(int ms)
@@ -227,8 +203,8 @@ void MainPage::testInit()
     obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);
 
-//    iobrd.sendPort(station, Y10);
-//    readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    //    iobrd.sendPort(station, Y10);
+    //    readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
 
     QStringList testItems = conf->testItems();
     for (int i=0; i < testItems.size(); i++) {
@@ -267,15 +243,15 @@ void MainPage::testInit()
             break;
         }
     }
-//    if (test->updateResult()) {
-//        iobrd.sendPort(station, Y11 | Y08);  // 绿灯加蜂鸣器
-//        wait(500);
-//        iobrd.sendPort(station, Y11);  // 绿灯
-//    } else {
-//        iobrd.sendPort(station, Y09 | Y08);  // 红灯加蜂鸣器
-//        wait(1500);
-//        iobrd.sendPort(station, Y09);  // 红灯
-//    }
+    //    if (test->updateResult()) {
+    //        iobrd.sendPort(station, Y11 | Y08);  // 绿灯加蜂鸣器
+    //        wait(500);
+    //        iobrd.sendPort(station, Y11);  // 绿灯
+    //    } else {
+    //        iobrd.sendPort(station, Y09 | Y08);  // 红灯加蜂鸣器
+    //        wait(1500);
+    //        iobrd.sendPort(station, Y09);  // 红灯
+    //    }
     status = STATUS_FREE;
 }
 
@@ -326,7 +302,7 @@ void MainPage::testNLD()
     cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
     if (!cylinder) {
         status = STATUS_OVER;
-//        return;
+        //        return;
     }
     wait(100);
 
@@ -354,57 +330,57 @@ void MainPage::testNLD()
 
 void MainPage::testLOD()
 {
-//    bool cylinder = false;
-//    iobrd.sendPort(Y10);  // 气缸全部归位
-//    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    bool cylinder = false;
+    //    iobrd.sendPort(Y10);  // 气缸全部归位
+    //    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 
-//    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-//    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
+    //    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 
-//    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-//    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
+    //    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 
-//    QJsonObject obj;
-//    obj.insert("TxMessage","6006 LOAD");
-//    emit transmitJson(obj);
-//    wait(1500);
+    //    QJsonObject obj;
+    //    obj.insert("TxMessage","6006 LOAD");
+    //    emit transmitJson(obj);
+    //    wait(1500);
 
-//    plc->pre_speed();
-//    int load = loadtesting->readLoad()*2446;
+    //    plc->pre_speed();
+    //    int load = loadtesting->readLoad()*2446;
 
-//    for (int i=0; i < 11; i++) {
-//        plc->add_speed(load/10*i);
-//        wait(100);
-//    }
-//    plc->readPlc();
-//    quint16 speed = plc->speed;
-//    quint16 torque = plc->torque;
-//    QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
-//    QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
-//    wait(1500);
-//    for (int i=0; i < 11; i++) {
-//        plc->add_speed(load/10*(10-i));
-//        wait(100);
-//    }
+    //    for (int i=0; i < 11; i++) {
+    //        plc->add_speed(load/10*i);
+    //        wait(100);
+    //    }
+    //    plc->readPlc();
+    //    quint16 speed = plc->speed;
+    //    quint16 torque = plc->torque;
+    //    QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
+    //    QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
+    //    wait(1500);
+    //    for (int i=0; i < 11; i++) {
+    //        plc->add_speed(load/10*(10-i));
+    //        wait(100);
+    //    }
 
-//    wait(1500);
-//    plc->end_speed();
-//    wait(100);
+    //    wait(1500);
+    //    plc->end_speed();
+    //    wait(100);
 
 }
 
@@ -488,30 +464,30 @@ void MainPage::testStop()
 
 void MainPage::testStopAction()
 {
-//    bool cylinder = false;
-//    iobrd.sendPort(station, Y00 | Y02 | Y10);  // 气缸2松开
-//    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    bool cylinder = false;
+    //    iobrd.sendPort(station, Y00 | Y02 | Y10);  // 气缸2松开
+    //    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 
-//    iobrd.sendPort(station, Y02 | Y10);  // 气缸1归位
-//    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    iobrd.sendPort(station, Y02 | Y10);  // 气缸1归位
+    //    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 
-//    iobrd.sendPort(station, Y10);  // 气缸全部归位
-//    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-//    if (!cylinder) {
-//        status = STATUS_OVER;
-//        return;
-//    }
-//    wait(100);
+    //    iobrd.sendPort(station, Y10);  // 气缸全部归位
+    //    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    //    if (!cylinder) {
+    //        status = STATUS_OVER;
+    //        return;
+    //    }
+    //    wait(100);
 }
 
 void MainPage::testTimeOut()
@@ -574,6 +550,234 @@ bool MainPage::waitTimeOut(quint16 s)
         }
         if (status != s)
             return true;
+    }
+}
+
+void MainPage::readSettings()
+{
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+
+    QStringList names_cnf;
+    QJsonObject obj_cnf;
+    names_cnf << "color" << "type";
+    ini->beginGroup("Conf");
+    for (int i=0; i < names_cnf.size(); i++) {
+        QString def = "0,0,0,0,0,0,0,0";
+        if (names_cnf.at(i) == "type")
+            def = "M1S1";
+        obj_cnf.insert(names_cnf.at(i), ini->value(names_cnf.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("Conf", obj_cnf);
+    conf->initSettings(obj_cnf);
+
+    QStringList names_sys;
+    QJsonObject obj_sys;
+    names_sys << "Test_Item";
+    ini->beginGroup("Sys");
+    for (int i=0; i < names_sys.size(); i++) {
+        QString def = "1";
+        obj_sys.insert(names_sys.at(i), ini->value(names_sys.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("Sys", obj_sys);
+    conf->initSysItems(obj_sys);
+
+    QStringList names_dcr;
+    QJsonObject obj_dcr;
+    names_dcr << "test" << "port1" << "port2" << "wire" << "unit" << "min" << "max" << "std"
+              << "wire_comp1" << "wire_comp2" << "std_temp" << "temp_comp" << "noun";
+    ini->beginGroup("DCR");
+    for (int i=0; i < names_dcr.size(); i++) {
+        QString def = "0,0,0,0,0,0,0,0";
+        if (names_dcr.at(i) == "std_temp")
+            def = "20";
+        if (names_dcr.at(i) == "temp_comp")
+            def = "0";
+        if (names_dcr.at(i) == "noun")
+            def = "0";
+        obj_dcr.insert(names_dcr.at(i), ini->value(names_dcr.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("DCR", obj_dcr);
+    resistance->initSettings(obj_dcr);
+
+    QStringList names_inr;
+    QJsonObject obj_inr;
+    names_inr << "test" << "port1" << "port2" << "volt"
+              << "min" << "max" << "time";;
+    ini->beginGroup("IR");
+    for (int i=0; i < names_inr.size(); i++) {
+        QString def = "0,0,0,0,0";
+        obj_inr.insert(names_inr.at(i), ini->value(names_inr.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("IR", obj_inr);
+    insulation->initSettings(obj_inr);
+
+    QStringList names_acw;
+    QJsonObject obj_acw;
+    names_acw << "test" << "port1" << "port2" << "volt"
+              << "min" << "max" << "time" << "freq" << "arc";
+    ini->beginGroup("ACW");
+    for (int i=0; i < names_acw.size(); i++) {
+        QString def = "0,0,0,0,0";
+        obj_acw.insert(names_acw.at(i), ini->value(names_acw.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("ACW", obj_acw);
+    current_ac->initSettings(obj_acw);
+
+    QStringList names_ind;
+    QJsonObject obj_ind;
+    names_ind << "test" << "port1" << "port2" << "unit"
+              << "min" << "max" << "qmin" << "qmax" << "std"
+              << "wire_comp1" << "wire_comp2" << "mode" << "noun";
+    ini->beginGroup("IND");
+    for (int i=0; i < names_ind.size(); i++) {
+        QString def = "0,0,0,0,0,0,0,0";
+        if (names_ind.at(i) == "mode")
+            def = "0,0,0,0";
+        if (names_ind.at(i) == "noun")
+            def = "0";
+        obj_ind.insert(names_ind.at(i), ini->value(names_ind.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("IND", obj_ind);
+    inductance->initSettings(obj_ind);
+
+    QStringList names_hal;
+    QJsonObject obj_hal;
+    names_hal << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
+              << "freq_min" << "freq_max" << "duty_min" << "duty_max"
+              << "skewing_min" << "skewing_max" << "count" << "vcc_volt" << "time" << "mode";
+    ini->beginGroup("HALL");
+    for (int i=0; i < names_hal.size(); i++) {
+        QString def = "0";
+        obj_hal.insert(names_hal.at(i), ini->value(names_hal.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("HALL", obj_hal);
+    halltesting->initSettings(obj_hal);
+
+    QStringList names_lod;
+    QJsonObject obj_lod;
+    names_lod << "volt" << "curr_min" << "curr_max"
+              << "pwr_min" << "pwr_max"
+              << "speed_min" << "speed_max" << "torque"
+              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power"<< "sequence";
+    ini->beginGroup("LOAD");
+    for (int i=0; i < names_lod.size(); i++) {
+        QString def = "0";
+        if (names_lod.at(i) == "sequence")
+            def = "1,1,1,1,1,1,1,1,1,1,1,1,1,1";
+        obj_lod.insert(names_lod.at(i), ini->value(names_lod.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("LOAD", obj_lod);
+    loadtesting->initSettings(obj_lod);
+
+    QStringList names_nld;
+    QJsonObject obj_nld;
+    names_nld << "volt" << "curr_min" << "curr_max"
+              << "pwr_min" << "pwr_max"
+              << "speed_min" << "speed_max"
+              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power" << "sequence" << "turn";
+    ini->beginGroup("NOLOAD");
+    for (int i=0; i < names_nld.size(); i++) {
+        QString def = "0";
+        if (names_nld.at(i) == "sequence")
+            def = "1,1,1,1,1,1,1,1,1,1";
+        if (names_nld.at(i) == "turn")
+            def = "0,0";
+        obj_nld.insert(names_nld.at(i), ini->value(names_nld.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("NOLOAD", obj_nld);
+    noloadtest->initSettings(obj_nld);
+
+    QStringList names_bmf;
+    QJsonObject obj_bmf;
+    names_bmf << "hu_volt_min" << "hu_volt_max" << "hv_volt_min"
+              << "hv_volt_max" << "hw_volt_min"
+              << "hw_volt_max" << "speed" << "turn" << "skewing_min" << "skewing_max" << "noun";
+    ini->beginGroup("BEMF");
+    for (int i=0; i < names_bmf.size(); i++) {
+        QString def = "0";
+        obj_bmf.insert(names_bmf.at(i), ini->value(names_bmf.at(i), def).toString());
+    }
+    ini->endGroup();
+    conf_array.insert("BEMF", obj_bmf);
+    backemftest->initSettings(obj_bmf);
+
+//    sendXmlCmd(conf_array);
+}
+
+void MainPage::saveSettings()
+{
+    QString t = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(t, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+
+    QStringList keys = conf_array.keys();
+    for (int i=0; i < keys.size(); i++) {
+        QJsonObject obj = conf_array.value(keys.at(i)).toObject();
+        QStringList temp = obj.keys();
+        ini->beginGroup(keys.at(i));
+        for (int i=0; i < temp.size(); i++) {
+            ini->setValue(temp.at(i), obj.value(temp.at(i)).toString());
+        }
+        ini->endGroup();
+    }
+}
+
+QString MainPage::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
+}
+
+void MainPage::recvAppCmd(QJsonObject obj)
+{
+    QStringList keys = obj.keys();
+    for (int i=0; i < keys.size(); i++)
+        conf_array.insert(keys.at(i), obj.value(keys.at(i)).toObject());
+
+    saveSettings();
+    sendXmlCmd(obj);
+}
+
+void MainPage::sendXmlCmd(QJsonObject obj)
+{
+    QStringList keys = obj.keys();
+    for (int i=0; i < keys.size(); i++) {
+        QDomDocument doc;
+        QDomElement root;
+        root = doc.createElement(keys.at(i));
+        doc.appendChild(root);
+
+        QJsonObject temp = obj.value(keys.at(i)).toObject();
+        QStringList key = temp.keys();
+        for (int t=0; t < key.size(); t++) {
+            QDomElement element = doc.createElement(key.at(t));
+            QDomText text = doc.createTextNode(temp.value(key.at(t)).toString());
+            element.appendChild(text);
+            root.appendChild(element);
+        }
+        QJsonObject xx;
+
+        QString s = "6004 ";
+        s.append(keys.at(i));
+        xx.insert("TxMessage", s);
+        emit transmitJson(xx);
+
+        QString msg = "6002 ";
+        msg.append(doc.toByteArray());
+        xx.insert("TxMessage", msg);
+        emit transmitJson(xx);
     }
 }
 
