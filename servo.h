@@ -4,32 +4,35 @@
  *
  * version:     0.1
  * author:      zhaonanlin
- * brief:       横河电参表读取程序
+ * brief:       伺服控制模块
 *******************************************************************************/
-#ifndef WT330_H
-#define WT330_H
+#ifndef SERVO_H
+#define SERVO_H
 
 #include <QTimer>
-#include <QDebug>
 #include <QObject>
 #include <QtSerialPort/QSerialPort>
 
-class WT330 : public QObject
+#define SERVO_INIT 0x00
+#define SERVO_HANK 0x01
+#define SERVO_READ 0x02
+#define SERVO_OVER 0x03
+
+class Servo : public QObject
 {
     Q_OBJECT
 public:
-    explicit WT330(QObject *parent = 0);
-
+    explicit Servo(QObject *parent = 0);
 public slots:
     bool initPort(QString portName);
+    quint16 readPort();
 private slots:
-    bool setNumber();
     bool readThread();
-    QStringList readMeter();
 private:
     QSerialPort *com;
-    QStringList meter;
-    QByteArray tempByte;
+    quint16 status;
+    int timeOut;
+    quint16 speed;
 };
 
-#endif // WT330_H
+#endif // SERVO_H

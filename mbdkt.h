@@ -4,32 +4,35 @@
  *
  * version:     0.1
  * author:      zhaonanlin
- * brief:       横河电参表读取程序
+ * brief:       MBDKT2510 PLC控制模块
 *******************************************************************************/
-#ifndef WT330_H
-#define WT330_H
+#ifndef MBDKT_H
+#define MBDKT_H
 
-#include <QTimer>
 #include <QDebug>
 #include <QObject>
+#include <QElapsedTimer>
+#include <QCoreApplication>
 #include <QtSerialPort/QSerialPort>
 
-class WT330 : public QObject
+class MBDKT : public QObject
 {
     Q_OBJECT
 public:
-    explicit WT330(QObject *parent = 0);
+    explicit MBDKT(QObject *parent = 0);
 
 public slots:
     bool initPort(QString portName);
+    bool setMode(int mode);
+    bool setTurn(int turn);
+    bool setStart(int start);
+    bool setSpeed(int speed);
+    bool setTorque(int torque);
 private slots:
-    bool setNumber();
-    bool readThread();
-    QStringList readMeter();
+    void wait(int ms);
+    bool sendCommand(QByteArray cmd);
 private:
     QSerialPort *com;
-    QStringList meter;
-    QByteArray tempByte;
 };
 
-#endif // WT330_H
+#endif // MBDKT_H

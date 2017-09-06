@@ -31,7 +31,6 @@ SOURCES += main.cpp\
     conf_insulation.cpp \
     conf_current_ac.cpp \
     conf_inductance.cpp \
-    ctrl_device_232.cpp \
     page_sqlite.cpp \
     conf_noloadtest.cpp \
     conf_loadtesting.cpp \
@@ -39,7 +38,10 @@ SOURCES += main.cpp\
     conf_backforce.cpp \
     conf_qrencode.cpp \
     conf_hall.cpp \
-    wt330.cpp
+    wt330.cpp \
+    iobrd.cpp \
+    servo.cpp \
+    mbdkt.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -54,7 +56,6 @@ HEADERS  += \
     conf_current_ac.h \
     conf_inductance.h \
     conf_delegation.h \
-    ctrl_device_232.h \
     page_sqlite.h \
     conf_noloadtest.h \
     conf_loadtesting.h \
@@ -62,7 +63,10 @@ HEADERS  += \
     conf_backforce.h \
     conf_qrencode.h \
     conf_hall.h \
-    wt330.h
+    wt330.h \
+    iobrd.h \
+    servo.h \
+    mbdkt.h
 
 FORMS    += \
     WinSyst.ui

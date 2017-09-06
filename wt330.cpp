@@ -11,12 +11,14 @@
 WT330::WT330(QObject *parent) : QObject(parent)
 {
     com = NULL;
-    timeOut = 0;
-    wt330_mode = WT330_INIT;
 }
 
 bool WT330::initPort(QString portName)
 {
+    if (portName.isNull() && com != NULL) {
+        com->close();
+        return true;
+    }
     com = new QSerialPort(portName, this);
     if (com->open(QIODevice::ReadWrite)) {
         com->setBaudRate(9600);
@@ -26,50 +28,48 @@ bool WT330::initPort(QString portName)
         com->setFlowControl(QSerialPort::NoFlowControl);
         com->setDataTerminalReady(true);
         com->setRequestToSend(false);
+        setNumber();
+        QTimer *timer = new QTimer(this);
+        connect(timer, SIGNAL(timeout()), this, SLOT(readThread()));
+        timer->start(50);
         return true;
     } else {
         return false;
     }
 }
 
-bool WT330::readThread(int waitTime)
+bool WT330::readThread()
+{
+    if (com == NULL || !com->isOpen())
+        return false;
+    if (com->bytesAvailable() == 0) {
+        QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
+        cmd.append(0x0A);
+        com->write(cmd);  // 读取电参
+        return true;
+    }
+
+    tempByte.append(com->readAll());
+    QStringList temp = QString(tempByte).split(",");
+    if (temp.size() == 30) {
+        meter = temp;
+        tempByte.clear();
+    }
+
+    return true;
+}
+
+QStringList WT330::readMeter()
+{
+    return meter;
+}
+
+bool WT330::setNumber()
 {
     if (com == NULL || !com->isOpen())
         return false;
     QByteArray num = ":NUMERIC:NORMAL:NUMBER 30";
     num.append(0x0A);
-    QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
-    cmd.append(0x0A);
-    switch (wt330_mode) {
-    case WT330_INIT:
-        com->write(num);  // 设置读取长度
-        wt330_mode = WT330_WAIT;
-        break;
-    case WT330_WAIT:
-        if (timeOut == 0)
-            com->write(cmd);  // 读取电参
-        timeOut++;
-        if (timeOut > waitTime) {  // 读取频率
-            timeOut = 0;
-            wt330_mode = WT330_READ;
-        }
-        break;
-    case WT330_READ:
-        if (com->bytesAvailable() > 30) {
-            power = com->readAll();
-            wt330_mode = WT330_WAIT;
-        }
-        break;
-    default:
-        break;
-    }
-    return true;
-}
-
-bool WT330::quitPort()
-{
-    if (com == NULL || !com->isOpen())
-        return false;
-    com->close();
+    com->write(num);  // 设置读取长度
     return true;
 }

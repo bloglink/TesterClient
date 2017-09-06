@@ -24,11 +24,11 @@ void ConfNoLoadTest::initUI()
     headers << tr("电压") << tr("电流下限") << tr("电流上限")
             << tr("功率下限") << tr("功率上限")
             << tr("转速下限") << tr("转速上限") << tr("Vcc电压")
-            << tr("Vsp电压") << tr("测试时间");
+            << tr("Vsp电压") << tr("测试时间") << tr("驱动器") << tr("电源");
     itemNames << "volt" << "curr_min" << "curr_max"
               << "pwr_min" << "pwr_max"
               << "speed_min" << "speed_max"
-              << "vcc_volt" << "vsp_volt" << "time";
+              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power";
     model = new StandardItem(1, headers.size());
     model->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
@@ -50,6 +50,10 @@ void ConfNoLoadTest::initUI()
     vsp->setMaxinum(15);
     DoubleSpinBox *time = new DoubleSpinBox;
     time->setMaxinum(99);
+    ComboBox *dirver = new ComboBox;
+    QStringList mode;
+    mode << "0" << "1";
+    dirver->setItemNames(mode);
     view = new QTableView(this);
     view->setModel(model);
     view->setItemDelegateForColumn(0, voltage);
@@ -62,6 +66,7 @@ void ConfNoLoadTest::initUI()
     view->setItemDelegateForColumn(7, vcc);
     view->setItemDelegateForColumn(8, vsp);
     view->setItemDelegateForColumn(9, time);
+    view->setItemDelegateForColumn(10, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
@@ -141,11 +146,11 @@ void ConfNoLoadTest::readSettings()
     for (int i=0; i < items.size(); i++) {
         QStringList temp = ini->value(items.at(i), "0").toString().split(",");
         switch (i) {
-        case 10:
+        case 12:
             for (int t=0; t < temp.size(); t++)
                 tModel->item(0, t)->setText(temp.at(t));
             break;
-        case 11:
+        case 13:
             if (temp.at(0) == "0")
                 turnCheckBox->setChecked(false);
             else
