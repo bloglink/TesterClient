@@ -10,11 +10,9 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QDebug>
-#include <QtXml/QDomDocument>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 #include <QSpinBox>
 #include <QLabel>
+#include <QJsonObject>
 
 #include "conf_delegation.h"
 
@@ -26,24 +24,20 @@ public:
     ~ConfHall();
 
 signals:
-    void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
-public:
-    void initData(QString dat);
+    void sendAppCmd(QJsonObject obj);
+public slots:
+    void initSettings(QJsonObject obj);
+    void readSettings();
 private slots:
     void initUI();
-    void saveData();
-    void appendXmlData(int column, QString name);
-    void recvAppShow(QString win);
 private:
     QTableView *view;
-    StandardItem *model;
+    StandardItem *mView;
 
     QCheckBox *turnCheckBox;
     QComboBox *turnComboBox;
 
-    QDomDocument doc;
-    QDomElement root;
     QStringList itemNames;
 };
 

@@ -2,12 +2,41 @@
 
 ConfHall::ConfHall(QWidget *parent) : QWidget(parent)
 {
-initUI();
+    initUI();
 }
 
 
 ConfHall::~ConfHall()
 {
+}
+
+void ConfHall::initSettings(QJsonObject obj)
+{
+    QStringList items = itemNames;
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp = obj.value(items.at(i)).toString().split(",");
+        for (int t=0; t < temp.size(); t++)
+            mView->item(t, i)->setText(temp.at(t));
+    }
+}
+
+void ConfHall::readSettings()
+{
+    QJsonObject obj;
+    QStringList items = itemNames;
+    for (int i=0; i < items.size(); i++) {
+        QStringList temp;
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+        obj.insert(items.at(i), temp.join(","));
+    }
+
+    QJsonObject array;
+    array.insert("HALL", obj);
+    emit sendAppCmd(array);
+    emit buttonClicked(NULL);
 }
 
 void ConfHall::initUI()
@@ -19,25 +48,24 @@ void ConfHall::initUI()
             << tr("频率下限") << tr("频率上限")
             << tr("占空比下限") << tr("占空比上限")
             << tr("相位差下限") << tr("相位差上限")
-            << tr("磁极数") << tr("Vcc电压") << tr("测试时间");
+            << tr("磁极数") << tr("Vcc电压") << tr("测试时间") << "测试方式";
     itemNames << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
               << "freq_min" << "freq_max" << "duty_min" << "duty_max"
-              << "skewing_min" << "skewing_max"
-              << "count" << "vcc_volt" << "time";
-    model = new StandardItem(1, headers.size());
-    model->setHorizontalHeaderLabels(headers);
+              << "skewing_min" << "skewing_max" << "count" << "vcc_volt" << "time" << "mode";
+    mView = new StandardItem(1, headers.size());
+    mView->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
         for (int j=0; j < headers.size(); j++) {
-            model->setData(model->index(i, j), "");
+            mView->setData(mView->index(i, j), "");
         }
     }
-    SpinBox *voltage = new SpinBox;
+    DoubleSpinBox *voltage = new DoubleSpinBox;
     voltage->setMaxinum(15);
     SpinBox *freq = new SpinBox;
-    freq->setMaxinum(5000);
+    freq->setMaxinum(25000);
     DoubleSpinBox *skewing = new DoubleSpinBox;
     skewing->setMaxinum(360);
-    SpinBox *duty = new SpinBox;
+    DoubleSpinBox *duty = new DoubleSpinBox;
     duty->setMaxinum(100);
     SpinBox *count = new SpinBox;
     count->setMaxinum(10);
@@ -46,9 +74,8 @@ void ConfHall::initUI()
     DoubleSpinBox *vcc = new DoubleSpinBox;
     vcc->setMaxinum(15);
 
-
     view = new QTableView(this);
-    view->setModel(model);
+    view->setModel(mView);
     view->setItemDelegateForColumn(0, voltage);
     view->setItemDelegateForColumn(1, voltage);
     view->setItemDelegateForColumn(2, voltage);
@@ -68,7 +95,7 @@ void ConfHall::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
@@ -84,50 +111,3 @@ void ConfHall::initUI()
     this->setLayout(layout);
 }
 
-void ConfHall::initData(QString dat)
-{
-    QDomDocument docs;
-    docs.setContent(dat);
-    if (docs.elementsByTagName("HALL").isEmpty())
-        return;
-    QStringList items = itemNames;;
-    QDomNodeList list = docs.elementsByTagName("HALL").at(0).childNodes();
-    for (int i=0; i < list.size(); i++) {
-        QDomElement dom = list.at(i).toElement();
-        QStringList temp = dom.text().split(",");
-        int index = items.indexOf(dom.nodeName());
-        if (index == -1)
-            continue;
-        for (int t=0; t < temp.size(); t++)
-            model->item(t, index)->setText(temp.at(t));
-    }
-}
-
-void ConfHall::saveData()
-{
-    doc.clear();
-    root.clear();
-    root = doc.createElement("HALL");
-    doc.appendChild(root);
-
-    for (int i=0; i < itemNames.size(); i++)
-        appendXmlData(i, itemNames.at(i));
-    initData(doc.toByteArray());
-    emit sendNetMsg(doc.toByteArray().insert(0, "6002 "));
-    emit buttonClicked(NULL);
-}
-
-void ConfHall::appendXmlData(int column, QString name)
-{
-    QDomText text = doc.createTextNode(model->item(0, column)->text());
-    QDomElement xml = doc.createElement(name);
-    xml.appendChild(text);
-    root.appendChild(xml);
-}
-
-void ConfHall::recvAppShow(QString win)
-{
-    if (win != this->objectName())
-        return;
-    emit sendNetMsg("6004 HALL");
-}
