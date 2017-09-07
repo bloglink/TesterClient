@@ -66,7 +66,6 @@ void ConfPage::readSettings()
     QJsonObject array;
     array.insert("Conf", obj);
     emit sendAppCmd(array);
-
 }
 
 void ConfPage::readSysItems()
@@ -394,5 +393,6 @@ QString ConfPage::CurrentSettings()
 void ConfPage::goBack()
 {
     readSettings();
+    readSysItems();
     emit buttonClicked(NULL);
 }
