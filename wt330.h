@@ -22,14 +22,15 @@ public:
 
 public slots:
     bool initPort(QString portName);
+    QStringList readMeter();
 private slots:
     bool setNumber();
     bool readThread();
-    QStringList readMeter();
 private:
     QSerialPort *com;
     QStringList meter;
     QByteArray tempByte;
+    QTimer *timer;
 };
 
 #endif // WT330_H

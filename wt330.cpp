@@ -11,11 +11,14 @@
 WT330::WT330(QObject *parent) : QObject(parent)
 {
     com = NULL;
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(readThread()));
 }
 
 bool WT330::initPort(QString portName)
 {
     if (portName.isNull() && com != NULL) {
+        timer->stop();
         com->close();
         return true;
     }
@@ -29,9 +32,7 @@ bool WT330::initPort(QString portName)
         com->setDataTerminalReady(true);
         com->setRequestToSend(false);
         setNumber();
-        QTimer *timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(readThread()));
-        timer->start(50);
+        timer->start(100);
         return true;
     } else {
         return false;
@@ -42,18 +43,19 @@ bool WT330::readThread()
 {
     if (com == NULL || !com->isOpen())
         return false;
-    if (com->bytesAvailable() == 0) {
-        QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
-        cmd.append(0x0A);
-        com->write(cmd);  // 读取电参
-    } else {
+    if (com->bytesAvailable() > 0) {
         tempByte.append(com->readAll());
-        QStringList temp = QString(tempByte).split(",");
-        if (temp.size() >= 30) {
-            meter = temp;
-            tempByte.clear();
-        }
+        return true;
     }
+    QStringList temp = QString(tempByte).split(",");
+    if (temp.size() >= 30) {
+        meter = temp;
+        tempByte.clear();
+        return true;
+    }
+    QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
+    cmd.append(0x0A);
+    com->write(cmd);  // 读取电参
     return true;
 }
 
