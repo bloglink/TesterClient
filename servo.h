@@ -11,6 +11,8 @@
 
 #include <QTimer>
 #include <QObject>
+#include <QElapsedTimer>
+#include <QCoreApplication>
 #include <QtSerialPort/QSerialPort>
 
 #define SERVO_INIT 0x00
@@ -28,6 +30,7 @@ public slots:
     quint16 readPort();
 private slots:
     bool readThread();
+    void wait(int ms);
 private:
     QSerialPort *com;
     quint16 status;

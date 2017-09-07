@@ -13,6 +13,7 @@ Servo::Servo(QObject *parent) : QObject(parent)
     com = NULL;
     timeOut = 0;
     status = 0x0000;
+    speed = 0x0000;
 }
 
 bool Servo::initPort(QString portName)
@@ -33,7 +34,7 @@ bool Servo::initPort(QString portName)
 
         QTimer *timer = new QTimer(this);
         connect(timer, SIGNAL(timeout()), this, SLOT(readThread()));
-        timer->start(50);
+        timer->start(500);
         return true;
     } else {
         return false;
@@ -49,42 +50,87 @@ bool Servo::readThread()
 {
     if (com == NULL || !com->isOpen())
         return false;
-    switch (status) {
-    case SERVO_INIT:
-        if (timeOut == 0)
-            com->write("0005");
+    com->readAll();
+    QByteArray cmd;
+    quint32 timeOut = 0;
+    cmd = QByteArray::fromHex("0005");
+    com->write(cmd);
+    while (com->bytesAvailable() < 1) {
+        wait(10);
         timeOut++;
-        if (com->bytesAvailable() >= 1) {
-            status = SERVO_HANK;
-            com->readAll();
-            timeOut = 0;
-            com->write("0001926D00");
+        if (timeOut > 100) {
+            return false;
         }
-        break;
-    case SERVO_HANK:
-        timeOut++;
-        if (com->bytesAvailable() >= 2) {
-            status = SERVO_READ;
-            com->readAll();
-            timeOut = 0;
-            com->write("0400");
-        }
-        break;
-    case SERVO_READ:
-        timeOut++;
-        if (com->bytesAvailable() >= 7) {
-            status = SERVO_OVER;
-            QByteArray msg = com->readAll();
-            speed = quint8(msg.at(3)) + quint8(msg.at(4))*256;
-            timeOut = 0;
-        }
-        break;
-    case SERVO_OVER:
-        status = SERVO_INIT;
-        com->readAll();
-        break;
-    default:
-        break;
     }
+    com->readAll();
+
+    cmd = QByteArray::fromHex("0001926D00");
+    com->write(cmd);
+    while (com->bytesAvailable() < 2) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            return false;
+        }
+    }
+    com->readAll();
+
+    cmd = QByteArray::fromHex("0400");
+    com->write(cmd);
+    while (com->bytesAvailable() < 7) {
+        wait(10);
+        timeOut++;
+        if (timeOut > 100) {
+            return false;
+        }
+    }
+    QByteArray msg = com->readAll();
+    speed = quint8(msg.at(3)) + quint8(msg.at(4))*256;
     return true;
+    //    switch (status) {
+    //    case SERVO_INIT:
+    //        if (timeOut == 0)
+    //            com->write("0005");
+    //        timeOut++;
+    //        if (com->bytesAvailable() >= 1) {
+    //            status = SERVO_HANK;
+    //            com->readAll();
+    //            timeOut = 0;
+    //            com->write("0001926D00");
+    //        }
+    //        break;
+    //    case SERVO_HANK:
+    //        timeOut++;
+    //        if (com->bytesAvailable() >= 2) {
+    //            status = SERVO_READ;
+    //            com->readAll();
+    //            timeOut = 0;
+    //            com->write("0400");
+    //        }
+    //        break;
+    //    case SERVO_READ:
+    //        timeOut++;
+    //        if (com->bytesAvailable() >= 7) {
+    //            status = SERVO_OVER;
+    //            QByteArray msg = com->readAll();
+    //            speed = quint8(msg.at(3)) + quint8(msg.at(4))*256;
+    //            timeOut = 0;
+    //        }
+    //        break;
+    //    case SERVO_OVER:
+    //        status = SERVO_INIT;
+    //        com->readAll();
+    //        break;
+    //    default:
+    //        break;
+    //    }
+    //    return true;
+}
+
+void Servo::wait(int ms)
+{
+    QElapsedTimer t;
+    t.start();
+    while (t.elapsed() < ms)
+        QCoreApplication::processEvents();
 }
