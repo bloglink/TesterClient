@@ -63,6 +63,10 @@ bool IOBrd::readThread()
     if (com->bytesAvailable() > 7) {
         QByteArray msg = com->readAll();
         status = quint16(msg.at(3)*256) + quint8(msg.at(4));
+        if (status & X10)
+            emit sendStart(1);
+        if (status & X12)
+            emit sendStart(0);
         return true;
     }
     com->write(QByteArray::fromHex("7B06F100F77D"));  // 读取IO板状态
