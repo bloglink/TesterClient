@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     wt330.cpp \
     iobrd.cpp \
     servo.cpp \
-    mbdkt.cpp
+    mbdkt.cpp \
+    Snowflake.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -66,7 +67,8 @@ HEADERS  += \
     wt330.h \
     iobrd.h \
     servo.h \
-    mbdkt.h
+    mbdkt.h \
+    Snowflake.h
 
 FORMS    += \
     WinSyst.ui

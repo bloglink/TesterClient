@@ -146,3 +146,4 @@ void ConfCurrent_AC::initUI()
     view->hideRow(2);
     view->hideRow(3);
 }
+

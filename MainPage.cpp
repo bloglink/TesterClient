@@ -45,8 +45,8 @@ void MainPage::initUI()
     WinSyst *syst = new WinSyst(this);
     connect(syst, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
-    PageSqlite *wdat = new PageSqlite(this);
-    connect(wdat, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    winData = new PageSqlite(this);
+    connect(winData, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
     conf = new ConfPage(this);
     connect(conf, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
@@ -101,7 +101,7 @@ void MainPage::initUI()
     stack = new QStackedWidget(this);
     stack->addWidget(home);
     stack->addWidget(syst);
-    stack->addWidget(wdat);
+    stack->addWidget(winData);
     stack->addWidget(conf);
     stack->addWidget(test);
     stack->addWidget(resistance);
@@ -116,14 +116,15 @@ void MainPage::initUI()
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(stack);
-    layout->setMargin(0);
 }
 
 void MainPage::initPLC()
 {
     iobrd.initPort("COM3");
+//    wt330.initPort("COM4");
     servo.initPort("COM5");
     plc.initPort("COM6");
+    connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readIOBrd(bool)));
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -150,11 +151,12 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6007:  // 单项测试完成
         status = STATUS_FREE;
-        qDebug() << dat;
         break;
     case 6015:  // 空载启动完成
-        qDebug() << "noload";
-        //        plc->readPlc();
+        readNoLoad();
+        break;
+    case 6019:
+        power = dat.split(" ");
         break;
     default:
         break;
@@ -198,15 +200,17 @@ void MainPage::testThread()
 
 void MainPage::testInit()
 {
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "test start";
     test->initItems(station);
     QJsonObject obj;
     obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);
 
-    //    iobrd.sendPort(station, Y10);
-    //    readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+//    iobrd.sendPort(Y10);
+//    readCylinder(X01_ORIGIN | X03_ORIGIN);
 
     QStringList testItems = conf->testItems();
+    qDebug() << testItems;
     for (int i=0; i < testItems.size(); i++) {
         int cmd = testItems.at(i).toInt();
         status = cmd;
@@ -239,20 +243,35 @@ void MainPage::testInit()
             break;
         }
         if (status == STATUS_OVER) {
-            QMessageBox::warning(this, "警告", "您停止了测试", QMessageBox::Ok);
+            testStop();
+            testTimeOut();
+//            QMessageBox::warning(this, "警告", "您停止了测试", QMessageBox::Ok);
             break;
         }
     }
-    //    if (test->updateResult()) {
-    //        iobrd.sendPort(station, Y11 | Y08);  // 绿灯加蜂鸣器
-    //        wait(500);
-    //        iobrd.sendPort(station, Y11);  // 绿灯
-    //    } else {
-    //        iobrd.sendPort(station, Y09 | Y08);  // 红灯加蜂鸣器
-    //        wait(1500);
-    //        iobrd.sendPort(station, Y09);  // 红灯
-    //    }
+    QString xx;
+    xx.append(CurrentSettings());
+    xx.append("@");
+    xx.append("admin");
+    xx.append("@");
+    if (test->updateResult()) {
+        iobrd.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
+        wait(500);
+        iobrd.sendPort(Y08);  // 绿灯
+        xx.append("OK");
+    } else {
+        iobrd.sendPort(Y09 | Y11);  // 红灯加蜂鸣器
+        wait(1500);
+        iobrd.sendPort(Y11);  // 红灯
+        xx.append("NG");
+    }
+    QJsonObject objs;
+    objs.insert("title", xx);
+    objs.insert("content", test->readResult());
+    winData->saveSql(objs);
+
     status = STATUS_FREE;
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "test stop";
 }
 
 void MainPage::testDCR()
@@ -261,6 +280,7 @@ void MainPage::testDCR()
     obj.insert("TxMessage","6006 DCR");
     emit transmitJson(obj);
     waitTimeOut(STATUS_DCR);
+    wait(100);
 }
 
 void MainPage::testINR()
@@ -269,6 +289,7 @@ void MainPage::testINR()
     obj.insert("TxMessage","6006 IR");
     emit transmitJson(obj);
     waitTimeOut(STATUS_INR);
+    wait(100);
 }
 
 void MainPage::testACW()
@@ -277,6 +298,7 @@ void MainPage::testACW()
     obj.insert("TxMessage","6006 ACW");
     emit transmitJson(obj);
     waitTimeOut(STATUS_ACW);
+    wait(100);
 }
 
 void MainPage::testIND()
@@ -284,7 +306,8 @@ void MainPage::testIND()
     QJsonObject obj;
     obj.insert("TxMessage","6006 IND");
     emit transmitJson(obj);
-    waitTimeOut(STATUS_INR);
+    waitTimeOut(STATUS_IND);
+    wait(100);
 }
 
 void MainPage::testHAL()
@@ -293,21 +316,23 @@ void MainPage::testHAL()
     obj.insert("TxMessage","6006 HALL");
     emit transmitJson(obj);
     waitTimeOut(STATUS_HAL);
+    wait(100);
 }
 
 void MainPage::testNLD()
 {
+    wt330.initPort("COM4");
     bool cylinder = false;
     iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
+    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
     if (!cylinder) {
         status = STATUS_OVER;
-        //        return;
+        return;
     }
     wait(100);
 
     iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
+    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
@@ -319,13 +344,24 @@ void MainPage::testNLD()
     emit transmitJson(obj);
     waitTimeOut(STATUS_NLD);
 
+    if (meter.size() >= 10) {
+        QString tt;
+        tt.append(QString("U:%1,").arg(QString(meter.at(0)).toDouble()));
+        tt.append(QString("I:%1,").arg(QString(meter.at(1)).toDouble()));
+        tt.append(QString("W:%1,").arg(QString(meter.at(2)).toDouble()));
+        test->updateItem(tt);
+    } else {
+        test->updateItem("NULL");
+    }
+
     iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
+    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
+    wt330.initPort(NULL);
 }
 
 void MainPage::testLOD()
@@ -388,7 +424,7 @@ void MainPage::testEMF()
 {
     bool cylinder = false;
     iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
+    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
@@ -396,7 +432,7 @@ void MainPage::testEMF()
     wait(100);
 
     iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
+    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
@@ -404,7 +440,7 @@ void MainPage::testEMF()
     wait(100);
 
     iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-    cylinder = readCylinderL(X01_TARGET | X03_TARGET);
+    cylinder = readCylinder(X01_TARGET | X03_TARGET);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
@@ -419,25 +455,25 @@ void MainPage::testEMF()
     wait(50);
     plc.setSpeed(100);
     wait(50);
-
-    for (int i=1; i < 10; i++) {
-        plc.setSpeed(100*i);
+    int speed = backemftest->readSpeed();
+    for (int i=1; i < 11; i++) {
+        plc.setSpeed(speed*i/10);
         wait(100);
     }
-    QMessageBox::warning(this, "", "转速启动", QMessageBox::Ok);
     QJsonObject obj;
-    obj.insert("TxMessage","6006 LOAD");
+    obj.insert("TxMessage","6006 BEMF");
     emit transmitJson(obj);
-    wait(5500);
+    waitTimeOut(STATUS_EMF);
+    test->updateItem(power.join(","));
 
-    for (int i=1; i < 10; i++) {
-        plc.setSpeed(100*(10-i));
+    for (int i=1; i < 11; i++) {
+        plc.setSpeed(speed*(10-i)/10);
         wait(100);
     }
     plc.setStart(0);
 
     iobrd.sendPort(Y02 | Y10);  // 气缸1下降
-    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
+    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
@@ -445,13 +481,12 @@ void MainPage::testEMF()
     wait(100);
 
     iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
+    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
 }
 
 void MainPage::testStop()
@@ -498,29 +533,7 @@ void MainPage::testTimeOut()
     status = STATUS_OVER;
 }
 
-void MainPage::recvIOMsg(QString msg)
-{
-    if (msg == "StartL") {
-        if (status != STATUS_FREE)
-            return;
-        status = STATUS_PREP;
-        station = 0x13;
-        QTimer::singleShot(10, this, SLOT(testThread()));
-    }
-    if (msg == "StartR") {
-        if (status != STATUS_FREE)
-            return;
-        status = STATUS_PREP;
-        station = 0x14;
-        QTimer::singleShot(10, this, SLOT(testThread()));
-    }
-    if (msg == "StopL" || msg == "StopR") {
-        testStop();
-        testTimeOut();
-    }
-}
-
-bool MainPage::readCylinderL(quint16 s)
+bool MainPage::readCylinder(quint16 s)
 {
     qDebug() << QString("%1").arg(s, 4, 16, QChar('0'));
     quint16 timeOut = 0x0000;
@@ -543,7 +556,7 @@ bool MainPage::waitTimeOut(quint16 s)
     while (1) {
         wait(10);
         timeOut++;
-        if (timeOut > 2000) {
+        if (timeOut > 3000) {
             QMessageBox::warning(this, "超时", QString("测试超时:%1").arg(s), QMessageBox::Ok);
             testTimeOut();
             return false;
@@ -572,6 +585,8 @@ void MainPage::readSettings()
     ini->endGroup();
     conf_array.insert("Conf", obj_cnf);
     conf->initSettings(obj_cnf);
+
+    sendXmlCmd(conf_array);
 
     QStringList names_sys;
     QJsonObject obj_sys;
@@ -712,7 +727,9 @@ void MainPage::readSettings()
     conf_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
+//    conf_array.remove("Conf");
 //    sendXmlCmd(conf_array);
+//    conf_array.insert("Conf", obj_cnf);
 }
 
 void MainPage::saveSettings()
@@ -779,5 +796,29 @@ void MainPage::sendXmlCmd(QJsonObject obj)
         xx.insert("TxMessage", msg);
         emit transmitJson(xx);
     }
+}
+
+void MainPage::readNoLoad()
+{
+    QStringList m = wt330.readMeter();
+    if (m.size() < 10) {
+        QMessageBox::warning(this, "", "电参Error", QMessageBox::Ok);
+        return;
+    }
+    meter = m;
+//    QString tmp;
+//    tmp.append(QString("U:%1,").arg(meter.at(0)));
+//    tmp.append(QString("I:%1,").arg(meter.at(1)));
+//    tmp.append(QString("W:%1").arg(meter.at(2)));
+    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
+}
+
+void MainPage::readIOBrd(bool s)
+{
+    qDebug() << "io" << s;
+    if (s && (status == STATUS_FREE))
+        QTimer::singleShot(50, this, SLOT(testInit()));
+    if (!s && (status != STATUS_FREE))
+        testTimeOut();
 }
 

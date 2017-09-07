@@ -39,6 +39,7 @@
 #include "iobrd.h"
 #include "servo.h"
 #include "mbdkt.h"
+#include "wt330.h"
 
 #define STATUS_DCR 0x01
 #define STATUS_MAG 0x02
@@ -58,29 +59,6 @@
 #define STATUS_FREE 0x00
 #define STATUS_OVER 0xFF
 #define STATUS_PREP 0xFE
-
-#define X01_TARGET 0x0100
-#define X01_ORIGIN 0x0200
-#define X02_TARGET 0x0400
-#define X02_ORIGIN 0x0800
-#define X03_TARGET 0x0800
-#define X03_ORIGIN 0x0400
-#define X04_TARGET 0x4000
-#define X04_ORIGIN 0x8000
-
-#define X10 0x0001  // 启动
-#define X11 0x0002  // 启动
-#define X12 0x0004  // 停止
-#define X13 0x0008  // 停止
-
-#define Y00 0x0001  // 台下起降气缸1
-#define Y01 0x0002  // 台下夹紧气缸2
-#define Y02 0x0004  // 台上压紧气缸3
-#define Y03 0x0008  // 台上耐压气缸4
-#define Y08 0x0100  // 蜂鸣器
-#define Y09 0x0200  // 红灯
-#define Y10 0x0400  // 黄灯
-#define Y11 0x0800  // 绿灯
 
 class MainPage : public QWidget
 {
@@ -115,14 +93,15 @@ private slots:
     void testStop();
     void testStopAction();
     void testTimeOut();
-    void recvIOMsg(QString msg);
-    bool readCylinderL(quint16 s);
+    bool readCylinder(quint16 s);
     bool waitTimeOut(quint16 s);
 
     void saveSettings();
     QString CurrentSettings();
     void recvAppCmd(QJsonObject obj);
     void sendXmlCmd(QJsonObject obj);
+    void readNoLoad();
+    void readIOBrd(bool s);
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -131,6 +110,7 @@ private:
 
     ConfPage *conf;
     TestPage *test;
+    PageSqlite *winData;
 
     ConfResistance *resistance;
     ConfCurrent_AC *current_ac;
@@ -141,17 +121,18 @@ private:
     ConfBackEMFTest *backemftest;
     ConfHall *halltesting;
 
-//    CtrlDevice_232 *plc;
-
     IOBrd iobrd;
     Servo servo;
     MBDKT plc;
+    WT330 wt330;
 
     int status;
     int station;
     int timeOut;
 
     QJsonObject conf_array;
+    QStringList meter;
+    QStringList power;
 };
 
 #endif // MAINPAGE_H
