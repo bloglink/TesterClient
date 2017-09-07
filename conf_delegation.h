@@ -163,4 +163,18 @@ public:
     }
 };
 
+//代理类，把所有单元格中的字符居中显示
+class SqlTableModel : public QSqlTableModel
+{
+    Q_OBJECT
+public:
+    explicit SqlTableModel(QObject * parent = 0, QSqlDatabase db = QSqlDatabase()) :
+        QSqlTableModel(parent, db) {}
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const {
+        if (Qt::TextAlignmentRole == role)
+            return Qt::AlignCenter;
+        return QSqlTableModel::data(index, role);
+    }
+};
+
 #endif // DELEGATE_H
