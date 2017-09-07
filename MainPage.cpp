@@ -609,7 +609,7 @@ void MainPage::readSettings()
     QStringList names_dcr;
     QJsonObject obj_dcr;
     names_dcr << "test" << "port1" << "port2" << "wire" << "unit" << "min" << "max" << "std"
-              << "wire_comp1" << "wire_comp2" << "std_temp" << "temp_comp" << "noun";
+              << "wire_comp1" << "wire_comp2" << "std_temp" << "temp_comp" << "noun" << "time";
     ini->beginGroup("DCR");
     for (int i=0; i < names_dcr.size(); i++) {
         QString def = "0,0,0,0,0,0,0,0";
@@ -618,6 +618,8 @@ void MainPage::readSettings()
         if (names_dcr.at(i) == "temp_comp")
             def = "0";
         if (names_dcr.at(i) == "noun")
+            def = "0";
+        if (names_dcr.at(i) == "time")
             def = "0";
         obj_dcr.insert(names_dcr.at(i), ini->value(names_dcr.at(i), def).toString());
     }

@@ -57,6 +57,8 @@ void ConfResistance::initSettings(QJsonObject obj)
                 compensation->setChecked(false);
         } else if (items.at(i) == "noun") {
             nounSpinBox->setValue(temp.at(0).toInt());
+        } else if (items.at(i) == "time") {
+            timeBox->setValue(temp.at(0).toDouble());
         } else {
             for (int t=0; t < temp.size(); t++)
                 mView->item(t, i)->setText(temp.at(t));
@@ -118,6 +120,10 @@ void ConfResistance::readSettings()
     temp.clear();
     temp.append(nounSpinBox->text());
     obj.insert("noun", temp.join(","));
+
+    temp.clear();
+    temp.append(QString::number(timeBox->value()));
+    obj.insert("time", temp.join(","));
 
     QJsonObject array;
     array.insert("DCR", obj);
@@ -185,6 +191,10 @@ void ConfResistance::initUI()
     tempSpinBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     compensation = new QCheckBox(this);
     compensation->setText(tr("温度补偿"));
+    timeBox = new QDoubleSpinBox(this);
+    timeBox->setMinimumSize(97, 35);
+    timeBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+    timeBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
@@ -197,6 +207,8 @@ void ConfResistance::initUI()
     btnLayout->addWidget(tempSpinBox);
     btnLayout->addWidget(new QLabel("不平衡度", this));
     btnLayout->addWidget(nounSpinBox);
+    btnLayout->addWidget(new QLabel("测试时间", this));
+    btnLayout->addWidget(timeBox);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);
 

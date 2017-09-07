@@ -46,6 +46,7 @@ private:
     QSpinBox *nounSpinBox;
     QSpinBox *tempSpinBox;
     QCheckBox *compensation;
+    QDoubleSpinBox *timeBox;
 
     QStringList itemNames;
 };
