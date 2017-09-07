@@ -42,6 +42,7 @@ signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
     void sendAppCmd(QJsonObject obj);
+    void typeUpdate();
 public slots:
     void initSettings(QJsonObject obj);
     void initSysItems(QJsonObject obj);

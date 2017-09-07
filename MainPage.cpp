@@ -53,6 +53,7 @@ void MainPage::initUI()
     connect(conf, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(conf, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), conf, SLOT(recvAppShow(QString)));
+    connect(conf, SIGNAL(typeUpdate()), this, SLOT(readSettings()));
 
     test = new TestPage(this);
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -578,6 +579,7 @@ void MainPage::readSettings()
 
     QStringList names_cnf;
     QJsonObject obj_cnf;
+    QJsonObject obj_array;
     names_cnf << "color" << "type";
     ini->beginGroup("Conf");
     for (int i=0; i < names_cnf.size(); i++) {
@@ -587,10 +589,10 @@ void MainPage::readSettings()
         obj_cnf.insert(names_cnf.at(i), ini->value(names_cnf.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("Conf", obj_cnf);
+    obj_array.insert("Conf", obj_cnf);
     conf->initSettings(obj_cnf);
 
-    sendXmlCmd(conf_array);
+    sendXmlCmd(obj_array);
 
     QStringList names_sys;
     QJsonObject obj_sys;
@@ -601,7 +603,7 @@ void MainPage::readSettings()
         obj_sys.insert(names_sys.at(i), ini->value(names_sys.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("Sys", obj_sys);
+    obj_array.insert("Sys", obj_sys);
     conf->initSysItems(obj_sys);
 
     QStringList names_dcr;
@@ -620,7 +622,7 @@ void MainPage::readSettings()
         obj_dcr.insert(names_dcr.at(i), ini->value(names_dcr.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("DCR", obj_dcr);
+    obj_array.insert("DCR", obj_dcr);
     resistance->initSettings(obj_dcr);
 
     QStringList names_inr;
@@ -633,7 +635,7 @@ void MainPage::readSettings()
         obj_inr.insert(names_inr.at(i), ini->value(names_inr.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("IR", obj_inr);
+    obj_array.insert("IR", obj_inr);
     insulation->initSettings(obj_inr);
 
     QStringList names_acw;
@@ -646,7 +648,7 @@ void MainPage::readSettings()
         obj_acw.insert(names_acw.at(i), ini->value(names_acw.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("ACW", obj_acw);
+    obj_array.insert("ACW", obj_acw);
     current_ac->initSettings(obj_acw);
 
     QStringList names_ind;
@@ -664,7 +666,7 @@ void MainPage::readSettings()
         obj_ind.insert(names_ind.at(i), ini->value(names_ind.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("IND", obj_ind);
+    obj_array.insert("IND", obj_ind);
     inductance->initSettings(obj_ind);
 
     QStringList names_hal;
@@ -678,7 +680,7 @@ void MainPage::readSettings()
         obj_hal.insert(names_hal.at(i), ini->value(names_hal.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("HALL", obj_hal);
+    obj_array.insert("HALL", obj_hal);
     halltesting->initSettings(obj_hal);
 
     QStringList names_lod;
@@ -695,7 +697,7 @@ void MainPage::readSettings()
         obj_lod.insert(names_lod.at(i), ini->value(names_lod.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("LOAD", obj_lod);
+    obj_array.insert("LOAD", obj_lod);
     loadtesting->initSettings(obj_lod);
 
     QStringList names_nld;
@@ -714,7 +716,7 @@ void MainPage::readSettings()
         obj_nld.insert(names_nld.at(i), ini->value(names_nld.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("NOLOAD", obj_nld);
+    obj_array.insert("NOLOAD", obj_nld);
     noloadtest->initSettings(obj_nld);
 
     QStringList names_bmf;
@@ -728,12 +730,13 @@ void MainPage::readSettings()
         obj_bmf.insert(names_bmf.at(i), ini->value(names_bmf.at(i), def).toString());
     }
     ini->endGroup();
-    conf_array.insert("BEMF", obj_bmf);
+    obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
 //    conf_array.remove("Conf");
 //    sendXmlCmd(conf_array);
 //    conf_array.insert("Conf", obj_cnf);
+    conf_array = obj_array;
 }
 
 void MainPage::saveSettings()
@@ -810,7 +813,7 @@ void MainPage::readNoLoad()
         return;
     }
     meter = m;
-    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
+//    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
 void MainPage::readIOBrd(bool s)

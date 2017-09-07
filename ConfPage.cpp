@@ -370,6 +370,7 @@ void ConfPage::updateType()
             continue;
         mView->appendRow(new QStandardItem(type.remove(".ini")));
     }
+    emit typeUpdate();
 }
 
 QString ConfPage::CurrentSettings()

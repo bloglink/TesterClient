@@ -70,7 +70,7 @@ signals:
 public:
     explicit MainPage(QWidget *parent = 0);
     ~MainPage();
-
+public slots:
     bool login();
     void readSettings();
 private slots:
