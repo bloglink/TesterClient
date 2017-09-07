@@ -51,7 +51,6 @@ public slots:
 private slots:
     void initUI();
     void clickButton();
-    void showButtons();
     void windowChange();
     void selectColor();
     void deleteItem();
@@ -59,9 +58,10 @@ private slots:
     void recvAppShow(QString win);
     void appendType();
     void deleteType();
+    void changeType();
     void updateType();
-    void queryType();
     QString CurrentSettings();
+    void goBack();
 private:
     QTableView *view;
     StandardItem *mView;

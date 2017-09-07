@@ -66,7 +66,7 @@ void ConfPage::readSettings()
     QJsonObject array;
     array.insert("Conf", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
+
 }
 
 void ConfPage::readSysItems()
@@ -79,6 +79,7 @@ void ConfPage::readSysItems()
                 temp.append(QString::number(t+1));
         }
     }
+    testItem = temp;
     obj.insert("Test_Item", temp.join(","));
 
     QJsonObject array;
@@ -103,7 +104,7 @@ void ConfPage::initUI()
     view = new QTableView(this);
     view->setModel(mView);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(updateType()));
+    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(changeType()));
 
     typeLineEdit = new QLineEdit(this);
     typeLineEdit->setMinimumSize(97, 35);
@@ -120,7 +121,7 @@ void ConfPage::initUI()
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(goBack()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel("型号名称", this));
@@ -180,18 +181,6 @@ void ConfPage::initUI()
     pView->setModel(pModel);
     pView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
-    btnHide = new QToolButton(this);
-    btnHide->setIcon(QIcon(":/icons/left.png"));
-    btnHide->setIconSize(QSize(30, 30));
-    btnHide->setFocusPolicy(Qt::NoFocus);
-    btnHide->setText(tr("测\n试\n管\n理"));
-    btnHide->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    connect(btnHide, SIGNAL(clicked(bool)), this, SLOT(showButtons()));
-
-    QVBoxLayout *hideLayout = new QVBoxLayout;
-    hideLayout->addWidget(btnHide);
-    hideLayout->addStretch();
-
     QVBoxLayout *btnsLayout = new QVBoxLayout;
 
     btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" << "直耐"
@@ -204,7 +193,7 @@ void ConfPage::initUI()
     for (int i=0; i < btnNames.size(); i++) {
         buttons.append(new QPushButton(btnNames.at(i), this));
         btnsLayout->addWidget(buttons.at(i));
-        buttons.at(i)->setMinimumSize(97, 44);
+        buttons.at(i)->setMinimumSize(97, 35);
         buttons.at(i)->setObjectName(objNames.at(i));
         buttons.at(i)->setCheckable(true);
         connect(buttons.at(i), SIGNAL(clicked(bool)), this, SLOT(clickButton()));
@@ -229,22 +218,18 @@ void ConfPage::initUI()
 
     btnFrame = new QFrame(this);
     btnFrame->setLayout(btnsLayout);
-    btnFrame->hide();
 
     QHBoxLayout *pLayout = new QHBoxLayout;
     pLayout->addWidget(pView);
-    pLayout->addLayout(hideLayout);
     pLayout->addWidget(btnFrame);
 
     QGroupBox *pGroup = new QGroupBox(this);
     pGroup->setLayout(pLayout);
 
     QHBoxLayout *layout = new QHBoxLayout;
-    layout->addStretch();
     layout->addWidget(tGroup);
     layout->addWidget(pGroup);
     layout->addWidget(mGroup);
-    layout->addStretch();
     this->setLayout(layout);
 }
 
@@ -267,17 +252,6 @@ void ConfPage::clickButton()
         pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
     readSysItems();
-}
-
-void ConfPage::showButtons()
-{
-    if (btnFrame->isHidden()) {
-        btnFrame->show();
-        btnHide->setIcon(QIcon(":/icons/right.png"));
-    } else {
-        btnFrame->hide();
-        btnHide->setIcon(QIcon(":/icons/left.png"));
-    }
 }
 
 void ConfPage::windowChange()
@@ -317,7 +291,8 @@ void ConfPage::recvAppShow(QString win)
 {
     if (win != this->objectName())
         return;
-    queryType();
+    updateType();
+    readSettings();
 }
 
 void ConfPage::appendType()
@@ -336,7 +311,7 @@ void ConfPage::appendType()
     ini->beginGroup("GLOBAL");
     ini->setValue("FileInUse", name);
 
-    queryType();
+    updateType();
 }
 
 void ConfPage::deleteType()
@@ -354,10 +329,10 @@ void ConfPage::deleteType()
     ini->beginGroup("GLOBAL");
     ini->setValue("FileInUse", name);
 
-    queryType();
+    updateType();
 }
 
-void ConfPage::updateType()
+void ConfPage::changeType()
 {
     int row = view->currentIndex().row();
     if (row < 1)
@@ -369,10 +344,10 @@ void ConfPage::updateType()
     ini->beginGroup("GLOBAL");
     ini->setValue("FileInUse", name);
 
-    queryType();
+    updateType();
 }
 
-void ConfPage::queryType()
+void ConfPage::updateType()
 {
     QDir dir("./config");
     dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
@@ -402,4 +377,10 @@ QString ConfPage::CurrentSettings()
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
     QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
     return n.remove(".ini");
+}
+
+void ConfPage::goBack()
+{
+    readSettings();
+    emit buttonClicked(NULL);
 }
