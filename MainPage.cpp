@@ -14,6 +14,7 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     initPLC();
     status = STATUS_FREE;
     station = 0x13;
+    testing = false;
 }
 
 MainPage::~MainPage()
@@ -122,7 +123,7 @@ void MainPage::initUI()
 void MainPage::initPLC()
 {
     iobrd.initPort("COM3");
-//    wt330.initPort("COM4");
+    //    wt330.initPort("COM4");
     servo.initPort("COM5");
     plc.initPort("COM6");
     connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readIOBrd(bool)));
@@ -201,17 +202,16 @@ void MainPage::testThread()
 
 void MainPage::testInit()
 {
-    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "test start";
     test->initItems(station);
     QJsonObject obj;
     obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);
 
-//    iobrd.sendPort(Y10);
-//    readCylinder(X01_ORIGIN | X03_ORIGIN);
+    iobrd.sendPort(Y10);
+    readCylinder(X01_ORIGIN | X03_ORIGIN);
 
     QStringList testItems = conf->testItems();
-    qDebug() << testItems;
+    testing = true;
     for (int i=0; i < testItems.size(); i++) {
         int cmd = testItems.at(i).toInt();
         status = cmd;
@@ -246,7 +246,6 @@ void MainPage::testInit()
         if (status == STATUS_OVER) {
             testStop();
             testTimeOut();
-//            QMessageBox::warning(this, "警告", "您停止了测试", QMessageBox::Ok);
             break;
         }
     }
@@ -272,7 +271,7 @@ void MainPage::testInit()
     winData->saveSql(objs);
 
     status = STATUS_FREE;
-    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "test stop";
+    testing = false;
 }
 
 void MainPage::testDCR()
@@ -366,7 +365,7 @@ void MainPage::testNLD()
     }
     wait(100);
     wt330.initPort(NULL);
-//    QMessageBox::warning(this, "", power.join(","), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "", power.join(","), QMessageBox::Ok);
 }
 
 void MainPage::testLOD()
@@ -504,30 +503,8 @@ void MainPage::testStop()
 
 void MainPage::testStopAction()
 {
-    //    bool cylinder = false;
-    //    iobrd.sendPort(station, Y00 | Y02 | Y10);  // 气缸2松开
-    //    cylinder = readCylinderL(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
-
-    //    iobrd.sendPort(station, Y02 | Y10);  // 气缸1归位
-    //    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
-
-    //    iobrd.sendPort(station, Y10);  // 气缸全部归位
-    //    cylinder = readCylinderL(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
+    iobrd.sendPort(0x00);  // 气缸全部归位
+    readCylinder(X01_ORIGIN | X03_ORIGIN);
 }
 
 void MainPage::testTimeOut()
@@ -540,7 +517,6 @@ void MainPage::testTimeOut()
 
 bool MainPage::readCylinder(quint16 s)
 {
-    qDebug() << QString("%1").arg(s, 4, 16, QChar('0'));
     quint16 timeOut = 0x0000;
     while (1) {
         if ((iobrd.readPort() & 0xFF00) == s)
@@ -551,6 +527,8 @@ bool MainPage::readCylinder(quint16 s)
             QMessageBox::warning(this, "气缸", "气缸到位超时", QMessageBox::Ok);
             return false;
         }
+        if (status == STATUS_OVER)
+            return false;
     }
 }
 
@@ -735,9 +713,9 @@ void MainPage::readSettings()
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
-//    conf_array.remove("Conf");
-//    sendXmlCmd(conf_array);
-//    conf_array.insert("Conf", obj_cnf);
+    //    conf_array.remove("Conf");
+    //    sendXmlCmd(conf_array);
+    //    conf_array.insert("Conf", obj_cnf);
     conf_array = obj_array;
 }
 
@@ -815,16 +793,18 @@ void MainPage::readNoLoad()
         return;
     }
     meter = m;
-//    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
 void MainPage::readIOBrd(bool s)
 {
-    qDebug() << "io" << s;
-    if (s && (status == STATUS_FREE))
+    if (s && !testing)
         QTimer::singleShot(50, this, SLOT(testInit()));
-    if (!s && (status != STATUS_FREE))
+    if (!s && testing) {
+        if (status == STATUS_FREE)
+            testStopAction();
+        testStop();
         testTimeOut();
+    }
 }
 
 void MainPage::readSelfCheck(QString s)

@@ -58,7 +58,7 @@
 
 #define STATUS_FREE 0x00
 #define STATUS_OVER 0xFF
-#define STATUS_PREP 0xFE
+#define STATUS_STOP 0xFE
 
 class MainPage : public QWidget
 {
@@ -134,6 +134,8 @@ private:
     QJsonObject conf_array;
     QStringList meter;
     QStringList power;
+
+    bool testing;
 };
 
 #endif // MAINPAGE_H
