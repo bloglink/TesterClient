@@ -46,6 +46,7 @@ signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
     void buttonTest();
+    void buttonStop();
     void buttonTest1();
     void buttonTest2();
     void buttonTest3();

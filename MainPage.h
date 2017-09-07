@@ -101,7 +101,9 @@ private slots:
     void recvAppCmd(QJsonObject obj);
     void sendXmlCmd(QJsonObject obj);
     void readNoLoad();
-    void readIOBrd(bool s);
+    void readBtnStart();
+    void readBtnStop();
+    void readStart(bool s);
     void readSelfCheck(QString s);
 private:
     QList<int> previous_window;

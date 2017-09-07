@@ -60,7 +60,8 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(test, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), test, SLOT(recvAppShow(QString)));
-    connect(test, SIGNAL(buttonTest()), this, SLOT(testThread()));
+    connect(test, SIGNAL(buttonTest()), this, SLOT(readBtnStart()));
+    connect(test, SIGNAL(buttonStop()), this, SLOT(readBtnStop()));
     connect(test, SIGNAL(buttonTest1()), this, SLOT(testDCR()));
     connect(test, SIGNAL(buttonTest2()), this, SLOT(testINR()));
     connect(test, SIGNAL(buttonTest3()), this, SLOT(testACW()));
@@ -126,7 +127,7 @@ void MainPage::initPLC()
     //    wt330.initPort("COM4");
     servo.initPort("COM5");
     plc.initPort("COM6");
-    connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readIOBrd(bool)));
+    connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readStart(bool)));
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -365,7 +366,6 @@ void MainPage::testNLD()
     }
     wait(100);
     wt330.initPort(NULL);
-    //    QMessageBox::warning(this, "", power.join(","), QMessageBox::Ok);
 }
 
 void MainPage::testLOD()
@@ -584,6 +584,8 @@ void MainPage::readSettings()
     obj_array.insert("Sys", obj_sys);
     conf->initSysItems(obj_sys);
 
+    sendXmlCmd(obj_sys);
+
     QStringList names_dcr;
     QJsonObject obj_dcr;
     names_dcr << "test" << "port1" << "port2" << "wire" << "unit" << "min" << "max" << "std"
@@ -795,8 +797,19 @@ void MainPage::readNoLoad()
     meter = m;
 }
 
-void MainPage::readIOBrd(bool s)
+void MainPage::readBtnStart()
 {
+    readStart(true);
+}
+
+void MainPage::readBtnStop()
+{
+    readStart(false);
+}
+
+void MainPage::readStart(bool s)
+{
+    qDebug() << "start" << s;
     if (s && !testing)
         QTimer::singleShot(50, this, SLOT(testInit()));
     if (!s && testing) {

@@ -201,33 +201,37 @@ void TestPage::initUI()
     btnTest->setMinimumSize(97, 44);
     connect(btnTest, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest()));
 
-    QPushButton *btnDCR = new QPushButton("测试电阻", this);
-    btnDCR->setMinimumSize(97, 44);
-    connect(btnDCR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest1()));
+    QPushButton *btnStop = new QPushButton("停止测试", this);
+    btnStop->setMinimumSize(97, 44);
+    connect(btnStop, SIGNAL(clicked(bool)), this, SIGNAL(buttonStop()));
 
-    QPushButton *btnINR = new QPushButton("测试绝缘", this);
-    btnINR->setMinimumSize(97, 44);
-    connect(btnINR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest2()));
+//    QPushButton *btnDCR = new QPushButton("测试电阻", this);
+//    btnDCR->setMinimumSize(97, 44);
+//    connect(btnDCR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest1()));
 
-    QPushButton *btnACW = new QPushButton("测试交耐", this);
-    btnACW->setMinimumSize(97, 44);
-    connect(btnACW, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest3()));
+//    QPushButton *btnINR = new QPushButton("测试绝缘", this);
+//    btnINR->setMinimumSize(97, 44);
+//    connect(btnINR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest2()));
 
-    QPushButton *btnIND = new QPushButton("测试电感", this);
-    btnIND->setMinimumSize(97, 44);
-    connect(btnIND, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest4()));
+//    QPushButton *btnACW = new QPushButton("测试交耐", this);
+//    btnACW->setMinimumSize(97, 44);
+//    connect(btnACW, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest3()));
 
-    QPushButton *btnPWR = new QPushButton("测试空载", this);
-    btnPWR->setMinimumSize(97, 44);
-    connect(btnPWR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest5()));
+//    QPushButton *btnIND = new QPushButton("测试电感", this);
+//    btnIND->setMinimumSize(97, 44);
+//    connect(btnIND, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest4()));
 
-    QPushButton *btnLOD = new QPushButton("测试反电势", this);
-    btnLOD->setMinimumSize(97, 44);
-    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
+//    QPushButton *btnPWR = new QPushButton("测试空载", this);
+//    btnPWR->setMinimumSize(97, 44);
+//    connect(btnPWR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest5()));
 
-    QPushButton *btnPrt = new QPushButton("测试打印", this);
-    btnPrt->setMinimumSize(97, 44);
-    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
+//    QPushButton *btnLOD = new QPushButton("测试反电势", this);
+//    btnLOD->setMinimumSize(97, 44);
+//    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
+
+//    QPushButton *btnPrt = new QPushButton("测试打印", this);
+//    btnPrt->setMinimumSize(97, 44);
+//    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
 
         QLabel *btnLogo = new QLabel(this);
         btnLogo->setPixmap(QPixmap(":/source/logo.png"));
@@ -263,16 +267,17 @@ void TestPage::initUI()
     tLayout->addWidget(btnHome, 0, 0, 1, 2);
     tLayout->addWidget(btnConf, 1, 0, 1, 2);
     tLayout->addWidget(btnTest, 2, 0, 1, 2);
-    tLayout->addWidget(btnLogo, 3, 0, 1, 2);
-    tLayout->addWidget(histogram, 4, 0, 1, 2);
-    tLayout->setRowStretch(4, 2);
-    tLayout->addWidget(btnDCR, 5, 0, 1, 2);
-    tLayout->addWidget(btnINR, 6, 0, 1, 2);
-    tLayout->addWidget(btnACW, 7, 0, 1, 2);
-    tLayout->addWidget(btnIND, 8, 0, 1, 2);
-    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
-    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
-    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
+    tLayout->addWidget(btnStop, 3, 0, 1, 2);
+    tLayout->addWidget(btnLogo, 4, 0, 1, 2);
+    tLayout->addWidget(histogram, 5, 0, 1, 2);
+    tLayout->setRowStretch(5, 2);
+//    tLayout->addWidget(btnDCR, 5, 0, 1, 2);
+//    tLayout->addWidget(btnINR, 6, 0, 1, 2);
+//    tLayout->addWidget(btnACW, 7, 0, 1, 2);
+//    tLayout->addWidget(btnIND, 8, 0, 1, 2);
+//    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
+//    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
+//    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
     tLayout->addLayout(cLayout, 12, 0, 1, 2);
     tLayout->setRowStretch(12, 1);
 
