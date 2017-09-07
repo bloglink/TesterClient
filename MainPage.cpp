@@ -357,14 +357,20 @@ void MainPage::testNLD()
     } else {
         test->updateItem("NULL");
     }
-
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
+    QStringList s = conf->testItems();
+    QList<int> tt;
+    for (int i=0; i < s.size(); i++) {
+        tt.append(QString(s.at(i)).toInt());
     }
-    wait(100);
+    if (tt.indexOf(STATUS_EMF) - tt.indexOf(STATUS_NLD) != 1) {
+        iobrd.sendPort(Y10);  // 气缸全部归位
+        cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
+        if (!cylinder) {
+            status = STATUS_OVER;
+            return;
+        }
+        wait(100);
+    }
     wt330.initPort(NULL);
 }
 
@@ -427,14 +433,6 @@ void MainPage::testLOD()
 void MainPage::testEMF()
 {
     bool cylinder = false;
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-
     iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
     cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
     if (!cylinder) {
@@ -809,7 +807,6 @@ void MainPage::readBtnStop()
 
 void MainPage::readStart(bool s)
 {
-    qDebug() << "start" << s;
     if (s && !testing)
         QTimer::singleShot(50, this, SLOT(testInit()));
     if (!s && testing) {
