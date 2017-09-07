@@ -344,11 +344,14 @@ void MainPage::testNLD()
     emit transmitJson(obj);
     waitTimeOut(STATUS_NLD);
 
-    if (meter.size() >= 10) {
+    if (meter.size() >= 30) {
         QString tt;
-        tt.append(QString("U:%1,").arg(QString(meter.at(0)).toDouble()));
-        tt.append(QString("I:%1,").arg(QString(meter.at(1)).toDouble()));
-        tt.append(QString("W:%1,").arg(QString(meter.at(2)).toDouble()));
+        tt.append(QString("%1A,").arg(QString(meter.at(1)).toDouble()));
+        tt.append(QString("%1A,").arg(QString(meter.at(11)).toDouble()));
+        tt.append(QString("%1A,").arg(QString(meter.at(21)).toDouble()));
+        if (power.size() > 1) {
+            tt.append(QString("%1rmp").arg(QString(power.at(0)).toDouble()*1000));
+        }
         test->updateItem(tt);
     } else {
         test->updateItem("NULL");
@@ -362,6 +365,7 @@ void MainPage::testNLD()
     }
     wait(100);
     wt330.initPort(NULL);
+//    QMessageBox::warning(this, "", power.join(","), QMessageBox::Ok);
 }
 
 void MainPage::testLOD()
@@ -806,10 +810,6 @@ void MainPage::readNoLoad()
         return;
     }
     meter = m;
-//    QString tmp;
-//    tmp.append(QString("U:%1,").arg(meter.at(0)));
-//    tmp.append(QString("I:%1,").arg(meter.at(1)));
-//    tmp.append(QString("W:%1").arg(meter.at(2)));
     QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
