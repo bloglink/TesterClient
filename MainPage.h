@@ -102,6 +102,7 @@ private slots:
     void sendXmlCmd(QJsonObject obj);
     void readNoLoad();
     void readIOBrd(bool s);
+    void readSelfCheck(QString s);
 private:
     QList<int> previous_window;
     QStackedWidget *stack;

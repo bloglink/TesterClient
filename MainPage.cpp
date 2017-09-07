@@ -144,7 +144,7 @@ void MainPage::recvNetMsg(QString msg)
     QString dat = msg.mid(a+1, msg.size());
     switch (cmd) {
     case 6001:  // 自检信息
-        emit sendNetMsg("6001");
+        readSelfCheck(dat);
         break;
     case 6005:  // 上传配置
         test->updateItems(dat);
@@ -820,5 +820,13 @@ void MainPage::readIOBrd(bool s)
         QTimer::singleShot(50, this, SLOT(testInit()));
     if (!s && (status != STATUS_FREE))
         testTimeOut();
+}
+
+void MainPage::readSelfCheck(QString s)
+{
+    if (!s.isEmpty()) {
+        QMessageBox::warning(this, "", s, QMessageBox::Ok);
+    }
+    emit sendNetMsg("6001");
 }
 
