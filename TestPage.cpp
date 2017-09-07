@@ -90,6 +90,17 @@ void TestPage::updateItems(QString dat)
     }
 }
 
+void TestPage::updateItem(QString item)
+{
+    int t = 0;
+    for (int i=0; i < mView->rowCount(); i++) {
+        if (!mView->item(i, 2)->text().isEmpty()) {
+            t = i;
+        }
+    }
+    mView->item(t, 2)->setText(item);
+}
+
 bool TestPage::updateResult()
 {
     for (int i=0; i < mView->rowCount(); i++) {
@@ -103,6 +114,22 @@ bool TestPage::updateResult()
     judge->setStyleSheet("font:55pt;color:green");
     judge->setText("OK");
     return true;
+}
+
+QString TestPage::readResult()
+{
+    QString temp;
+    for (int i=0; i < mView->rowCount(); i++) {
+        temp.append(mView->item(i, 0)->text());
+        temp.append("@");
+        temp.append(mView->item(i, 1)->text());
+        temp.append("@");
+        temp.append(mView->item(i, 2)->text());
+        temp.append("@");
+        temp.append(mView->item(i, 3)->text());
+        temp.append("\n");
+    }
+    return temp;
 }
 
 void TestPage::initUI()
@@ -154,7 +181,7 @@ void TestPage::initUI()
     mLayout->addWidget(view);
     mLayout->addWidget(waveBox);
     mLayout->addLayout(textLayout);
-    mLayout->setStretch(0, 5);
+    mLayout->setStretch(0, 7);
     mLayout->setStretch(1, 3);
 
     QGroupBox *mGroup = new QGroupBox(this);

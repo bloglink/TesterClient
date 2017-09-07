@@ -55,7 +55,9 @@ signals:
 public slots:
     void initItems(quint16 station);
     void updateItems(QString items);
+    void updateItem(QString item);
     bool updateResult();
+    QString readResult();
 private slots:
     void initUI();
     void saveData();
