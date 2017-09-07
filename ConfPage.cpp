@@ -180,6 +180,7 @@ void ConfPage::initUI()
     pView = new QTableView(this);
     pView->setModel(pModel);
     pView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    connect(pView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickView(QModelIndex)));
 
     QVBoxLayout *btnsLayout = new QVBoxLayout;
 
@@ -252,6 +253,16 @@ void ConfPage::clickButton()
         pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
     readSysItems();
+}
+
+void ConfPage::clickView(QModelIndex index)
+{
+    QString temp = index.data().toString();
+    for (int i=0; i < buttons.size(); i++) {
+        buttons.at(i)->setChecked(false);
+        if (buttons.at(i)->text() == temp)
+            buttons.at(i)->setChecked(true);
+    }
 }
 
 void ConfPage::windowChange()

@@ -52,6 +52,7 @@ public slots:
 private slots:
     void initUI();
     void clickButton();
+    void clickView(QModelIndex index);
     void windowChange();
     void selectColor();
     void deleteItem();
