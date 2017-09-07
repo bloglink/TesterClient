@@ -55,6 +55,11 @@ void ConfBackEMFTest::readSettings()
     emit buttonClicked(NULL);
 }
 
+int ConfBackEMFTest::readSpeed()
+{
+    return mView->item(0, 6)->text().toInt();
+}
+
 void ConfBackEMFTest::initUI()
 {
     this->setObjectName("ConfBackForce");

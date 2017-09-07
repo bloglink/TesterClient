@@ -37,6 +37,7 @@ signals:
 public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
+    int readSpeed();
 private slots:
     void initUI();
 private:
