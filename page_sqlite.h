@@ -19,11 +19,15 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QPushButton>
-#include <QtXml/QDomDocument>
+#include <QSqlQuery>
+#include <QSqlDatabase>
+#include <QDateTime>
+#include <QDateEdit>
 
 #include "conf_delegation.h"
 
 #include "qcustomplot.h"
+#include "Snowflake.h"
 
 class PageSqlite : public QWidget
 {
@@ -33,14 +37,26 @@ public:
     ~PageSqlite();
 signals:
     void buttonClicked(QByteArray win);
+public slots:
+    void saveSql(QJsonObject obj);
 private slots:
     void initUI();
+    void initSql();
+    void initSqlTableModel();
+    void readViews(QModelIndex index);
     void drawHistogram(QStringList names);
     void saveData();
+    void querySql();
+    void clearSql();
 private:
     QTableView *view;
-    StandardItem *model;
+    SqlTableModel *mView;
+    QTableView *views;
+    SqlTableModel *mViews;
     QCustomPlot *customplot;
+    QSqlDatabase db;
+    Snowflake snow;
+    QDateEdit *date;
 };
 
 #endif // PAGESQLITE_H

@@ -11,6 +11,8 @@
 PageSqlite::PageSqlite(QWidget *parent) : QWidget(parent)
 {
     initUI();
+    initSql();
+    initSqlTableModel();
 }
 
 PageSqlite::~PageSqlite()
@@ -20,25 +22,32 @@ PageSqlite::~PageSqlite()
 void PageSqlite::initUI()
 {
     this->setObjectName("DataPage");
-    QStringList headers;
-    headers << tr("项目") << tr("测试总数") << tr("合格数量") << tr("不合格数量") << tr("合格率");
-    QStringList items;
-    items << tr("总数") << tr("电阻") << tr("反嵌") << tr("绝缘") << tr("交耐") << tr("匝间")
-          << tr("电感") << tr("空载") << tr("负载") << tr("霍尔");
-    model = new StandardItem(items.size(), headers.size());
-    model->setHorizontalHeaderLabels(headers);
-    for (int i=0; i < items.size(); i++) {
-        for (int j=0; j < headers.size(); j++) {
-            model->setData(model->index(i, j), "");
-        }
-        model->item(i, 0)->setText(items.at(i));
-    }
     view = new QTableView(this);
-    view->setModel(model);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
+    view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(readViews(QModelIndex)));
 
-    drawHistogram(items);
+    views = new QTableView(this);
+    views->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    QHBoxLayout *viewLayout = new QHBoxLayout;
+    viewLayout->addWidget(view);
+    viewLayout->addWidget(views);
+
+    date = new QDateEdit(this);
+    date->setDisplayFormat("yyyy-MM-dd");
+    date->setDate(QDate::currentDate());
+
+    QPushButton *btnQuery = new QPushButton(this);
+    btnQuery->setText(tr("查询"));
+    btnQuery->setMinimumSize(97, 35);
+    connect(btnQuery, SIGNAL(clicked(bool)), this, SLOT(querySql()));
+
+    QPushButton *btnClear = new QPushButton(this);
+    btnClear->setText(tr("清空"));
+    btnClear->setMinimumSize(97, 35);
+    connect(btnClear, SIGNAL(clicked(bool)), this, SLOT(clearSql()));
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("保存退出"));
@@ -46,18 +55,108 @@ void PageSqlite::initUI()
     connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
+    btnLayout->addWidget(new QLabel("测试日期", this));
+    btnLayout->addWidget(date);
+    btnLayout->addWidget(btnQuery);
+    btnLayout->addWidget(btnClear);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);
 
-    QVBoxLayout *plot = new QVBoxLayout;
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addLayout(viewLayout);
+    layout->addLayout(btnLayout);
+    this->setLayout(layout);
+}
 
-    plot->addWidget(view);
-    plot->addWidget(customplot);
-    plot->addLayout(btnLayout);
-    plot->setStretch(0, 1);
-    plot->setStretch(1, 1);
+void PageSqlite::initSql()
+{
+    QFile file("./nandflash/aip.db");
+    if (!file.exists()) {
+        file.open(QIODevice::ReadWrite);
+        file.close();
+    }
 
-    this->setLayout(plot);
+    db = QSqlDatabase::addDatabase("QSQLITE", "SQL");
+    db.setDatabaseName("./nandflash/aip.db");
+    if (!db.open())
+        qDebug() << QTime::currentTime().toString() << "open sql Error";
+
+    QSqlQuery query(db);
+    QString s = "create table if not exists TestData";
+    s += " (id integer primary key, date text, time text, type text, user text, judge text)";
+    if (!query.exec(s))
+        qDebug() << QTime::currentTime().toString() << "create table TestData Error";
+
+    s = "create table if not exists TestDatas";
+    s += " (id integer primary key, parent integer, item text, para text, result text, judge text)";
+    if (!query.exec(s))
+        qDebug() << QTime::currentTime().toString() << "create table TestDatas Error";
+}
+
+void PageSqlite::initSqlTableModel()
+{
+    mView = new SqlTableModel(this, db);
+    mView->setTable("TestData");
+    mView->select();
+    QStringList header;
+    header << tr("ID") << tr("测试日期") << tr("测试时间")
+           << tr("测试型号") << tr("测试人") << tr("测试判定");
+    for (int i=0; i < header.size(); i++)
+        mView->setHeaderData(i, Qt::Horizontal, header.at(i));
+
+    view->setModel(mView);
+    view->hideColumn(0);
+
+    mViews = new SqlTableModel(this, db);
+    mViews->setTable("TestDatas");
+    mViews->select();
+    QStringList headers;
+    headers << tr("ID") << tr("父ID") << tr("项目") << tr("参数") << tr("结果") << tr("判定");
+    for (int i=0; i < headers.size(); i++)
+        mViews->setHeaderData(i, Qt::Horizontal, headers.at(i));
+
+    views->setModel(mViews);
+    views->hideColumn(0);
+    views->hideColumn(1);
+}
+
+void PageSqlite::saveSql(QJsonObject obj)
+{
+    QSqlQuery query(db);
+    quint64 uuid = snow.getId();
+    QStringList title = obj.value("title").toString().split("@");
+    if (title.size() >= 3) {
+        query.prepare("insert into TestData values(?, ?, ?, ?, ?, ?)");
+        query.bindValue(0, uuid);
+        query.bindValue(1, QDate::currentDate().toString("yyyy-MM-dd"));
+        query.bindValue(2, QTime::currentTime().toString("hh:mm:ss"));
+        query.bindValue(3, title.at(0));
+        query.bindValue(4, title.at(1));
+        query.bindValue(5, title.at(2));
+        query.exec();
+    }
+    QStringList content = obj.value("content").toString().split("\n");
+    for (int i=0; i < content.size(); i++) {
+        QStringList temp = QString(content.at(i)).split("@");
+        if (temp.size() >= 4) {
+            query.prepare("insert into TestDatas values(?, ?, ?, ?, ?, ?)");
+            query.bindValue(0, snow.getId());
+            query.bindValue(1, uuid);
+            query.bindValue(2, temp.at(0));
+            query.bindValue(3, temp.at(1));
+            query.bindValue(4, temp.at(2));
+            query.bindValue(5, temp.at(3));
+            query.exec();
+        }
+    }
+}
+
+void PageSqlite::readViews(QModelIndex index)
+{
+    int row = index.row();
+    quint64 id = mView->index(row, 0).data().toDouble();
+    mViews->setFilter(QObject::tr("parent=%1").arg(id));
+    mViews->select();
 }
 
 void PageSqlite::drawHistogram(QStringList names)
@@ -116,5 +215,20 @@ void PageSqlite::drawHistogram(QStringList names)
 void PageSqlite::saveData()
 {
     emit buttonClicked(NULL);
+}
+
+void PageSqlite::querySql()
+{
+    mView->setFilter(QObject::tr("date='%1'").arg(date->date().toString("yyyy-MM-dd")));
+    mView->select();
+}
+
+void PageSqlite::clearSql()
+{
+    QSqlQuery query(db);
+    query.exec("drop table TestData");
+    query.exec("drop table TestDatas");
+    initSql();
+    initSqlTableModel();
 }
 
