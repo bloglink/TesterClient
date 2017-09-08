@@ -107,6 +107,9 @@ private:
     QStringList waveHu;
     QStringList waveHv;
     QStringList waveHw;
+
+    quint32 countOk;
+    quint32 countAll;
 };
 
 #endif // TESTPAGE_H

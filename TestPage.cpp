@@ -11,6 +11,8 @@
 TestPage::TestPage(QWidget *parent) : QWidget(parent)
 {
     initUI();
+    countOk = 0;
+    countAll = 0;
 }
 
 TestPage::~TestPage()
@@ -103,6 +105,7 @@ void TestPage::updateItem(QString item)
 
 bool TestPage::updateResult()
 {
+    countAll++;
     for (int i=0; i < mView->rowCount(); i++) {
         if (mView->item(i, 3)->text() != "OK") {
             judge->setStyleSheet("font:55pt;color:red");
@@ -111,6 +114,7 @@ bool TestPage::updateResult()
             return false;
         }
     }
+    countOk++;
     judge->setStyleSheet("font:55pt;color:green");
     judge->setText("OK");
     return true;
@@ -148,6 +152,7 @@ void TestPage::initUI()
 
     view = new QTableView(this);
     view->setModel(mView);
+    view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     view->setColumnWidth(0, 150);
     view->setColumnWidth(1, 450);
@@ -247,7 +252,7 @@ void TestPage::initUI()
     //    qrencode = new ConfQrenCode(this);
     //    qrencode->setMinimumSize(90,90);
     //    qrencode->setMaximumSize(90,90);
-
+    histogram = new QCustomPlot(this);
     DrawHistogram();
 
     QGridLayout *cLayout = new QGridLayout;
@@ -369,25 +374,24 @@ void TestPage::deleteItem()
 
 void TestPage::DrawHistogram()
 {
-    histogram = new QCustomPlot(this);
-    histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
-    histogram->yAxis->setTicks(false);
-    histogram->yAxis2->setTicks(false);
-    histogram->xAxis2->setTicks(false);
-    histogram->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
-    histogram->axisRect()->setupFullAxesBox();
-
+    histogram->clearGraphs();
     // prepare data:
     QVector<double> x1(1), y1(1);
     QVector<double> x2(1), y2(1);
     QVector<double> x3(1), y3(1);
 
     x1[0] = 1;
-    y1[0] = 100;
     x2[0] = 2;
-    y2[0] = 100;
     x3[0] = 3;
-    y3[0] = 1;
+    if (countAll == 0) {
+        y1[0] = 100;
+        y2[0] = 100;
+        y3[0] = 1;
+    } else {
+        y1[0] = countAll;
+        y2[0] = countOk;
+        y3[0] = countAll - countOk;
+    }
 
     QCPBars *bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars1->setWidth(0.9);
@@ -414,10 +418,6 @@ void TestPage::DrawHistogram()
     plotGradient.setColorAt(1, QColor(50, 50, 50));
     histogram->setBackground(plotGradient);
 
-    histogram->rescaleAxes();
-    histogram->xAxis->setRange(0, 100);
-    histogram->yAxis->setRange(0, 100);
-
     QVector<double> ticks;
     QVector<QString> labels;
     ticks << 1 << 2 << 3;
@@ -425,19 +425,23 @@ void TestPage::DrawHistogram()
     QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
     textTicker->addTicks(ticks, labels);
     histogram->xAxis->setTicker(textTicker);
-    histogram->xAxis->setTickLabelRotation(0);
-    histogram->xAxis->setTicks(false);  // 下标尺
-    histogram->xAxis2->setTicks(false);  // 上标尺
-    histogram->xAxis->setSubTicks(false);  // 下细标尺
-    histogram->xAxis2->setSubTicks(false);  // 上细标尺
     histogram->xAxis->setTickLength(0, 1);  // x轴标尺步长
-    histogram->xAxis->setRange(0.5, 3.5);  // x轴范围
-    histogram->xAxis->setBasePen(QPen(Qt::black));
-    histogram->xAxis->setTickPen(QPen(Qt::black));
+
+    histogram->xAxis->setBasePen(Qt::NoPen);
+    histogram->yAxis->setBasePen(Qt::NoPen);
+    histogram->xAxis2->setBasePen(Qt::NoPen);
+    histogram->yAxis2->setBasePen(Qt::NoPen);
     histogram->xAxis->grid()->setVisible(false);
     histogram->yAxis->grid()->setVisible(false);
     histogram->xAxis->setTickLabelColor(Qt::white);
+    histogram->yAxis->setTicks(false);
     histogram->xAxis->setLabelColor(Qt::white);
+    histogram->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
+    histogram->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
+    histogram->rescaleAxes();
+    histogram->xAxis->setRange(0.5, 3.5);  // x轴范围
+    histogram->yAxis->setRange(0, 101);
+    histogram->replot();
 }
 void TestPage::DrawWave()
 {
@@ -477,7 +481,7 @@ void TestPage::DrawWave()
     wave->xAxis->setRange(0, 1000);
     wave->yAxis->setRange(0, 100);
     wave->setBackground(QBrush(QColor(25, 25, 25)));
-    wave->update();
+    wave->replot();
 }
 
 void TestPage::Printer()
