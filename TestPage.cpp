@@ -132,6 +132,12 @@ QString TestPage::readResult()
     return temp;
 }
 
+void TestPage::updateWave(QString w)
+{
+    waveU = w.split(",");
+    DrawWave();
+}
+
 void TestPage::initUI()
 {
     this->setObjectName("TestPage");
@@ -205,42 +211,42 @@ void TestPage::initUI()
     btnStop->setMinimumSize(97, 44);
     connect(btnStop, SIGNAL(clicked(bool)), this, SIGNAL(buttonStop()));
 
-//    QPushButton *btnDCR = new QPushButton("测试电阻", this);
-//    btnDCR->setMinimumSize(97, 44);
-//    connect(btnDCR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest1()));
+    //    QPushButton *btnDCR = new QPushButton("测试电阻", this);
+    //    btnDCR->setMinimumSize(97, 44);
+    //    connect(btnDCR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest1()));
 
-//    QPushButton *btnINR = new QPushButton("测试绝缘", this);
-//    btnINR->setMinimumSize(97, 44);
-//    connect(btnINR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest2()));
+    //    QPushButton *btnINR = new QPushButton("测试绝缘", this);
+    //    btnINR->setMinimumSize(97, 44);
+    //    connect(btnINR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest2()));
 
-//    QPushButton *btnACW = new QPushButton("测试交耐", this);
-//    btnACW->setMinimumSize(97, 44);
-//    connect(btnACW, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest3()));
+    //    QPushButton *btnACW = new QPushButton("测试交耐", this);
+    //    btnACW->setMinimumSize(97, 44);
+    //    connect(btnACW, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest3()));
 
-//    QPushButton *btnIND = new QPushButton("测试电感", this);
-//    btnIND->setMinimumSize(97, 44);
-//    connect(btnIND, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest4()));
+    //    QPushButton *btnIND = new QPushButton("测试电感", this);
+    //    btnIND->setMinimumSize(97, 44);
+    //    connect(btnIND, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest4()));
 
-//    QPushButton *btnPWR = new QPushButton("测试空载", this);
-//    btnPWR->setMinimumSize(97, 44);
-//    connect(btnPWR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest5()));
+    //    QPushButton *btnPWR = new QPushButton("测试空载", this);
+    //    btnPWR->setMinimumSize(97, 44);
+    //    connect(btnPWR, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest5()));
 
-//    QPushButton *btnLOD = new QPushButton("测试反电势", this);
-//    btnLOD->setMinimumSize(97, 44);
-//    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
+    //    QPushButton *btnLOD = new QPushButton("测试反电势", this);
+    //    btnLOD->setMinimumSize(97, 44);
+    //    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
 
-//    QPushButton *btnPrt = new QPushButton("测试打印", this);
-//    btnPrt->setMinimumSize(97, 44);
-//    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
+    //    QPushButton *btnPrt = new QPushButton("测试打印", this);
+    //    btnPrt->setMinimumSize(97, 44);
+    //    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
 
-        QLabel *btnLogo = new QLabel(this);
-        btnLogo->setPixmap(QPixmap(":/source/logo.png"));
-        btnLogo->setScaledContents(true);
-        btnLogo->setMinimumHeight(btnLogo->width());
+    QLabel *btnLogo = new QLabel(this);
+    btnLogo->setPixmap(QPixmap(":/source/logo.png"));
+    btnLogo->setScaledContents(true);
+    btnLogo->setMinimumHeight(btnLogo->width());
 
-//    qrencode = new ConfQrenCode(this);
-//    qrencode->setMinimumSize(90,90);
-//    qrencode->setMaximumSize(90,90);
+    //    qrencode = new ConfQrenCode(this);
+    //    qrencode->setMinimumSize(90,90);
+    //    qrencode->setMaximumSize(90,90);
 
     DrawHistogram();
 
@@ -271,13 +277,13 @@ void TestPage::initUI()
     tLayout->addWidget(btnLogo, 4, 0, 1, 2);
     tLayout->addWidget(histogram, 5, 0, 1, 2);
     tLayout->setRowStretch(5, 2);
-//    tLayout->addWidget(btnDCR, 5, 0, 1, 2);
-//    tLayout->addWidget(btnINR, 6, 0, 1, 2);
-//    tLayout->addWidget(btnACW, 7, 0, 1, 2);
-//    tLayout->addWidget(btnIND, 8, 0, 1, 2);
-//    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
-//    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
-//    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
+    //    tLayout->addWidget(btnDCR, 5, 0, 1, 2);
+    //    tLayout->addWidget(btnINR, 6, 0, 1, 2);
+    //    tLayout->addWidget(btnACW, 7, 0, 1, 2);
+    //    tLayout->addWidget(btnIND, 8, 0, 1, 2);
+    //    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
+    //    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
+    //    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
     tLayout->addLayout(cLayout, 12, 0, 1, 2);
     tLayout->setRowStretch(12, 1);
 
@@ -435,82 +441,43 @@ void TestPage::DrawHistogram()
 }
 void TestPage::DrawWave()
 {
-    QLinearGradient gradient(0, 0, 0, 400);
-    gradient.setColorAt(0, QColor(18, 25, 34));
-    gradient.setColorAt(0.5, QColor(105, 105, 105));
-    gradient.setColorAt(1, QColor(18, 25, 34));
-    wave->setBackground(QBrush(gradient)); //设置背景色
+    wave->clearGraphs();
 
-    QVector<double> x(1080);
-    QVector<double> hu(1080), hv(1080), hw(1080);
-    QVector<double> uy(1080), vy(1080), wy(1080);
-    QVector<double> ay(1080), by(1080);
-
-    for (int i=0; i < 1080; i++) { //添加数据
-        x[i] = i;
-        hu[i] = qSin((i+30)/PI/18)*20+80;
-        hv[i] = qSin((i+270)/PI/18)*20+80;
-        hw[i] = qSin((i+150)/PI/18)*20+80;
-        uy[i] = ((((i+360+180)/180)%2) == 0) ? 41 : 50;
-        vy[i] = ((((i+360+60)/180)%2)  == 0) ? 31 : 40;
-        wy[i] = ((((i+360-60)/180)%2)  == 0) ? 21 : 30;
-//        ay[i] = ((((i+17)/15)%2) == 0) ? 11 : 20;
-//        by[i] = ((((i+9)/15)%2)  == 0) ? 1 : 10;
+    QVector<double> ux(waveU.size()),uy(waveU.size());
+    for (int i=0; i < waveU.size(); i++) {
+        ux[i] = i;
+        uy[i] = QString(waveU.at(i)).toDouble()*100/256;
     }
+    QCPGraph *graph1 = wave->addGraph();
+    graph1->setPen(QPen(Qt::yellow, 2));
+    graph1->setData(ux, uy);
 
-//    QCPGraph *graph1 = wave->addGraph();
-//    graph1->setPen(QPen(Qt::yellow));
-//    graph1->setData(x, hu);
-//    QCPGraph *graph2 = wave->addGraph();
-//    graph2->setPen(QPen(Qt::green));
-//    graph2->setData(x, hv);
-//    QCPGraph *graph3 = wave->addGraph();
-//    graph3->setPen(QPen(Qt::red));
-//    graph3->setData(x, hw);
-    QCPGraph *graph4 = wave->addGraph();
-    graph4->setPen(QPen(Qt::yellow, 2));
-    graph4->setData(x, uy);
-    QCPGraph *graph5 = wave->addGraph();
-    graph5->setPen(QPen(Qt::green, 2));
-    graph5->setData(x, vy);
-    QCPGraph *graph6 = wave->addGraph();
-    graph6->setPen(QPen(Qt::red, 2));
-    graph6->setData(x, wy);
-    QCPGraph *graph7 = wave->addGraph();
-    graph7->setPen(QPen(Qt::yellow));
-    graph7->setData(x, ay);
-    QCPGraph *graph8 = wave->addGraph();
-    graph8->setPen(QPen(Qt::yellow));
-    graph8->setData(x, by);
+    QVector<double> vx(waveV.size()),vy(waveV.size());
+    for (int i=0; i < waveV.size(); i++) {
+        vx[i] = i;
+        vy[i] = QString(waveV.at(i)).toDouble();
+    }
+    QCPGraph *graph2 = wave->addGraph();
+    graph2->setPen(QPen(Qt::green, 2));
+    graph2->setData(vx, vy);
 
-    // set some pens, brushes and backgrounds:
-    wave->xAxis->setBasePen(QPen(Qt::white, 1));
-    wave->yAxis->setBasePen(QPen(Qt::white, 1));
-    wave->xAxis->setTickPen(QPen(Qt::white, 1));
-    wave->yAxis->setTickPen(QPen(Qt::white, 1));
-    wave->xAxis->setSubTickPen(QPen(Qt::white, 1));
-    wave->yAxis->setSubTickPen(QPen(Qt::white, 1));
-    wave->xAxis->setTickLabelColor(Qt::white);
-    wave->yAxis->setTickLabelColor(Qt::white);
-    wave->xAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
-    wave->yAxis->grid()->setPen(QPen(QColor(140, 140, 140), 1, Qt::DotLine));
-    wave->xAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
-    wave->yAxis->grid()->setSubGridPen(QPen(QColor(80, 80, 80), 1, Qt::DotLine));
-    wave->xAxis->grid()->setSubGridVisible(true);
-    wave->yAxis->grid()->setSubGridVisible(true);
-    wave->xAxis->grid()->setZeroLinePen(Qt::NoPen);
-    wave->yAxis->grid()->setZeroLinePen(Qt::NoPen);
-    wave->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
-    wave->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    QVector<double> wx(waveW.size()),wy(waveW.size());
+    for (int i=0; i < waveW.size(); i++) {
+        wx[i] = i;
+        wy[i] = QString(waveW.at(i)).toDouble();
+    }
+    QCPGraph *graph3 = wave->addGraph();
+    graph3->setPen(QPen(Qt::red, 2));
+    graph3->setData(wx, wy);
 
-    //设置坐标轴名称
-    //    wave->xAxis->setLabel("x");
-    //    wave->xAxis->setLabelColor(Qt::white);
-    //        wave->yAxis->setLabel("y");
-
-    //设置坐标轴显示范围，否则只能看到默认范围
-    wave->xAxis->setRange(0, 360);
-    wave->yAxis->setRange(20, 61);
+    wave->xAxis->setBasePen(Qt::NoPen);
+    wave->yAxis->setBasePen(Qt::NoPen);
+    wave->xAxis2->setBasePen(Qt::NoPen);
+    wave->yAxis2->setBasePen(Qt::NoPen);
+    wave->xAxis->setRange(0, 1000);
+    wave->yAxis->setRange(0, 100);
+    wave->setBackground(QBrush(QColor(25, 25, 25)));
+    wave->update();
 }
 
 void TestPage::Printer()

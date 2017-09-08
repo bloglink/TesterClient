@@ -161,6 +161,9 @@ void MainPage::recvNetMsg(QString msg)
     case 6019:
         power = dat.split(" ");
         break;
+    case 6021:
+        test->updateWave(dat);
+        break;
     default:
         break;
     }
@@ -788,11 +791,12 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 void MainPage::readNoLoad()
 {
     QStringList m = wt330.readMeter();
-    if (m.size() < 10) {
+    if (m.size() < 30) {
         QMessageBox::warning(this, "", "电参Error", QMessageBox::Ok);
         return;
     }
     meter = m;
+//    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
 void MainPage::readBtnStart()

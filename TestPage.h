@@ -59,6 +59,7 @@ public slots:
     void updateItem(QString item);
     bool updateResult();
     QString readResult();
+    void updateWave(QString w);
 private slots:
     void initUI();
     void saveData();
@@ -99,6 +100,13 @@ private:
 
     QLabel *station;
     QLabel *judge;
+
+    QStringList waveU;
+    QStringList waveV;
+    QStringList waveW;
+    QStringList waveHu;
+    QStringList waveHv;
+    QStringList waveHw;
 };
 
 #endif // TESTPAGE_H
