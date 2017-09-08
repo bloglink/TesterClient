@@ -213,11 +213,6 @@ void MainPage::wait(int ms)
         QCoreApplication::processEvents();
 }
 
-void MainPage::testThread()
-{
-    testInit();
-}
-
 void MainPage::testInit()
 {
     test->initItems(station);
@@ -270,16 +265,16 @@ void MainPage::testInit()
     QString xx;
     xx.append(CurrentSettings());
     xx.append("@");
-    xx.append("admin");
+    xx.append(currentUser());
     xx.append("@");
     if (test->updateResult()) {
         iobrd.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
-        wait(500);
+        wait(currentAlarmTime("OK"));
         iobrd.sendPort(Y08);  // 绿灯
         xx.append("OK");
     } else {
         iobrd.sendPort(Y09 | Y11);  // 红灯加蜂鸣器
-        wait(1500);
+        wait(currentAlarmTime("NG"));
         iobrd.sendPort(Y11);  // 红灯
         xx.append("NG");
     }
@@ -768,6 +763,16 @@ QString MainPage::currentPassword()
     return n;
 }
 
+QString MainPage::currentUser()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/GLOBAL/User", "0").toString();;
+    if (temp == "0")
+        return "guest";
+    else
+        return "admin";
+}
+
 void MainPage::setCurrentUser(QString s)
 {
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
@@ -859,3 +864,11 @@ void MainPage::readSelfCheck(QString s)
     emit sendNetMsg("6001");
 }
 
+int MainPage::currentAlarmTime(QString msg)
+{
+    QSettings *ini = new QSettings(INI_PATH, QSettings::IniFormat);
+    if (msg == "NG")
+        return ini->value("/GLOBAL/TimeNG", "0.2").toDouble()*1000;
+    else
+        return ini->value("/GLOBAL/TimeOK", "0.1").toDouble()*1000;
+}

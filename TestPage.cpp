@@ -117,6 +117,8 @@ bool TestPage::updateResult()
     countOk++;
     judge->setStyleSheet("font:55pt;color:green");
     judge->setText("OK");
+    qDebug() << countAll << countOk;
+    DrawHistogram();
     return true;
 }
 
@@ -375,6 +377,10 @@ void TestPage::deleteItem()
 void TestPage::DrawHistogram()
 {
     histogram->clearGraphs();
+    histogram->clearFocus();
+    histogram->clearItems();
+    histogram->clearMask();
+    histogram->clearPlottables();
     // prepare data:
     QVector<double> x1(1), y1(1);
     QVector<double> x2(1), y2(1);
@@ -387,10 +393,12 @@ void TestPage::DrawHistogram()
         y1[0] = 100;
         y2[0] = 100;
         y3[0] = 1;
+        histogram->yAxis->setRange(0, 101);
     } else {
         y1[0] = countAll;
         y2[0] = countOk;
         y3[0] = countAll - countOk;
+        histogram->yAxis->setRange(0, countAll+1);
     }
 
     QCPBars *bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
@@ -440,7 +448,7 @@ void TestPage::DrawHistogram()
     histogram->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
     histogram->rescaleAxes();
     histogram->xAxis->setRange(0.5, 3.5);  // x轴范围
-    histogram->yAxis->setRange(0, 101);
+
     histogram->replot();
 }
 void TestPage::DrawWave()

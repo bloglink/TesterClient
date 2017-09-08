@@ -79,7 +79,6 @@ private slots:
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
-    void testThread();
     void wait(int ms);
     void testInit();
     void testDCR();
@@ -99,6 +98,8 @@ private slots:
     void saveSettings();
     QString CurrentSettings();
     QString currentPassword();
+    QString currentUser();
+    int currentAlarmTime(QString msg);
     void setCurrentUser(QString s);
     void recvAppCmd(QJsonObject obj);
     void sendXmlCmd(QJsonObject obj);
@@ -107,6 +108,7 @@ private slots:
     void readBtnStop();
     void readStart(bool s);
     void readSelfCheck(QString s);
+
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
