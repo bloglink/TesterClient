@@ -42,7 +42,10 @@ SOURCES += main.cpp\
     iobrd.cpp \
     servo.cpp \
     mbdkt.cpp \
-    Snowflake.cpp
+    Snowflake.cpp \
+    dcombobox.cpp \
+    dspinbox.cpp \
+    ddoublespinbox.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -68,7 +71,10 @@ HEADERS  += \
     iobrd.h \
     servo.h \
     mbdkt.h \
-    Snowflake.h
+    Snowflake.h \
+    dcombobox.h \
+    dspinbox.h \
+    ddoublespinbox.h
 
 FORMS    += \
     WinSyst.ui

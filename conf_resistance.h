@@ -23,6 +23,9 @@
 #include <QJsonObject>
 
 #include "conf_delegation.h"
+#include "dcombobox.h"
+#include "dspinbox.h"
+#include "ddoublespinbox.h"
 
 class ConfResistance : public QWidget
 {

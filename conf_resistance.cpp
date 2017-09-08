@@ -51,7 +51,7 @@ void ConfResistance::initSettings(QJsonObject obj)
         } else if (items.at(i) == "std_temp") {
             tempSpinBox->setValue(temp.at(0).toInt());
         } else if (items.at(i) == "temp_comp") {
-            if (temp.at(0) == "1")
+            if (temp.at(0) == "0")
                 compensation->setChecked(true);
             else
                 compensation->setChecked(false);
@@ -108,9 +108,9 @@ void ConfResistance::readSettings()
     }
     QStringList temp;
     if (compensation->isChecked())
-        temp.append("1");
-    else
         temp.append("0");
+    else
+        temp.append("1");
     obj.insert("temp_comp", temp.join(","));
 
     temp.clear();
@@ -152,19 +152,20 @@ void ConfResistance::initUI()
             this, SLOT(autoInput()));
     QStringList names;
     names << "1" << "2" << "3" << "4" << "5" << "6" << "7" << "8";
-    ComboBox *comboBox = new ComboBox;
+    DComboBox *comboBox = new DComboBox;
     comboBox->setItemNames(names);
     QStringList wires;
     wires << tr("铜") << tr("铝") << tr("铜铝") << tr("热敏电阻");
-    ComboBox *Wire = new ComboBox;
+    DComboBox *Wire = new DComboBox;
     Wire->setItemNames(wires);
     QStringList units;
     units << tr("mΩ") << tr("Ω") << tr("kΩ");
-    ComboBox *Unit = new ComboBox;
+    DComboBox *Unit = new DComboBox;
     Unit->setItemNames(units);
-    DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
+    DDoubleSpinBox *doubleSpinBox = new DDoubleSpinBox;
     doubleSpinBox->setMaxinum(9999.99);
-    SpinBox *spinBox = new SpinBox;
+    doubleSpinBox->setDecimals(1);
+    DSpinBox *spinBox = new DSpinBox;
     spinBox->setMaxinum(20);
 
     view = new QTableView(this);
