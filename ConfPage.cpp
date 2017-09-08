@@ -102,6 +102,7 @@ void ConfPage::initUI()
 
     view = new QTableView(this);
     view->setModel(mView);
+    view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(changeType()));
 
@@ -178,6 +179,7 @@ void ConfPage::initUI()
 
     pView = new QTableView(this);
     pView->setModel(pModel);
+    pView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     pView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     connect(pView, SIGNAL(clicked(QModelIndex)), this, SLOT(clickView(QModelIndex)));
 

@@ -29,11 +29,11 @@
 #include <QSqlRelationalTableModel>
 
 //编号列，只读委托
-class ReadOnlyDelegate : public QItemDelegate
+class ReadOnlyItem : public QItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ReadOnlyDelegate(QObject *parent = 0) : QItemDelegate(parent) { }
+    explicit ReadOnlyItem(QObject *parent = 0) : QItemDelegate(parent) { }
     QWidget *createEditor(QWidget*, const QStyleOptionViewItem &,
                           const QModelIndex &) const {
         return NULL;

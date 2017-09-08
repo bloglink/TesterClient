@@ -138,7 +138,7 @@ void MainPage::initUdp(QJsonObject obj)
     QString pass = obj.value("host_pass").toString();
     if ((user == "admin" && pass == currentPassword()) || user == "guest") {
         qDebug() << "login ok";
-//        emit sendNetMsg("6001");
+        emit sendNetMsg("6001");
     } else {
         qDebug() << "login error";
         emit sendNetMsg("6000");

@@ -68,9 +68,6 @@ private:
     QTableView *view;
     StandardItem *mView;
 
-    QTableView *test;
-    StandardItem *mTest;
-
     QTableView *pView;
     StandardItem *pModel;
 
@@ -82,12 +79,8 @@ private:
     QList<QPushButton *> colors;
 
     QFrame *btnFrame;
-    QToolButton *btnHide;
-
     QStringList btnNames;
-
     QStringList testItem;
-
     QStringList FileNames;
 };
 
