@@ -46,8 +46,8 @@ signals:
     void sendJson(QJsonObject obj);
 private slots:
     void initUI();
-    void initData();
-    void saveData();
+    void initSettings();
+    void saveSettings();
     void login();
     void loginTimeOut();
     void recvNetMsg(QString msg);

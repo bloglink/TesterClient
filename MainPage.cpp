@@ -134,6 +134,17 @@ void MainPage::initUdp(QJsonObject obj)
 {
     QString host = obj.value("host_addr").toString();
     quint16 port = obj.value("host_port").toString().toInt();
+    QString user = obj.value("host_user").toString();
+    QString pass = obj.value("host_pass").toString();
+    if ((user == "admin" && pass == currentPassword()) || user == "guest") {
+        qDebug() << "login ok";
+//        emit sendNetMsg("6001");
+    } else {
+        qDebug() << "login error";
+        emit sendNetMsg("6000");
+        return;
+    }
+
     udp.initSocket(host, port);
     connect(this, SIGNAL(transmitJson(QJsonObject)), &udp, SLOT(recvAppJson(QJsonObject)));
     connect(&udp, SIGNAL(sendNetMsg(QString)), this, SLOT(recvNetMsg(QString)));
@@ -747,6 +758,13 @@ QString MainPage::CurrentSettings()
     return n.remove(".ini");
 }
 
+QString MainPage::currentPassword()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/Password", "6").toString();
+    return n;
+}
+
 void MainPage::recvAppCmd(QJsonObject obj)
 {
     QStringList keys = obj.keys();
@@ -796,7 +814,7 @@ void MainPage::readNoLoad()
         return;
     }
     meter = m;
-//    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
+    //    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
 void MainPage::readBtnStart()

@@ -11,7 +11,7 @@
 LoginPage::LoginPage(QWidget *parent) : QDialog(parent)
 {
     initUI();
-    initData();
+    initSettings();
 }
 
 LoginPage::~LoginPage()
@@ -107,7 +107,7 @@ void LoginPage::initUI()
     this->resize(500, 360);
 }
 
-void LoginPage::initData()
+void LoginPage::initSettings()
 {
     ini = new QSettings("./nandflash/global.ini",  QSettings::IniFormat);
     ini->setIniCodec("GB18030");
@@ -127,7 +127,7 @@ void LoginPage::initData()
     usr->addItems(items);
 }
 
-void LoginPage::saveData()
+void LoginPage::saveSettings()
 {
     QStringList items;
     items.append(svr->currentText());
@@ -140,8 +140,8 @@ void LoginPage::saveData()
         items.removeLast();
     QByteArray save_svr = QString(items.join("@")).toUtf8();
     ini->setValue("svr",  save_svr.toBase64());
-    items.clear();
 
+    items.clear();
     for (int i=0; i < prt->count(); i++)
         items.append(prt->itemText(i));
     if (!items.contains(prt->currentText()))
@@ -150,25 +150,28 @@ void LoginPage::saveData()
         items.removeFirst();
     QByteArray save_prt = QString(items.join("@")).toUtf8();
     ini->setValue("prt",  save_prt.toBase64());
-    items.clear();
 
-    for (int i=0; i < usr->count(); i++)
+    items.clear();
+    items.append(usr->currentText());
+    for (int i=0; i < usr->count(); i++) {
+        if (usr->itemText(i) == usr->currentText())
+            continue;
         items.append(usr->itemText(i));
-    if (!items.contains(usr->currentText()))
-        items.append(usr->currentText());
+    }
     if (items.size() > SAVE_MAX)  // 最多存储5条
-        items.removeFirst();
+        items.removeLast();
     QByteArray save_usr = QString(items.join("@")).toUtf8();
     ini->setValue("usr",  save_usr.toBase64());
-    items.clear();
 }
 
 void LoginPage::login()
 {
-    saveData();
+    saveSettings();
     QJsonObject obj;
     obj.insert("host_addr", svr->currentText());
     obj.insert("host_port", prt->currentText());
+    obj.insert("host_user", usr->currentText());
+    obj.insert("host_pass", pwd->text());
     obj.insert("TxMessage","6000");
     emit sendJson(obj);
 
@@ -178,13 +181,12 @@ void LoginPage::login()
     QPushButton *btn = qobject_cast<QPushButton *>(sender());
     btn->setText("连接中...");
     btn->setEnabled(false);
-    this->accept();
 }
 
 void LoginPage::loginTimeOut()
 {
     QMessageBox::warning(this, "", tr("连接超时:设备无回应, 请重新连接"));
-    this->accept();
+    this->reject();
 }
 
 void LoginPage::recvNetMsg(QString msg)
@@ -192,6 +194,10 @@ void LoginPage::recvNetMsg(QString msg)
     QString TxMessage = msg.split(" ").at(0);
     if (TxMessage.toInt() == 6001)
         this->accept();
+    if (TxMessage.toInt() == 6000) {
+        QMessageBox::warning(this, "", "密码错误", QMessageBox::Ok);
+        this->reject();
+    }
 }
 
 /*********************************END OF FILE**********************************/
