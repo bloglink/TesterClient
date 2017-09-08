@@ -38,6 +38,8 @@ void ConfPage::initSysItems(QJsonObject obj)
     items << "Test_Item";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
+        if (temp.isEmpty())
+            temp.append("1");
         if (items.at(i) == "Test_Item") {
             pModel->setRowCount(0);
             testItem = temp;
@@ -78,6 +80,8 @@ void ConfPage::readSysItems()
                 temp.append(QString::number(t+1));
         }
     }
+    if (temp.isEmpty())
+        temp.append("1");
     testItem = temp;
     obj.insert("Test_Item", temp.join(","));
 
