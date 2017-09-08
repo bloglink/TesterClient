@@ -15,10 +15,9 @@ WinSyst::WinSyst(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setObjectName("SystPage");
-    InitWindows();
-    InitButtons();
-    QTimer *timer = new QTimer(this);
-    timer->singleShot(10, this, SLOT(ReadHardWareSpace()));
+    initUI();
+    initButtons();
+    readSettings();
 }
 
 WinSyst::~WinSyst()
@@ -26,7 +25,7 @@ WinSyst::~WinSyst()
     delete ui;
 }
 
-void WinSyst::InitWindows()
+void WinSyst::initUI()
 {
     ui->BoxUser->setView(new QListView(this));
     ui->BoxMode->setView(new QListView(this));
@@ -35,14 +34,9 @@ void WinSyst::InitWindows()
     password.clear();
     file = new QFile("log.txt");
     file->open(QFile::ReadWrite);
-
-    dateTime = ui->EditTime->dateTime();
-#ifdef __arm__
-    ui->BtnScreen->setEnabled(true);
-#endif
 }
 
-void WinSyst::InitButtons()
+void WinSyst::initButtons()
 {
     QButtonGroup *btnGroup = new QButtonGroup;
     btnGroup->addButton(ui->BtnOk, Qt::Key_0);
@@ -51,9 +45,6 @@ void WinSyst::InitButtons()
     btnGroup->addButton(ui->BtnSystPasswordOK, Qt::Key_3);
     btnGroup->addButton(ui->BtnSystPasswordExit, Qt::Key_4);
     btnGroup->addButton(ui->BtnExit, Qt::Key_4);
-    btnGroup->addButton(ui->btnTime, Qt::Key_5);
-    btnGroup->addButton(ui->BtnStatus, Qt::Key_6);
-    btnGroup->addButton(ui->BtnScreen, Qt::Key_7);
     connect(btnGroup, SIGNAL(buttonClicked(int)), this, SLOT(ReadButtons(int)));
 }
 
@@ -72,7 +63,6 @@ void WinSyst::ReadButtons(int id)
         break;
     case Qt::Key_1:
         emit buttonClicked(NULL);
-        emit SendCommand(ADDR, CMD_JUMP, NULL);
         break;
     case Qt::Key_2:
         ui->StackWinSyst->setCurrentIndex(2);
@@ -81,18 +71,9 @@ void WinSyst::ReadButtons(int id)
         SetPassword();
         break;
     case Qt::Key_4:
+        ui->StackWinSyst->setCurrentIndex(1);
         SaveSettings();
         emit buttonClicked(NULL);
-        emit SendCommand(ADDR, CMD_JUMP, NULL);
-        break;
-    case Qt::Key_5:
-        SetDateTime();
-        break;
-    case Qt::Key_6:
-        emit SendCommand(ADDR, CMD_STATUS, NULL);
-        break;
-    case Qt::Key_7:
-//        system("/bin/ts_calibrate -&");
         break;
     default:
         break;
@@ -119,18 +100,6 @@ void WinSyst::readSettings()
     ui->EditPwdNew->clear();
     ui->EditPwdNewR->clear();
     ui->EditPwdOld->clear();
-#ifdef __arm__
-    int t = g_ini->value("AddSeconds","0").toInt();
-    if (dateTime.secsTo(QDateTime::currentDateTime()) < t) {
-        QDateTime tt = dateTime;
-        tt = tt.addSecs(t);
-        ui->EditTime->setDateTime(tt);
-        SetDateTime();
-        SendWarnning(tr("日期丢失"));
-    } else {
-        ui->EditTime->setDateTime(QDateTime::currentDateTime());
-    }
-#endif
     if (ui->LocalHostIP->text().isEmpty())
         ui->LocalHostIP->setText(GetLocalHostIP());
     qDebug() << QTime::currentTime().toString() << "WinSyst read OK";
@@ -155,15 +124,6 @@ void WinSyst::SaveSettings()
     qDebug() << QTime::currentTime().toString() << "WinSyst save OK";
 }
 
-void WinSyst::SetDateTime()
-{
-#ifdef __arm__
-    QString time = ui->EditTime->dateTime().toString("yyyy.MM.dd-hh:mm:ss");
-    QProcess::execute(QString("date %1").arg(time));
-    QProcess::execute(QString("hwclock -w"));
-#endif
-}
-
 void WinSyst::SetPassword()
 {
     QString old = ui->EditPwdOld->text();
@@ -174,39 +134,6 @@ void WinSyst::SetPassword()
         SaveSettings();
         ui->StackWinSyst->setCurrentIndex(0);
     }
-}
-
-void WinSyst::ReadMessage(quint16 addr,  quint16 cmd,  QByteArray msg)
-{
-    if (addr != ADDR && addr != WIN_ID_SYS)
-        return;
-    switch (cmd) {
-    case CMD_DEBUG:
-        WriteLog(msg);
-        break;
-    case CMD_INIT:
-        SendWinCmdStartMode();
-        break;
-    default:
-        break;
-    }
-}
-
-void WinSyst::SendWinCmdStartMode()
-{
-    QByteArray msg;
-    msg.append(quint8(ui->BoxMode->currentIndex()));
-    emit SendCommand(WIN_ID_OUT13, CMD_INIT, msg);
-}
-
-void WinSyst::WriteLog(QByteArray msg)
-{
-    ui->TextDebug->insertPlainText(msg);
-    ui->TextDebug->moveCursor(QTextCursor::End);
-    QTextStream out(file);
-    out.seek(file->size());
-    out << QDateTime::currentDateTime().toString("yyyyMMdd hh:mm ");
-    out << msg;
 }
 
 QString WinSyst::GetLocalHostIP()
@@ -224,35 +151,6 @@ QString WinSyst::GetLocalHostIP()
         }
     }
     return result.toString();
-}
-
-void WinSyst::ReadHardWareSpace()
-{
-#ifdef __arm__
-    QProcess *cmd = new QProcess(this);
-    cmd->start("df -h");
-    cmd->waitForFinished();
-    QStringList s = QString(cmd->readAll()).split("\n");
-    for (int i=0; i < s.size(); i++) {
-        if (s.at(i).contains("/mnt/nandflash")) {
-            QStringList t = s.at(i).split(" ", QString::SkipEmptyParts);
-            QString a = t.at(qMin(4, t.size()));
-            ui->TextSpace->setText(a);
-            int b = a.remove(a.size()-1, 1).toInt();
-            if (b > 80)
-                SendWarnning(tr("系统空间不足%1%,请清理空间").arg(100-b));
-        }
-    }
-#endif
-}
-
-void WinSyst::SendWarnning(QString s)
-{
-    QVariantHash hash;
-    hash.insert("TxAddress","WinHome");
-    hash.insert("TxCommand","Warnning");
-    hash.insert("TxMessage", tr("系统异常:\n%1").arg(s));
-    emit SendVariant(QVariant::fromValue(hash));
 }
 
 void WinSyst::recvAppShow(QString win)

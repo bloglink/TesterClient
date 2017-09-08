@@ -243,13 +243,6 @@
              <string>系统配置</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_7">
-             <item row="0" column="0">
-              <widget class="QLabel" name="TextUser">
-               <property name="text">
-                <string>操作用户：</string>
-               </property>
-              </widget>
-             </item>
              <item row="7" column="1">
               <widget class="QLineEdit" name="lineEdit_10">
                <property name="enabled">
@@ -263,6 +256,16 @@
                </property>
                <property name="focusPolicy">
                 <enum>Qt::ClickFocus</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="TextMode">
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>启动方式：</string>
                </property>
               </widget>
              </item>
@@ -295,6 +298,58 @@
                  <string>管理员</string>
                 </property>
                </item>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLineEdit" name="EditCode2">
+               <property name="minimumSize">
+                <size>
+                 <width>97</width>
+                 <height>44</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <spacer name="verticalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="TextUser">
+               <property name="text">
+                <string>操作用户：</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLineEdit" name="EditCode1">
+               <property name="minimumSize">
+                <size>
+                 <width>97</width>
+                 <height>44</height>
+                </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="text">
+                <string>0</string>
+               </property>
               </widget>
              </item>
              <item row="7" column="0">
@@ -345,125 +400,17 @@
                </item>
               </widget>
              </item>
-             <item row="8" column="1">
-              <widget class="QComboBox" name="BoxPower">
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <item>
-                <property name="text">
-                 <string>无电源</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>艾普电源</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>外置电源</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>外置变压器</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item row="10" column="1">
-              <spacer name="verticalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="4" column="1">
-              <widget class="QDoubleSpinBox" name="BoxTimeNG">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="value">
-                <double>0.500000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLabel" name="label_10">
+             <item row="2" column="0">
+              <widget class="QLabel" name="TextStyle">
                <property name="text">
-                <string>条码起始(位):</string>
+                <string>样式风格:</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="1">
-              <widget class="QLineEdit" name="EditCode1">
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_11">
                <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QDoubleSpinBox" name="BoxTimeOK">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::NoButtons</enum>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="value">
-                <double>0.200000000000000</double>
+                <string>条码结束(位):</string>
                </property>
               </widget>
              </item>
@@ -496,8 +443,14 @@
                </item>
               </widget>
              </item>
-             <item row="6" column="1">
-              <widget class="QLineEdit" name="EditCode2">
+             <item row="3" column="1">
+              <widget class="QDoubleSpinBox" name="BoxTimeOK">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>97</width>
@@ -507,18 +460,14 @@
                <property name="focusPolicy">
                 <enum>Qt::ClickFocus</enum>
                </property>
-               <property name="text">
-                <string>9</string>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
                </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="TextMode">
-               <property name="styleSheet">
-                <string notr="true"/>
+               <property name="decimals">
+                <number>1</number>
                </property>
-               <property name="text">
-                <string>启动方式：</string>
+               <property name="value">
+                <double>0.200000000000000</double>
                </property>
               </widget>
              </item>
@@ -527,6 +476,36 @@
                <property name="text">
                 <string>合格报警(s):</string>
                </property>
+              </widget>
+             </item>
+             <item row="8" column="1">
+              <widget class="QComboBox" name="BoxPower">
+               <property name="minimumSize">
+                <size>
+                 <width>97</width>
+                 <height>44</height>
+                </size>
+               </property>
+               <item>
+                <property name="text">
+                 <string>无电源</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>艾普电源</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>外置电源</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>外置变压器</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item row="4" column="0">
@@ -543,31 +522,38 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_11">
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_10">
                <property name="text">
-                <string>条码结束(位):</string>
+                <string>条码起始(位):</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="TextStyle">
-               <property name="text">
-                <string>样式风格:</string>
+             <item row="4" column="1">
+              <widget class="QDoubleSpinBox" name="BoxTimeNG">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>磁盘使用:</string>
+               <property name="minimumSize">
+                <size>
+                 <width>97</width>
+                 <height>44</height>
+                </size>
                </property>
-              </widget>
-             </item>
-             <item row="9" column="1">
-              <widget class="QLabel" name="TextSpace">
-               <property name="text">
-                <string>未知</string>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="decimals">
+                <number>1</number>
+               </property>
+               <property name="value">
+                <double>0.500000000000000</double>
                </property>
               </widget>
              </item>
@@ -580,33 +566,10 @@
              <string>日志记录</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_8">
-             <item row="2" column="0">
-              <widget class="QPushButton" name="btnTime">
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>设置时间</string>
-               </property>
-              </widget>
+             <item row="0" column="0">
+              <widget class="QTextBrowser" name="TextDebug"/>
              </item>
-             <item row="4" column="0">
-              <widget class="QPushButton" name="BtnStatus">
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>查询状态</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
+             <item row="1" column="0">
               <widget class="QPushButton" name="BtnExit">
                <property name="minimumSize">
                 <size>
@@ -616,47 +579,6 @@
                </property>
                <property name="text">
                 <string>返回</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QPushButton" name="BtnScreen">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>44</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>屏幕校准</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QTextBrowser" name="TextDebug"/>
-             </item>
-             <item row="1" column="0">
-              <widget class="QDateTimeEdit" name="EditTime">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>97</width>
-                 <height>35</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="displayFormat">
-                <string>yyyy-MM-dd hh:mm</string>
                </property>
               </widget>
              </item>

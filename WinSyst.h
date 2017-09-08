@@ -46,19 +46,13 @@ signals:
     void SendCommand(quint16 addr, quint16 cmd, QByteArray data);
     void buttonClicked(QByteArray win);
 private slots:
-    void InitWindows(void);
-    void InitButtons(void);
+    void initUI(void);
+    void initButtons(void);
     void ReadButtons(int id);
     void readSettings(void);
     void SaveSettings(void);
-    void SetDateTime(void);
     void SetPassword(void);
-    void ReadMessage(quint16 addr, quint16 cmd, QByteArray msg);
-    void SendWinCmdStartMode(void);
-    void WriteLog(QByteArray msg);
     QString GetLocalHostIP(void);
-    void ReadHardWareSpace(void);
-    void SendWarnning(QString s);
     void recvAppShow(QString win);
 private:
     QString password;
