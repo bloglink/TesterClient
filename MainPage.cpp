@@ -136,10 +136,13 @@ void MainPage::initUdp(QJsonObject obj)
     quint16 port = obj.value("host_port").toString().toInt();
     QString user = obj.value("host_user").toString();
     QString pass = obj.value("host_pass").toString();
-    if ((user == "admin" && pass == currentPassword()) || user == "guest") {
+    if (user == "admin" && pass == currentPassword()) {
         qDebug() << "login ok";
+        setCurrentUser("admin");
         emit sendNetMsg("6001");
-    } else {
+    } else if(user == "guest") {
+        setCurrentUser("guest");
+    }else {
         qDebug() << "login error";
         emit sendNetMsg("6000");
         return;
@@ -715,9 +718,9 @@ void MainPage::readSettings()
 
     QStringList names_bmf;
     QJsonObject obj_bmf;
-    names_bmf << "hu_volt_min" << "hu_volt_max" << "hv_volt_min"
-              << "hv_volt_max" << "hw_volt_min"
-              << "hw_volt_max" << "speed" << "turn" << "skewing_min" << "skewing_max" << "noun";
+    names_bmf << "volt_min" << "volt_max" << "bemf_min" << "bemf_max"
+              << "speed" << "turn" << "skewing_min" << "skewing_max"
+              << "volt_vcc" << "time" << "noun";
     ini->beginGroup("BEMF");
     for (int i=0; i < names_bmf.size(); i++) {
         QString def = "0";
@@ -763,6 +766,15 @@ QString MainPage::currentPassword()
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
     QString n = ini->value("/GLOBAL/Password", "6").toString();
     return n;
+}
+
+void MainPage::setCurrentUser(QString s)
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    if (s == "admin")
+        ini->setValue("/GLOBAL/User", 1);
+    else
+        ini->setValue("/GLOBAL/User", 0);
 }
 
 void MainPage::recvAppCmd(QJsonObject obj)

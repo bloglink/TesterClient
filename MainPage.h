@@ -99,6 +99,7 @@ private slots:
     void saveSettings();
     QString CurrentSettings();
     QString currentPassword();
+    void setCurrentUser(QString s);
     void recvAppCmd(QJsonObject obj);
     void sendXmlCmd(QJsonObject obj);
     void readNoLoad();

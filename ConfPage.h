@@ -28,6 +28,7 @@
 #include <QColor>
 #include <QSettings>
 #include <QJsonObject>
+#include <QMessageBox>
 
 #include "conf_delegation.h"
 
@@ -63,6 +64,7 @@ private slots:
     void changeType();
     void updateType();
     QString CurrentSettings();
+    QString CurrentUser();
     void goBack();
 private:
     QTableView *view;

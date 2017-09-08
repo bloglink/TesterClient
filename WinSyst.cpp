@@ -101,7 +101,7 @@ void WinSyst::ReadButtons(int id)
 
 void WinSyst::readSettings()
 {
-    QSettings *g_ini = new QSettings(INI_PATH, QSettings::IniFormat);
+    QSettings *g_ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
     g_ini->setIniCodec("GB18030");
     g_ini->beginGroup("GLOBAL");
 

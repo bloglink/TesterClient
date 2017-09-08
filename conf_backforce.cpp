@@ -64,12 +64,12 @@ void ConfBackEMFTest::initUI()
 {
     this->setObjectName("ConfBackForce");
     QStringList headers;
-    headers << tr("Hu电压下限") << tr("Hu电压上限") << tr("Hv电压下限")
-            << tr("Hv电压上限") << tr("Hw电压下限") << tr("Hw电压上限")
-            << tr("伺服转速") << tr("伺服转向") << tr("相位差下限") << tr("相位差上限");
-    itemNames << "hu_volt_min" << "hu_volt_max" << "hv_volt_min"
-              << "hv_volt_max" << "hw_volt_min"
-              << "hw_volt_max" << "speed" << "turn" << "skewing_min" << "skewing_max";
+    headers << tr("电压下限") << tr("电压上限") << tr("反电势系数下限")<< tr("反电势系数上限")
+            << tr("伺服转速") << tr("伺服转向") << tr("相位差下限") << tr("相位差上限")
+            << tr("Vcc") << tr("测试时间");
+    itemNames << "volt_min" << "volt_max" << "bemf_min" << "bemf_max"
+              << "speed" << "turn" << "skewing_min" << "skewing_max"
+              << "volt_vcc" << "time";
     mView = new StandardItem(1, headers.size());
     mView->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {

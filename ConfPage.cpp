@@ -269,6 +269,10 @@ void ConfPage::clickView(QModelIndex index)
 
 void ConfPage::windowChange()
 {
+    if (CurrentUser() == "0") {
+        QMessageBox::warning(this, "", "权限不足", QMessageBox::Ok);
+        return;
+    }
     for (int i=0; i < buttons.size(); i++) {
         if (buttons.at(i)->isChecked())
             emit buttonClicked(buttons.at(i)->objectName().toUtf8());
@@ -310,6 +314,10 @@ void ConfPage::recvAppShow(QString win)
 
 void ConfPage::appendType()
 {
+    if (CurrentUser() == "0") {
+        QMessageBox::warning(this, "", "权限不足", QMessageBox::Ok);
+        return;
+    }
     QString name = typeLineEdit->text();
     if (name.isEmpty())
         return;
@@ -329,6 +337,10 @@ void ConfPage::appendType()
 
 void ConfPage::deleteType()
 {
+    if (CurrentUser() == "0") {
+        QMessageBox::warning(this, "", "权限不足", QMessageBox::Ok);
+        return;
+    }
     QString name = mView->item(0, 0)->text();
     if (mView->rowCount() == 1)
         return;
@@ -391,6 +403,12 @@ QString ConfPage::CurrentSettings()
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
     QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
     return n.remove(".ini");
+}
+
+QString ConfPage::CurrentUser()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    return ini->value("/GLOBAL/User", "0").toString();
 }
 
 void ConfPage::goBack()
