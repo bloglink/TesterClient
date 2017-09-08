@@ -161,10 +161,8 @@ void ConfLoadTesting::initUI()
     layout->addWidget(plot);
     layout->addLayout(btnLayout);
     layout->addStretch();
-    layout->setStretch(0, 1);
     layout->setStretch(1, 1);
     layout->setStretch(2, 3);
-    layout->setStretch(4, 1);
     this->setLayout(layout);
 }
 

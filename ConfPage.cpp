@@ -206,6 +206,7 @@ void ConfPage::initUI()
     buttons.at(6)->hide();
     buttons.at(8)->hide();
     buttons.at(9)->hide();
+    buttons.at(11)->hide();
 
     QPushButton *btnDelete = new QPushButton("删除项目", this);
     btnDelete->setMinimumSize(97, 35);
