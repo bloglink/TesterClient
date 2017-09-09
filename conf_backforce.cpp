@@ -25,6 +25,13 @@ void ConfBackEMFTest::initSettings(QJsonObject obj)
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "nonu") {
             nounSpinBox->setValue(temp.at(0).toInt());
+        } else if (items.at(i) == "turn") {
+            for (int t=0; t < temp.size(); t++) {
+                if (temp.at(t) == "0")
+                    mView->item(t, 5)->setText("顺时针");
+                if (temp.at(t) == "1")
+                    mView->item(t, 5)->setText("逆时针");
+            }
         } else {
             for (int t=0; t < temp.size(); t++)
                 mView->item(t, i)->setText(temp.at(t));
@@ -38,9 +45,19 @@ void ConfBackEMFTest::readSettings()
     QStringList items = itemNames;
     for (int i=0; i < items.size(); i++) {
         QStringList temp;
-        for (int t=0; t < mView->rowCount(); t++) {
-            double x = mView->item(t, i)->text().toDouble();
-            temp.append(QString::number(x));
+        if (items.at(i) == "turn") {
+            for (int t=0; t < mView->rowCount(); t++) {
+                if (mView->item(t, i)->text() == "顺时针")
+                    temp.append("0");
+                else if (mView->item(t, i)->text() == "逆时针")
+                    temp.append("1");
+            }
+            obj.insert(items.at(i), temp.join(","));
+        } else {
+            for (int t=0; t < mView->rowCount(); t++) {
+                double x = mView->item(t, i)->text().toDouble();
+                temp.append(QString::number(x));
+            }
         }
         obj.insert(items.at(i), temp.join(","));
     }
@@ -77,27 +94,40 @@ void ConfBackEMFTest::initUI()
             mView->setData(mView->index(i, j), "");
         }
     }
-    SpinBox *voltage = new SpinBox;
+    DDoubleSpinBox *voltage = new DDoubleSpinBox;
+    voltage->setMininum(1);
     voltage->setMaxinum(500);
+    voltage->setDecimals(1);
+    DDoubleSpinBox *bemf = new DDoubleSpinBox;
+    bemf->setMininum(1);
+    bemf->setMaxinum(500);
     SpinBox *speed = new SpinBox;
     speed->setMaxinum(3000);
     QStringList turns;
     turns << "顺时针" << "逆时针";
     ComboBox *turn = new ComboBox;
     turn->setItemNames(turns);
-    SpinBox *skewing = new SpinBox;
-    skewing->setMaxinum(360);
+    DDoubleSpinBox *skewing = new DDoubleSpinBox;
+    skewing->setMininum(-400);
+    skewing->setMaxinum(400);
+    DDoubleSpinBox *vcc = new DDoubleSpinBox;
+    vcc->setMininum(3);
+    vcc->setMaxinum(15.5);
+    DDoubleSpinBox *time = new DDoubleSpinBox;
+    time->setMininum(1);
+    time->setMaxinum(20);
     view = new QTableView(this);
     view->setModel(mView);
     view->setItemDelegateForColumn(0, voltage);
     view->setItemDelegateForColumn(1, voltage);
-    view->setItemDelegateForColumn(2, voltage);
-    view->setItemDelegateForColumn(3, voltage);
-    view->setItemDelegateForColumn(4, voltage);
-    view->setItemDelegateForColumn(5, voltage);
-    view->setItemDelegateForColumn(6, speed);
-    view->setItemDelegateForColumn(7, turn);
-    view->setItemDelegateForColumn(8, skewing);
+    view->setItemDelegateForColumn(2, bemf);
+    view->setItemDelegateForColumn(3, bemf);
+    view->setItemDelegateForColumn(4, speed);
+    view->setItemDelegateForColumn(5, turn);
+    view->setItemDelegateForColumn(6, skewing);
+    view->setItemDelegateForColumn(7, skewing);
+    view->setItemDelegateForColumn(8, vcc);
+    view->setItemDelegateForColumn(9, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 

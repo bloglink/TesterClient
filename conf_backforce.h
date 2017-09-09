@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QJsonObject>
 
+#include "ddoublespinbox.h"
+
 #include "conf_delegation.h"
 #include "qcustomplot.h"
 
