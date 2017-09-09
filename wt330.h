@@ -12,6 +12,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <QObject>
+#include <QElapsedTimer>
+#include <QCoreApplication>
 #include <QtSerialPort/QSerialPort>
 
 class WT330 : public QObject
@@ -26,10 +28,12 @@ public slots:
 private slots:
     bool setNumber();
     bool readThread();
+    bool readThreads();
+    void wait(int ms);
 private:
     QSerialPort *com;
-    QStringList meter;
-    QByteArray tempByte;
+    QStringList curr;
+    QByteArray tmp;
     QTimer *timer;
 };
 
