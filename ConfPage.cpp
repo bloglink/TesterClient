@@ -182,10 +182,10 @@ void ConfPage::initUI()
     tLayout->addWidget(typePixmap, 1, 0, 1, 2);
     tLayout->addWidget(new QLabel("不合格处理", this), 2, 0);
     tLayout->addWidget(testComboBox, 2, 1);
-    tLayout->addWidget(new QLabel("线夹颜色", this), 2, 0);
-    tLayout->addLayout(cLayout, 3, 0, 1, 2);
+    tLayout->addWidget(new QLabel("线夹颜色", this), 3, 0);
+    tLayout->addLayout(cLayout, 4, 0, 1, 2);
     tLayout->setColumnStretch(1, 1);
-    tLayout->setRowStretch(4, 1);
+    tLayout->setRowStretch(5, 1);
 
     QGroupBox *tGroup = new QGroupBox(this);
     tGroup->setLayout(tLayout);
