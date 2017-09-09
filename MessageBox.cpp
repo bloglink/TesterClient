@@ -26,14 +26,14 @@ PopupBox::PopupBox(QWidget  *parent, const QString &title, const QString &text,
 
     setWindowIcon(QIcon(":/source/link.png"));
     setWindowTitle(title);
-    setMinimumSize(300, 130);
+    setMinimumSize(400, 130);
 
     ButtonBox = new QDialogButtonBox(this);
     ButtonBox->setStandardButtons(QDialogButtonBox::StandardButtons(int(buttons)) |
                                   QDialogButtonBox::StandardButtons(int(defaultButton)));
 
     QLabel *IconLabel = new QLabel(this);
-    QLabel *TextLabel = new QLabel(this);
+    TextLabel = new QLabel(this);
 
     QPixmap pixmap(":/source/logo.png");
     IconLabel->setPixmap(pixmap);
@@ -64,6 +64,11 @@ PopupBox::PopupBox(QWidget  *parent, const QString &title, const QString &text,
 
 PopupBox::~PopupBox()
 {
+}
+
+void PopupBox::setText(QString s)
+{
+    TextLabel->setText(s);
 }
 
 void PopupBox::changeEvent(QEvent *event)

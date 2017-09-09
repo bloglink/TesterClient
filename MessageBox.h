@@ -24,6 +24,7 @@ public:
                             QMessageBox::StandardButton defaultButton = QMessageBox::Ok);
 
     ~PopupBox();
+    void setText(QString s);
 protected:
     void changeEvent(QEvent *event);
 private slots:
@@ -32,6 +33,7 @@ private slots:
     void ReadVariant(QVariant s);
 private:
     QDialogButtonBox *ButtonBox;
+    QLabel *TextLabel;
 };
 
 #endif // MESSAGEBOX_H
