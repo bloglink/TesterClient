@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     if (ret == QDialog::Accepted) {
         w.readSettings();
         w.showMaximized();
+        w.showWarnning();
     }
 
     return a.exec();

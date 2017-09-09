@@ -125,7 +125,6 @@ void MainPage::initUI()
 void MainPage::initPLC()
 {
     iobrd.initPort("COM3");
-    //    wt330.initPort("COM4");
     servo.initPort("COM5");
     plc.initPort("COM6");
     connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readStart(bool)));
@@ -188,6 +187,8 @@ void MainPage::recvNetMsg(QString msg)
 
 void MainPage::readButtons(QByteArray win)
 {
+    if (testing)
+        return;
     int WinCurrent = stack->currentIndex();
     if (win.isNull()) { //空代表返回
         emit transmitShow(stack->widget(previous_window.last())->objectName());
@@ -379,6 +380,17 @@ void MainPage::testNLD()
             rpm = power.at(0).toDouble()*1000;
         tt.append(QString("%1rpm").arg(rpm));
         test->updateItem(tt);
+        QString qq;
+        qq.append(QString("U相电压:%1V\n").arg(tmp.at(0).toDouble()));
+        qq.append(QString("U相电流:%1A\n").arg(tmp.at(1).toDouble()));
+        qq.append(QString("U相功率:%1W\n").arg(tmp.at(3).toDouble()));
+        qq.append(QString("V相电压:%1V\n").arg(tmp.at(10).toDouble()));
+        qq.append(QString("V相电流:%1A\n").arg(tmp.at(11).toDouble()));
+        qq.append(QString("V相功率:%1W\n").arg(tmp.at(13).toDouble()));
+        qq.append(QString("W相电压:%1V\n").arg(tmp.at(20).toDouble()));
+        qq.append(QString("W相电流:%1A\n").arg(tmp.at(21).toDouble()));
+        qq.append(QString("W相功率:%1W\n").arg(tmp.at(23).toDouble()));
+        test->setTextLoad(qq);
         QString jj = "OK";
         QStringList ss = noloadtest->readLimit();
         if (I1 < ss.at(1).toDouble() || I1 > ss.at(2).toDouble())
@@ -489,7 +501,7 @@ void MainPage::testEMF()
 
     plc.setMode(1);
     wait(50);
-    plc.setTurn(1);
+    plc.setTurn(0);
     wait(50);
     plc.setStart(1);
     wait(50);
@@ -504,6 +516,15 @@ void MainPage::testEMF()
     obj.insert("TxMessage","6006 BEMF");
     emit transmitJson(obj);
     waitTimeOut(STATUS_EMF);
+    QString tmp;
+    for (int i=0; i < power.size(); i++) {
+        tmp.append(power.at(i));
+        if (i%2 == 1)
+            tmp.append("\n");
+        else
+            tmp.append("\t");
+    }
+    test->setTextBemf(tmp);
     test->updateItem(power.join(","));
 
     for (int i=1; i < 11; i++) {
@@ -923,6 +944,14 @@ void MainPage::readSelfCheck(QString s)
 void MainPage::testDebug()
 {
 
+}
+
+void MainPage::showWarnning()
+{
+    QString text2 = tr("不放置带连轴器电机时,请禁止启动测试");
+    PopupBox *box2 = new PopupBox(this, "", text2, QMessageBox::Ok);
+    wait(100);
+    box2->exec();
 }
 
 int MainPage::currentAlarmTime(QString msg)

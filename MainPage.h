@@ -75,6 +75,7 @@ public:
 public slots:
     bool login();
     void readSettings();
+    void showWarnning();
 private slots:
     void initUI();
     void initPLC();
@@ -113,6 +114,7 @@ private slots:
     void readStart(bool s);
     void readSelfCheck(QString s);
     void testDebug();
+
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
