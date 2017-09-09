@@ -27,10 +27,12 @@ public:
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
 public slots:
-    void setMaxinum(double max);
+    void setMaxinum(double m);
+    void setMininum(double m);
     void setDecimals(int prec);
 private:
     double max;
+    double min;
     int prec;
 };
 

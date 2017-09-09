@@ -2,6 +2,7 @@
 
 DDoubleSpinBox::DDoubleSpinBox(QObject *parent):QItemDelegate(parent)
 {
+    min = 0;
     max = 9999.99;
     prec = 2;
 }
@@ -12,6 +13,7 @@ QWidget *DDoubleSpinBox::createEditor(QWidget *parent,
 {
     QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
     editor->setMaximum(max);
+    editor->setMinimum(min);
     editor->setDecimals(prec);
     editor->setButtonSymbols(QAbstractSpinBox::NoButtons);
     return editor;
@@ -42,6 +44,11 @@ void DDoubleSpinBox::updateEditorGeometry(QWidget *editor,
 void DDoubleSpinBox::setMaxinum(double m)
 {
     max = m;
+}
+
+void DDoubleSpinBox::setMininum(double m)
+{
+    min = m;
 }
 
 void DDoubleSpinBox::setDecimals(int p)
