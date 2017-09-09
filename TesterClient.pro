@@ -45,7 +45,8 @@ SOURCES += main.cpp\
     Snowflake.cpp \
     dcombobox.cpp \
     dspinbox.cpp \
-    ddoublespinbox.cpp
+    ddoublespinbox.cpp \
+    MessageBox.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -74,7 +75,8 @@ HEADERS  += \
     Snowflake.h \
     dcombobox.h \
     dspinbox.h \
-    ddoublespinbox.h
+    ddoublespinbox.h \
+    MessageBox.h
 
 FORMS    += \
     WinSyst.ui

@@ -57,7 +57,7 @@ void ConfBackEMFTest::readSettings()
 
 int ConfBackEMFTest::readSpeed()
 {
-    return mView->item(0, 6)->text().toInt();
+    return mView->item(0, 4)->text().toInt();
 }
 
 void ConfBackEMFTest::initUI()

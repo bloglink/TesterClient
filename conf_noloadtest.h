@@ -37,6 +37,7 @@ signals:
 public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
+    QStringList readLimit();
 private slots:
     void initUI();
     void sequence(void);

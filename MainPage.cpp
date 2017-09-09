@@ -193,6 +193,7 @@ void MainPage::readButtons(QByteArray win)
         emit transmitShow(stack->widget(previous_window.last())->objectName());
         stack->setCurrentIndex(previous_window.last());
         previous_window.removeLast();
+        testDebug();
         return;
     }
     for (int i=0; i < stack->count(); i++) {
@@ -342,15 +343,7 @@ void MainPage::testHAL()
 
 void MainPage::testNLD()
 {
-    wt330.initPort("COM4");
     bool cylinder = false;
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
 
     iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
     cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
@@ -360,22 +353,47 @@ void MainPage::testNLD()
     }
     wait(100);
 
+    if (!wt330.initPort("COM4")) {
+        QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
+        status = STATUS_OVER;
+        return;
+    }
+
     QJsonObject obj;
     obj.insert("TxMessage","6006 NOLAOD");
     emit transmitJson(obj);
     waitTimeOut(STATUS_NLD);
 
-    if (meter.size() >= 30) {
+    QStringList tmp = wt330.readMeter();
+
+    if (tmp.size() >= 30) {
+        double I1 = tmp.at(1).toDouble();
+        double I2 = tmp.at(11).toDouble();
+        double I3 = tmp.at(21).toDouble();
+        double rpm = -1;
         QString tt;
-        tt.append(QString("%1A,").arg(QString(meter.at(1)).toDouble()));
-        tt.append(QString("%1A,").arg(QString(meter.at(11)).toDouble()));
-        tt.append(QString("%1A,").arg(QString(meter.at(21)).toDouble()));
-        if (power.size() > 1) {
-            tt.append(QString("%1rmp").arg(QString(power.at(0)).toDouble()*1000));
-        }
+        tt.append(QString("%1A,").arg(I1));
+        tt.append(QString("%1A,").arg(I2));
+        tt.append(QString("%1A,").arg(I3));
+        if (power.size() > 1)
+            rpm = power.at(0).toDouble()*1000;
+        tt.append(QString("%1rpm").arg(rpm));
         test->updateItem(tt);
+        QString jj = "OK";
+        QStringList ss = noloadtest->readLimit();
+        if (I1 < ss.at(1).toDouble() || I1 > ss.at(2).toDouble())
+            jj = "NG";
+        if (I2 < ss.at(1).toDouble() || I2> ss.at(2).toDouble())
+            jj = "NG";
+        if (I3 < ss.at(1).toDouble() || I3 > ss.at(2).toDouble())
+            jj = "NG";
+        if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
+            jj = "NG";
+        test->updateJudge(jj);
     } else {
+        QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
         test->updateItem("NULL");
+        test->updateJudge("NG");
     }
     QStringList s = conf->testItems();
     QList<int> tt;
@@ -502,13 +520,20 @@ void MainPage::testEMF()
     }
     wait(100);
 
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
+    QStringList s = conf->testItems();
+    QList<int> tt;
+    for (int i=0; i < s.size(); i++) {
+        tt.append(QString(s.at(i)).toInt());
     }
-    wait(100);
+    if (tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_EMF) != 1) {
+        iobrd.sendPort(Y10);  // 气缸全部归位
+        cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
+        if (!cylinder) {
+            status = STATUS_OVER;
+            return;
+        }
+        wait(100);
+    }
 }
 
 void MainPage::testStop()
@@ -856,12 +881,12 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 
 void MainPage::readNoLoad()
 {
-    QStringList m = wt330.readMeter();
-    if (m.size() < 30) {
-        QMessageBox::warning(this, "", "电参Error", QMessageBox::Ok);
-        return;
-    }
-    meter = m;
+    //    QStringList m = wt330.readMeter();
+    //    if (m.size() < 30) {
+    //        QMessageBox::warning(this, "", "电参Error", QMessageBox::Ok);
+    //        return;
+    //    }
+    //    meter = m;
     //    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
 }
 
@@ -893,6 +918,11 @@ void MainPage::readSelfCheck(QString s)
         QMessageBox::warning(this, "", s, QMessageBox::Ok);
     }
     emit sendNetMsg("6001");
+}
+
+void MainPage::testDebug()
+{
+
 }
 
 int MainPage::currentAlarmTime(QString msg)

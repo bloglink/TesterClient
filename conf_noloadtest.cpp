@@ -71,6 +71,19 @@ void ConfNoLoadTest::readSettings()
     emit buttonClicked(NULL);
 }
 
+QStringList ConfNoLoadTest::readLimit()
+{
+    QStringList items = itemNames;
+    QStringList temp;
+    for (int i=0; i < items.size(); i++) {
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+    }
+    return temp;
+}
+
 void ConfNoLoadTest::initUI()
 {
     this->setObjectName("ConfNoLoadTest");

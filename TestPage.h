@@ -57,6 +57,7 @@ public slots:
     void initItems(quint16 station);
     void updateItems(QString items);
     void updateItem(QString item);
+    bool updateJudge(QString item);
     bool updateResult();
     QString readResult();
     void updateWave(QString w);

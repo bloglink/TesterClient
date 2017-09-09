@@ -103,6 +103,18 @@ void TestPage::updateItem(QString item)
     mView->item(t, 2)->setText(item);
 }
 
+
+bool TestPage::updateJudge(QString item)
+{
+    int t = 0;
+    for (int i=0; i < mView->rowCount(); i++) {
+        if (!mView->item(i, 3)->text().isEmpty()) {
+            t = i;
+        }
+    }
+    mView->item(t, 3)->setText(item);
+}
+
 bool TestPage::updateResult()
 {
     countAll++;
