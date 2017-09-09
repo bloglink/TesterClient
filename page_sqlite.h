@@ -48,6 +48,8 @@ private slots:
     void saveData();
     void querySql();
     void clearSql();
+    void exportSql();
+    QByteArray ToGbk(const QString &inStr);
 private:
     QTableView *view;
     SqlTableModel *mView;
@@ -57,6 +59,7 @@ private:
     QSqlDatabase db;
     Snowflake snow;
     QDateEdit *date;
+    double current_id;
 };
 
 #endif // PAGESQLITE_H

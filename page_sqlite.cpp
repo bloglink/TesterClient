@@ -44,6 +44,11 @@ void PageSqlite::initUI()
     btnQuery->setMinimumSize(97, 35);
     connect(btnQuery, SIGNAL(clicked(bool)), this, SLOT(querySql()));
 
+    QPushButton *btnExport = new QPushButton(this);
+    btnExport->setText(tr("导出"));
+    btnExport->setMinimumSize(97, 35);
+    connect(btnExport, SIGNAL(clicked(bool)), this, SLOT(exportSql()));
+
     QPushButton *btnClear = new QPushButton(this);
     btnClear->setText(tr("清空"));
     btnClear->setMinimumSize(97, 35);
@@ -58,6 +63,7 @@ void PageSqlite::initUI()
     btnLayout->addWidget(new QLabel("测试日期", this));
     btnLayout->addWidget(date);
     btnLayout->addWidget(btnQuery);
+    btnLayout->addWidget(btnExport);
     btnLayout->addWidget(btnClear);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);
@@ -76,7 +82,7 @@ void PageSqlite::initSql()
         file.close();
     }
 
-    db = QSqlDatabase::addDatabase("QSQLITE", "SQL");
+    db = QSqlDatabase::addDatabase("QSQLITE","SQL");
     db.setDatabaseName("./nandflash/aip.db");
     if (!db.open())
         qDebug() << QTime::currentTime().toString() << "open sql Error";
@@ -232,3 +238,67 @@ void PageSqlite::clearSql()
     initSqlTableModel();
 }
 
+void PageSqlite::exportSql()
+{
+    QFile file(QString("%1.csv").arg(QDate::currentDate().toString("yy-MM-dd")));
+    if (!file.open(QFile::WriteOnly)) {
+        QMessageBox::warning(this,  "",   "创建失败",  QMessageBox::Ok);
+        return;
+    }
+    QSqlQuery query(db);
+    QString cmd;
+    cmd = "select TestData.id, TestData.date, ";
+    cmd += "TestData.time, TestData.type, ";
+    cmd += "TestData.user, TestData.judge, ";
+    cmd += "TestDatas.item, TestDatas.para, ";
+    cmd += "TestDatas.result, TestDatas.judge ";
+    cmd += "from TestData ";
+    cmd += "INNER JOIN TestDatas ON TestData.id = TestDatas.parent";
+    query.exec(cmd);
+    QStringList header;
+    header << tr("测试日期") << tr("测试时间") << tr("测试型号") << tr("测试人") << tr("测试判定")
+           << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
+    for (int i=0; i < header.size(); i++) {
+        file.write(ToGbk(header.at(i)));
+        file.write(",");
+    }
+    file.write("\n");
+
+    while (query.next()) {
+        double id = query.value(0).toDouble();
+        if (current_id != id) {
+            file.write(ToGbk(query.value(1).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(2).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(3).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(4).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(5).toString().replace(",", " ")));
+            file.write(",");
+        } else {
+            file.write(",");
+            file.write(",");
+            file.write(",");
+            file.write(",");
+        }
+        file.write(ToGbk(query.value(6).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(7).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(8).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(9).toString().replace(",", " ")));
+        file.write("\n");
+        current_id = id;
+    }
+    file.close();
+    QMessageBox::information(this,  "",   "导出成功",  QMessageBox::Ok);
+}
+
+QByteArray PageSqlite::ToGbk(const QString &inStr)
+{
+    QTextCodec *gbk = QTextCodec::codecForName("GB18030");
+    return gbk->fromUnicode(inStr);
+}
