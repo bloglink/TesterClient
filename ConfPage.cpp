@@ -274,6 +274,7 @@ void ConfPage::clickButton()
         pModel->item(pView->currentIndex().row(), 0)->setText(btn->text());
     }
     readSysItems();
+    pView->setCurrentIndex(pModel->index(pView->currentIndex().row()+1, 0));
 }
 
 void ConfPage::clickView(QModelIndex index)
