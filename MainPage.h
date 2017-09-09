@@ -41,6 +41,8 @@
 #include "mbdkt.h"
 #include "wt330.h"
 
+#include "MessageBox.h"
+
 #define STATUS_DCR 0x01
 #define STATUS_MAG 0x02
 #define STATUS_INR 0x03
@@ -94,11 +96,13 @@ private slots:
     void testTimeOut();
     bool readCylinder(quint16 s);
     bool waitTimeOut(quint16 s);
+    bool testPause();
 
     void saveSettings();
     QString CurrentSettings();
     QString currentPassword();
     QString currentUser();
+    int currentPauseMode();
     int currentAlarmTime(QString msg);
     void setCurrentUser(QString s);
     void recvAppCmd(QJsonObject obj);
@@ -108,7 +112,7 @@ private slots:
     void readBtnStop();
     void readStart(bool s);
     void readSelfCheck(QString s);
-
+    void testDebug();
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -142,6 +146,7 @@ private:
     QStringList power;
 
     bool testing;
+    bool isNG;
 };
 
 #endif // MAINPAGE_H

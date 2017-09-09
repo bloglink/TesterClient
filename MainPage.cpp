@@ -15,6 +15,7 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     status = STATUS_FREE;
     station = 0x13;
     testing = false;
+    isNG = false;
 }
 
 MainPage::~MainPage()
@@ -164,6 +165,8 @@ void MainPage::recvNetMsg(QString msg)
         readSelfCheck(dat);
         break;
     case 6005:  // 上传配置
+        if (dat.contains("NG"))
+            isNG = true;
         test->updateItems(dat);
         break;
     case 6007:  // 单项测试完成
@@ -260,6 +263,11 @@ void MainPage::testInit()
             testStop();
             testTimeOut();
             break;
+        }
+        if (isNG) {
+            isNG = false;
+            if (testPause())
+                break;
         }
     }
     QString xx;
@@ -559,6 +567,20 @@ bool MainPage::waitTimeOut(quint16 s)
     }
 }
 
+bool MainPage::testPause()
+{
+    if (currentPauseMode() == 0) {
+        return false;
+    }
+    QString text = tr("此项目不合格,是否继续");
+    PopupBox *box = new PopupBox(this, "", text, QMessageBox::Retry, QMessageBox::Ok);
+    int ret = box->exec();
+    if (ret == QMessageBox::Retry)
+        return true;
+    else
+        return false;
+}
+
 void MainPage::readSettings()
 {
     QString t = QString("./config/%1.ini").arg(CurrentSettings());
@@ -568,12 +590,14 @@ void MainPage::readSettings()
     QStringList names_cnf;
     QJsonObject obj_cnf;
     QJsonObject obj_array;
-    names_cnf << "color" << "type";
+    names_cnf << "color" << "type" << "test";
     ini->beginGroup("Conf");
     for (int i=0; i < names_cnf.size(); i++) {
         QString def = "0,0,0,0,0,0,0,0";
         if (names_cnf.at(i) == "type")
             def = "M1S1";
+        if (names_cnf.at(i) == "test")
+            def = "0";
         obj_cnf.insert(names_cnf.at(i), ini->value(names_cnf.at(i), def).toString());
     }
     ini->endGroup();
@@ -771,6 +795,13 @@ QString MainPage::currentUser()
         return "guest";
     else
         return "admin";
+}
+
+int MainPage::currentPauseMode()
+{
+    QString n = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(n, QSettings::IniFormat);
+    return ini->value("/Conf/test", "1").toInt();
 }
 
 void MainPage::setCurrentUser(QString s)

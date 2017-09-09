@@ -20,7 +20,7 @@ ConfPage::~ConfPage()
 void ConfPage::initSettings(QJsonObject obj)
 {
     QStringList items;
-    items << "color" << "type";
+    items << "color" << "type" << "test";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "color") {
@@ -28,6 +28,8 @@ void ConfPage::initSettings(QJsonObject obj)
                 colors.at(t)->setStyleSheet(QString("background-color:%1").arg(temp.at(t)));
         } else if (items.at(i) == "type") {
             typeComboBox->setCurrentText(temp.at(0));
+        } else if (items.at(i) == "test") {
+            testComboBox->setCurrentIndex(temp.at(0).toInt());
         }
     }
 }
@@ -64,6 +66,10 @@ void ConfPage::readSettings()
     temp.clear();
     temp.append(typeComboBox->currentText());
     obj.insert("type", temp.join(","));
+
+    temp.clear();
+    temp.append(QString::number(testComboBox->currentIndex()));
+    obj.insert("test", temp.join(","));
 
     QJsonObject array;
     array.insert("Conf", obj);
@@ -155,6 +161,13 @@ void ConfPage::initUI()
     typePixmap = new QLabel(this);
     typePixmap->setPixmap(QPixmap(":/source/M1S0.jpg"));
 
+    QStringList testNames;
+    testNames << tr("继续测试") << tr("暂停询问");
+    testComboBox = new QComboBox(this);
+    testComboBox->addItems(testNames);
+    testComboBox->setMinimumSize(97, 35);
+    testComboBox->setView(new QListView);
+
     QGridLayout *cLayout = new QGridLayout;
     for (int i=0; i < 8; i++) {
         QPushButton *btn = new QPushButton(QString::number(i+1));
@@ -167,6 +180,8 @@ void ConfPage::initUI()
     tLayout->addWidget(new QLabel("电机类型", this), 0, 0);
     tLayout->addWidget(typeComboBox, 0, 1);
     tLayout->addWidget(typePixmap, 1, 0, 1, 2);
+    tLayout->addWidget(new QLabel("不合格处理", this), 2, 0);
+    tLayout->addWidget(testComboBox, 2, 1);
     tLayout->addWidget(new QLabel("线夹颜色", this), 2, 0);
     tLayout->addLayout(cLayout, 3, 0, 1, 2);
     tLayout->setColumnStretch(1, 1);

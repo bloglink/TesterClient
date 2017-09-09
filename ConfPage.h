@@ -75,6 +75,7 @@ private:
 
     QLineEdit *typeLineEdit;
     QComboBox *typeComboBox;
+    QComboBox *testComboBox;
     QLabel *typePixmap;
 
     QList<QPushButton *> buttons;
