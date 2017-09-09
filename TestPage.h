@@ -32,6 +32,7 @@
 #include "conf_qrencode.h"
 
 #include "qcustomplot.h"
+#include "MessageBox.h"
 
 #define PI 3.1415936
 
@@ -61,10 +62,13 @@ public slots:
     bool updateResult();
     QString readResult();
     void updateWave(QString w);
+    void setTextBemf(QString s);
+    void setTextLoad(QString s);
 private slots:
     void initUI();
     void saveData();
     void clickButton();
+    void clickView();
     void showButtons();
     void windowChange();
     void recvAppShow(QString win);
@@ -111,6 +115,23 @@ private:
 
     quint32 countOk;
     quint32 countAll;
+
+    PopupBox *box;
+    QTimer *timer;
+
+    QString textBemf;
+    QString textLoad;
+
+    QCPGraph *graph1;
+    QCPGraph *graph2;
+    QCPGraph *graph3;
+    QCPGraph *graph4;
+    QCPGraph *graph5;
+    QCPGraph *graph6;
+
+    QCPBars *bars1;
+    QCPBars *bars2;
+    QCPBars *bars3;
 };
 
 #endif // TESTPAGE_H

@@ -30,6 +30,27 @@ void TestPage::initItems(quint16 s)
     else
         station->setText("右");
     judge->setText("--");
+    QVector<double> x(100), y(100);
+    for (int i=0; i < 100; i++) {
+        x[i] = -1;
+        y[i] = -1;
+    }
+    graph1->setData(x, y);
+    graph2->setData(x, y);
+    graph3->setData(x, y);
+    graph4->setData(x, y);
+    graph5->setData(x, y);
+    graph6->setData(x, y);
+    wave->legend->setVisible(false);
+    waveU.clear();
+    waveV.clear();
+    waveW.clear();
+    waveHu.clear();
+    waveHv.clear();
+    waveHw.clear();
+    wave->replot();
+    textBemf.clear();
+    textLoad.clear();
 }
 
 void TestPage::updateItems(QString dat)
@@ -103,7 +124,6 @@ void TestPage::updateItem(QString item)
     mView->item(t, 2)->setText(item);
 }
 
-
 bool TestPage::updateJudge(QString item)
 {
     int t = 0;
@@ -113,6 +133,11 @@ bool TestPage::updateJudge(QString item)
         }
     }
     mView->item(t, 3)->setText(item);
+    if (item == "OK")
+        mView->item(t, 3)->setForeground(QBrush(QColor(Qt::green)));
+    else
+        mView->item(t, 3)->setForeground(QBrush(QColor(Qt::red)));
+    return true;
 }
 
 bool TestPage::updateResult()
@@ -152,8 +177,36 @@ QString TestPage::readResult()
 
 void TestPage::updateWave(QString w)
 {
-    waveU = w.split(",");
+    if (w.startsWith("0 ")) {
+        waveU = w.split(" ");
+        waveU.removeFirst();
+    } else if (w.startsWith("1 ")) {
+        waveV = w.split(" ");
+        waveV.removeFirst();
+    } else if (w.startsWith("2 ")) {
+        waveW = w.split(" ");
+        waveW.removeFirst();
+    } else if (w.startsWith("3 ")) {
+        waveHu = w.split(" ");
+        waveHu.removeFirst();
+    } else if (w.startsWith("4 ")) {
+        waveHv = w.split(" ");
+        waveHv.removeFirst();
+    } else if (w.startsWith("5 ")) {
+        waveHw = w.split(" ");
+        waveHw.removeFirst();
+    }
     DrawWave();
+}
+
+void TestPage::setTextBemf(QString s)
+{
+    textBemf = s;
+}
+
+void TestPage::setTextLoad(QString s)
+{
+    textLoad = s;
 }
 
 void TestPage::initUI()
@@ -290,6 +343,9 @@ void TestPage::initUI()
     //    qrencode->setMinimumSize(90,90);
     //    qrencode->setMaximumSize(90,90);
     histogram = new QCustomPlot(this);
+    bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
+    bars2 = new QCPBars(histogram->xAxis, histogram->yAxis);
+    bars3 = new QCPBars(histogram->xAxis, histogram->yAxis);
     DrawHistogram();
 
     QGridLayout *cLayout = new QGridLayout;
@@ -305,6 +361,7 @@ void TestPage::initUI()
     station->setStyleSheet("font:50pt;color:yellow");
     station->setText("左");
     station->setAlignment(Qt::AlignCenter);
+    station->hide();
 
     judge = new QLabel(this);
     judge->setStyleSheet("font:55pt;color:green");
@@ -341,6 +398,12 @@ void TestPage::initUI()
     layout->setStretch(0, 7);
     layout->setStretch(1, 1);
     this->setLayout(layout);
+
+    box = new PopupBox(this, "", "测试", QMessageBox::Ok);
+    box->resize(QSize(300, 350));
+    box->hide();
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), box, SLOT(hide()));
 }
 
 void TestPage::saveData()
@@ -434,11 +497,11 @@ void TestPage::deleteItem()
 
 void TestPage::DrawHistogram()
 {
-    histogram->clearGraphs();
-    histogram->clearFocus();
-    histogram->clearItems();
-    histogram->clearMask();
-    histogram->clearPlottables();
+//    histogram->clearGraphs();
+//    histogram->clearFocus();
+//    histogram->clearItems();
+//    histogram->clearMask();
+//    histogram->clearPlottables();
     // prepare data:
     QVector<double> x1(1), y1(1);
     QVector<double> x2(1), y2(1);
@@ -459,19 +522,16 @@ void TestPage::DrawHistogram()
         histogram->yAxis->setRange(0, countAll+1);
     }
 
-    QCPBars *bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars1->setWidth(0.9);
     bars1->setData(x1, y1);
     bars1->setPen(Qt::NoPen);
     bars1->setBrush(QColor("blue"));
 
-    QCPBars *bars2 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars2->setWidth(0.9);
     bars2->setData(x2, y2);
     bars2->setPen(Qt::NoPen);
     bars2->setBrush(QColor("green"));
 
-    QCPBars *bars3 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars3->setWidth(0.9);
     bars3->setData(x3, y3);
     bars3->setPen(Qt::NoPen);
@@ -511,42 +571,63 @@ void TestPage::DrawHistogram()
 }
 void TestPage::DrawWave()
 {
-    wave->clearGraphs();
-
+    int len = 100;
+    len = qMax(len, waveU.size());
+    len = qMax(len, waveV.size());
+    len = qMax(len, waveW.size());
+    len = qMax(len, waveHu.size());
+    len = qMax(len, waveHv.size());
+    len = qMax(len, waveHw.size());
     QVector<double> ux(waveU.size()),uy(waveU.size());
     for (int i=0; i < waveU.size(); i++) {
         ux[i] = i;
-        uy[i] = QString(waveU.at(i)).toDouble()*100/256;
+        uy[i] = (QString(waveU.at(i)).toDouble()-128)*2+80;
     }
-    QCPGraph *graph1 = wave->addGraph();
-    graph1->setPen(QPen(Qt::yellow, 2));
     graph1->setData(ux, uy);
 
     QVector<double> vx(waveV.size()),vy(waveV.size());
     for (int i=0; i < waveV.size(); i++) {
         vx[i] = i;
-        vy[i] = QString(waveV.at(i)).toDouble();
+        vy[i] = (QString(waveV.at(i)).toDouble()-128)*2+80;
     }
-    QCPGraph *graph2 = wave->addGraph();
-    graph2->setPen(QPen(Qt::green, 2));
     graph2->setData(vx, vy);
 
     QVector<double> wx(waveW.size()),wy(waveW.size());
     for (int i=0; i < waveW.size(); i++) {
         wx[i] = i;
-        wy[i] = QString(waveW.at(i)).toDouble();
+        wy[i] = (QString(waveW.at(i)).toDouble()-128)*2+80;
     }
-    QCPGraph *graph3 = wave->addGraph();
-    graph3->setPen(QPen(Qt::red, 2));
     graph3->setData(wx, wy);
+
+    QVector<double> hux(waveHu.size()),huy(waveHu.size());
+    for (int i=0; i < waveHu.size(); i++) {
+        hux[i] = i;
+        huy[i] = QString(waveHu.at(i)).toDouble()*18/256+40;
+    }
+    graph4->setData(hux, huy);
+
+    QVector<double> hvx(waveHv.size()),hvy(waveHv.size());
+    for (int i=0; i < waveHv.size(); i++) {
+        hvx[i] = i;
+        hvy[i] = QString(waveHv.at(i)).toDouble()*18/256+20;
+    }
+    graph5->setData(hvx, hvy);
+
+    QVector<double> hwx(waveHw.size()),hwy(waveHw.size());
+    for (int i=0; i < waveHw.size(); i++) {
+        hwx[i] = i;
+        hwy[i] = QString(waveHw.at(i)).toDouble()*18/256+0;
+    }
+    graph6->setData(hwx, hwy);
 
     wave->xAxis->setBasePen(Qt::NoPen);
     wave->yAxis->setBasePen(Qt::NoPen);
     wave->xAxis2->setBasePen(Qt::NoPen);
     wave->yAxis2->setBasePen(Qt::NoPen);
-    wave->xAxis->setRange(0, 1000);
+    wave->xAxis->setRange(0, len);
     wave->yAxis->setRange(0, 100);
     wave->setBackground(QBrush(QColor(25, 25, 25)));
+    wave->legend->setVisible(true);
     wave->replot();
 }
 
