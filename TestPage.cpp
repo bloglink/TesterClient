@@ -171,6 +171,7 @@ void TestPage::initUI()
     view->setColumnWidth(0, 150);
     view->setColumnWidth(1, 450);
     view->setColumnWidth(3, 150);
+    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(clickView()));
 
     wave = new QCustomPlot(this);
     wave->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
@@ -181,13 +182,35 @@ void TestPage::initUI()
     wave->xAxis->setTickLabels(false);
     wave->yAxis->setTickLabels(false);
     wave->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
-    wave->axisRect()->setupFullAxesBox();
-    wave->rescaleAxes();
-    wave->addGraph();
+    wave->xAxis->setBasePen(Qt::NoPen);
+    wave->yAxis->setBasePen(Qt::NoPen);
+    wave->xAxis2->setBasePen(Qt::NoPen);
+    wave->yAxis2->setBasePen(Qt::NoPen);
     wave->xAxis->setRange(0, 400);
-    wave->yAxis->setRange(0, 250);
-    wave->graph(0)->setPen(QPen(Qt::green));
-    DrawWave();
+    wave->yAxis->setRange(0, 101);
+    graph1 = wave->addGraph();
+    graph1->setName("U");
+    graph1->setPen(QPen(Qt::yellow, 2));
+
+    graph2 = wave->addGraph();
+    graph2->setName("V");
+    graph2->setPen(QPen(Qt::cyan, 2));
+
+    graph3 = wave->addGraph();
+    graph3->setName("W");
+    graph3->setPen(QPen(Qt::red, 2));
+
+    graph4 = wave->addGraph();
+    graph4->setName("HA");
+    graph4->setPen(QPen(Qt::cyan, 2));
+
+    graph5 = wave->addGraph();
+    graph5->setName("HB");
+    graph5->setPen(QPen(Qt::yellow, 2));
+
+    graph6 = wave->addGraph();
+    graph6->setName("HC");
+    graph6->setPen(QPen(Qt::green, 2));
 
     QHBoxLayout *waveLayout = new QHBoxLayout;
     waveLayout->addWidget(wave);
@@ -356,6 +379,29 @@ void TestPage::clickButton()
     }
     btn->setChecked(true);
     pModel->appendRow(new QStandardItem(btn->text()));
+}
+
+void TestPage::clickView()
+{
+    int row = view->currentIndex().row();
+    if (row < 0)
+        return;
+    if (mView->item(row, 0)->text().contains(tr("空载"))) {
+        QString text2 = tr("显示空载参数");
+        if (!textLoad.isEmpty())
+            text2 = textLoad;
+        box->setText(text2);
+        box->show();
+        timer->start(5000);
+    }
+    if (mView->item(row, 0)->text().contains(tr("反势"))) {
+        QString text2 = tr("显示反势参数");
+        if (!textBemf.isEmpty())
+            text2 = textBemf;
+        box->setText(text2);
+        box->show();
+        timer->start(5000);
+    }
 }
 
 void TestPage::showButtons()
