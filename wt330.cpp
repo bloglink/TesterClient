@@ -19,8 +19,14 @@ bool WT330::initPort(QString portName)
 {
     if (portName.isNull() && com != NULL) {
         timer->stop();
-        com->close();
         return true;
+    }
+    if (com != NULL) {
+        if (com->isOpen()) {
+            curr.clear();
+            timer->start(500);
+            return true;
+        }
     }
     com = new QSerialPort(portName, this);
     if (com->open(QIODevice::ReadWrite)) {
@@ -38,26 +44,6 @@ bool WT330::initPort(QString portName)
     } else {
         return false;
     }
-}
-
-bool WT330::readThreads()
-{
-    if (com == NULL || !com->isOpen())
-        return false;
-    if (com->bytesAvailable() > 0) {
-        tmp.append(com->readAll());
-        return true;
-    }
-    QStringList temp = QString(tmp).split(",");
-    if (temp.size() >= 30) {
-        curr = temp;
-        tmp.clear();
-        return true;
-    }
-    QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
-    cmd.append(0x0A);
-    com->write(cmd);  // 读取电参
-    return true;
 }
 
 bool WT330::readThread()

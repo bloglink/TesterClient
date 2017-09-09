@@ -28,7 +28,6 @@ public slots:
 private slots:
     bool setNumber();
     bool readThread();
-    bool readThreads();
     void wait(int ms);
 private:
     QSerialPort *com;
