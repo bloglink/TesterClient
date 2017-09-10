@@ -128,7 +128,6 @@ void ConfResistance::readSettings()
     QJsonObject array;
     array.insert("DCR", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 void ConfResistance::initUI()
@@ -197,10 +196,15 @@ void ConfResistance::initUI()
     timeBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     timeBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(compensation);
@@ -211,6 +215,7 @@ void ConfResistance::initUI()
     btnLayout->addWidget(new QLabel("测试时间", this));
     btnLayout->addWidget(timeBox);
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -245,5 +250,10 @@ void ConfResistance::autoInput()
     default:
         break;
     }
+}
+
+void ConfResistance::back()
+{
+    emit buttonClicked(NULL);
 }
 

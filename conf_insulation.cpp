@@ -77,7 +77,6 @@ void ConfInsulation::readSettings()
     QJsonObject array;
     array.insert("IR", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 
@@ -114,14 +113,20 @@ void ConfInsulation::initUI()
     view->setItemDelegateForColumn(5, spinBox);
     view->setItemDelegateForColumn(6, doubleSpinBox);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
-    btnLayout->addWidget(btnExit);
+    btnLayout->addWidget(btnSave);
+    btnLayout->addWidget(btnExit);;
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addStretch();
@@ -139,5 +144,10 @@ void ConfInsulation::initUI()
     view->hideRow(1);
     view->hideRow(2);
     view->hideRow(3);
+}
+
+void ConfInsulation::back()
+{
+    emit buttonClicked(NULL);
 }
 

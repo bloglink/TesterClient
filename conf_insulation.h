@@ -34,6 +34,7 @@ public slots:
     void readSettings();
 private slots:
     void initUI();
+    void back();
 private:
     QTableView *view;
     StandardItem *mView;

@@ -77,7 +77,6 @@ void ConfCurrent_AC::readSettings()
     QJsonObject array;
     array.insert("ACW", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 void ConfCurrent_AC::initUI()
@@ -120,13 +119,19 @@ void ConfCurrent_AC::initUI()
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -145,5 +150,10 @@ void ConfCurrent_AC::initUI()
     view->hideRow(1);
     view->hideRow(2);
     view->hideRow(3);
+}
+
+void ConfCurrent_AC::back()
+{
+    emit buttonClicked(NULL);
 }
 

@@ -69,7 +69,6 @@ void ConfBackEMFTest::readSettings()
     QJsonObject array;
     array.insert("BEMF", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 int ConfBackEMFTest::readSpeed()
@@ -136,15 +135,21 @@ void ConfBackEMFTest::initUI()
     nounSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     nounSpinBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel("不平衡度", this));
     btnLayout->addWidget(nounSpinBox);
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -155,4 +160,9 @@ void ConfBackEMFTest::initUI()
     layout->addStretch();
     layout->addStretch();
     this->setLayout(layout);
+}
+
+void ConfBackEMFTest::back()
+{
+    emit buttonClicked(NULL);
 }

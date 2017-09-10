@@ -42,6 +42,7 @@ public slots:
 private slots:
     void initUI();
     void autoInput();
+    void back();
 private:
     QTableView *view;
     StandardItem *mView;

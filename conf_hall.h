@@ -32,6 +32,7 @@ public slots:
     int readCount();
 private slots:
     void initUI();
+    void back();
 private:
     QTableView *view;
     StandardItem *mView;

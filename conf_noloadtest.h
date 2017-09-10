@@ -43,6 +43,7 @@ private slots:
     void sequence(void);
     void ruler(double x);
     void wavePacket(double x1, double x2, QString name);
+    void back();
 private:
     QTableView *view;
     StandardItem *mView;

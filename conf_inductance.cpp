@@ -96,7 +96,6 @@ void ConfInductance::readSettings()
     QJsonObject array;
     array.insert("IND", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 void ConfInductance::initUI()
@@ -179,10 +178,15 @@ void ConfInductance::initUI()
     modeComboBox->setView(new QListView);
     modeComboBox->setMinimumSize(97, 35);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(new QLabel(tr("不平衡度")));
@@ -195,6 +199,7 @@ void ConfInductance::initUI()
     btnLayout->addWidget(connComboBox);
     btnLayout->addWidget(modeComboBox);
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -237,5 +242,10 @@ void ConfInductance::autoInput()
     default:
         break;
     }
+}
+
+void ConfInductance::back()
+{
+    emit buttonClicked(NULL);
 }
 

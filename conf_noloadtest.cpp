@@ -68,7 +68,6 @@ void ConfNoLoadTest::readSettings()
     QJsonObject array;
     array.insert("NOLOAD", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
 }
 
 QStringList ConfNoLoadTest::readLimit()
@@ -146,15 +145,21 @@ void ConfNoLoadTest::initUI()
     turnComboBox->setMinimumSize(97, 35);
     turnComboBox->setView(new QListView);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addWidget(turnCheckBox);
     btnLayout->addWidget(turnComboBox);
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QStringList header;
@@ -383,4 +388,9 @@ void ConfNoLoadTest::wavePacket(double x1, double x2, QString name)
     wavePacketText->setText(name);
     wavePacketText->setFont(QFont(font().family(), 10));
     wavePacketText->setColor(QColor(Qt::white));
+}
+
+void ConfNoLoadTest::back()
+{
+    emit buttonClicked(NULL);
 }
