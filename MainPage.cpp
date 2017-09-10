@@ -501,7 +501,7 @@ void MainPage::testEMF()
 
     plc.setMode(1);
     wait(50);
-    plc.setTurn(1);
+    plc.setTurn(backemftest->readTurn());
     wait(50);
     plc.setStart(1);
     wait(50);

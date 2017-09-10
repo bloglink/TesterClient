@@ -40,6 +40,7 @@ public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
     int readSpeed();
+    int readTurn();
 private slots:
     void initUI();
     void back();

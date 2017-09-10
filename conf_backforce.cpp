@@ -76,6 +76,15 @@ int ConfBackEMFTest::readSpeed()
     return mView->item(0, 4)->text().toInt();
 }
 
+int ConfBackEMFTest::readTurn()
+{
+    if (mView->item(0, 5)->text() == "顺时针")
+        return 0;
+    if (mView->item(0, 5)->text() == "逆时针")
+        return 1;
+    return 0;
+}
+
 void ConfBackEMFTest::initUI()
 {
     this->setObjectName("ConfBackForce");
