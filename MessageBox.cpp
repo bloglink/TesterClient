@@ -19,9 +19,9 @@
 PopupBox::PopupBox(QWidget  *parent, const QString &title, const QString &text,
                                QMessageBox::StandardButtons buttons,
                                QMessageBox::StandardButton defaultButton)
-    : QDialog(parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
+    : QDialog(parent, Qt::WindowStaysOnTopHint)
 {
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
+//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     this->setStyleSheet("QDialog{border:2px solid red;}");
 
     setWindowIcon(QIcon(":/source/link.png"));

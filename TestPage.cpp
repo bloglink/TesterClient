@@ -405,6 +405,7 @@ void TestPage::initUI()
     this->setLayout(layout);
 
     box = new PopupBox(this, "", "测试", QMessageBox::Ok);
+    box->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     box->resize(QSize(1024, 768));
     box->hide();
     //    timer = new QTimer(this);

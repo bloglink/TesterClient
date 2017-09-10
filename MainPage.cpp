@@ -962,15 +962,17 @@ void MainPage::readStart(bool s)
 
 void MainPage::readSelfCheck(QString s)
 {
-    if (!s.isEmpty()) {
-        QMessageBox::warning(this, "", s, QMessageBox::Ok);
-    }
     emit sendNetMsg("6001");
+    if (!s.isEmpty()) {
+        QString text2 = tr("板卡错误%1").arg(s);
+        PopupBox *box2 = new PopupBox(this, "", text2, QMessageBox::Ok);
+        wait(100);
+        box2->exec();
+    }
 }
 
 void MainPage::testDebug()
 {
-
 }
 
 void MainPage::showWarnning()
