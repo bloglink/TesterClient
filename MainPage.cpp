@@ -718,8 +718,9 @@ void MainPage::readSettings()
     ini->endGroup();
     obj_array.insert("Sys", obj_sys);
     conf->initSysItems(obj_sys);
-
-    sendXmlCmd(obj_sys);
+    QJsonObject tmp;
+    tmp.insert("Sys", obj_sys);
+    sendXmlCmd(tmp);
 
     QStringList names_dcr;
     QJsonObject obj_dcr;
