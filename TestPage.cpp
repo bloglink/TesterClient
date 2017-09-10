@@ -248,15 +248,15 @@ void TestPage::initUI()
     wave->yAxis->setRange(0, 101);
     graph1 = wave->addGraph();
     graph1->setName("U");
-    graph1->setPen(QPen(Qt::yellow, 2));
+    graph1->setPen(QPen(Qt::cyan, 2));
 
     graph2 = wave->addGraph();
     graph2->setName("V");
-    graph2->setPen(QPen(Qt::cyan, 2));
+    graph2->setPen(QPen(Qt::yellow, 2));
 
     graph3 = wave->addGraph();
     graph3->setName("W");
-    graph3->setPen(QPen(Qt::red, 2));
+    graph3->setPen(QPen(Qt::green, 2));
 
     graph4 = wave->addGraph();
     graph4->setName("HA");
@@ -406,6 +406,7 @@ void TestPage::initUI()
 
     box = new PopupBox(this, "", "测试", QMessageBox::Ok);
     box->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
+    box->setStyleSheet("QDialog{border:2px solid red;}");
     box->resize(QSize(1024, 768));
     box->hide();
 }

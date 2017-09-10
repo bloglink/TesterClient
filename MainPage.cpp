@@ -501,7 +501,7 @@ void MainPage::testEMF()
 
     plc.setMode(1);
     wait(50);
-    plc.setTurn(0);
+    plc.setTurn(1);
     wait(50);
     plc.setStart(1);
     wait(50);
@@ -518,29 +518,56 @@ void MainPage::testEMF()
     waitTimeOut(STATUS_EMF);
     QString tmp;
     QStringList names;
+    //    names << "UF1:" << "UF2:" << "UF3:"0
+    //          << "UH1:" << "UH2:" << "UH3:"3
+    //          << "UW1:" << "UW2:" << "UW3:"6
+    //          << "WV-U1:" << "WV-U2:" << "WV-U3:"9
+    //          << "VF1:" << "VF2:" << "VF3:"12
+    //          << "VH1:" << "VH2:" << "VH3:"15
+    //          << "VU1:" << "VU2:" << "VU3:"18
+    //          << "UV-W1:" << "UV-W2:" << "UV-W3:"21
+    //          << "WF1:" << "WF2:" << "WF3:"24
+    //          << "WH1:" << "WH2:" << "WH2:"27
+    //          << "WV1:" << "WV2:" << "WV3:"30
+    //          << "WU-V1:" << "WU-V2:" << "WU-V3:";33
     names << "UF1:" << "UF2:" << "UF3:"
-          << "UH1:" << "UH2:" << "UH3:"
-          << "UW1:" << "UW2:" << "UW3:"
-          << "WV-U1:" << "WV-U2:" << "WV-U3:"
           << "VF1:" << "VF2:" << "VF3:"
-          << "VH1:" << "VH2:" << "VH3:"
-          << "VU1:" << "VU2:" << "VU3:"
-          << "UV-W1:" << "UV-W2:" << "UV-W3:"
           << "WF1:" << "WF2:" << "WF3:"
+          << "UH1:" << "UH2:" << "UH3:"
+          << "VH1:" << "VH2:" << "VH3:"
           << "WH1:" << "WH2:" << "WH2:"
+          << "UW1:" << "UW2:" << "UW3:"
+          << "VU1:" << "VU2:" << "VU3:"
           << "WV1:" << "WV2:" << "WV3:"
+          << "WV-U1:" << "WV-U2:" << "WV-U3:"
+          << "UV-W1:" << "UV-W2:" << "UV-W3:"
           << "WU-V1:" << "WU-V2:" << "WU-V3:";
+    QList<int> squn;
+    squn << 0 << 1 << 2
+         << 12 << 13 << 14
+         << 24 << 25 << 26
+         << 3 << 4 << 5
+         << 15 << 16 << 17
+         << 27 << 28 << 29
+         << 6 << 7 << 8
+         << 18 << 19 << 20
+         << 30 << 31 << 32
+         << 9 << 10 << 11
+         << 21 << 22 << 23
+         << 33 << 34 << 35;
     if (power.size() > 36) {
         int r = 60*100000/(backemftest->readSpeed()*halltesting->readCount());
         for (int i=0; i < names.size(); i++) {
-            int angle = power.at(i).toInt()*360/r;
+            int angle = power.at(squn.at(i)).toInt()*360/r;
             QString t = QString("%1%2").arg(names.at(i)).arg(angle);
             tmp.append(t);
             if (i%3 == 2) {
                 tmp.append("\n");
             } else {
-                tmp.append("\t");
+                tmp.append("\t\t");
             }
+            if (i%9 == 8)
+                tmp.append("\n");
         }
     }
     for (int i=36; i < power.size(); i++) {
