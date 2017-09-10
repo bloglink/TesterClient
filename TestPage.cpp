@@ -408,8 +408,6 @@ void TestPage::initUI()
     box->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     box->resize(QSize(1024, 768));
     box->hide();
-    //    timer = new QTimer(this);
-    //    connect(timer, SIGNAL(timeout()), box, SLOT(hide()));
 }
 
 void TestPage::saveData()

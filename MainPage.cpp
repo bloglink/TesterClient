@@ -364,48 +364,48 @@ void MainPage::testNLD()
     obj.insert("TxMessage","6006 NOLAOD");
     emit transmitJson(obj);
     waitTimeOut(STATUS_NLD);
-
-    QStringList tmp = wt330.readMeter();
-
-    if (tmp.size() >= 30) {
-        double I1 = tmp.at(1).toDouble();
-        double I2 = tmp.at(11).toDouble();
-        double I3 = tmp.at(21).toDouble();
-        double rpm = -1;
-        QString tt;
-        tt.append(QString("%1A,").arg(I1));
-        tt.append(QString("%1A,").arg(I2));
-        tt.append(QString("%1A,").arg(I3));
-        if (power.size() > 1)
-            rpm = power.at(0).toDouble()*1000;
-        tt.append(QString("%1rpm").arg(rpm));
-        test->updateItem(tt);
-        QString qq;
-        qq.append(QString("U相电压:%1V\n").arg(tmp.at(0).toDouble()));
-        qq.append(QString("U相电流:%1A\n").arg(tmp.at(1).toDouble()));
-        qq.append(QString("U相功率:%1W\n").arg(tmp.at(3).toDouble()));
-        qq.append(QString("V相电压:%1V\n").arg(tmp.at(10).toDouble()));
-        qq.append(QString("V相电流:%1A\n").arg(tmp.at(11).toDouble()));
-        qq.append(QString("V相功率:%1W\n").arg(tmp.at(13).toDouble()));
-        qq.append(QString("W相电压:%1V\n").arg(tmp.at(20).toDouble()));
-        qq.append(QString("W相电流:%1A\n").arg(tmp.at(21).toDouble()));
-        qq.append(QString("W相功率:%1W\n").arg(tmp.at(23).toDouble()));
-        test->setTextLoad(qq);
-        QString jj = "OK";
-        QStringList ss = noloadtest->readLimit();
-        if (I1 < ss.at(1).toDouble() || I1 > ss.at(2).toDouble())
-            jj = "NG";
-        if (I2 < ss.at(1).toDouble() || I2> ss.at(2).toDouble())
-            jj = "NG";
-        if (I3 < ss.at(1).toDouble() || I3 > ss.at(2).toDouble())
-            jj = "NG";
-        if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
-            jj = "NG";
-        test->updateJudge(jj);
-    } else {
-        QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
-        test->updateItem("NULL");
-        test->updateJudge("NG");
+    if (status != STATUS_OVER) {
+        QStringList tmp = wt330.readMeter();
+        if (tmp.size() >= 30) {
+            double I1 = tmp.at(1).toDouble();
+            double I2 = tmp.at(11).toDouble();
+            double I3 = tmp.at(21).toDouble();
+            double rpm = -1;
+            QString tt;
+            tt.append(QString("%1A,").arg(I1));
+            tt.append(QString("%1A,").arg(I2));
+            tt.append(QString("%1A,").arg(I3));
+            if (power.size() > 1)
+                rpm = power.at(0).toDouble()*1000;
+            tt.append(QString("%1rpm").arg(rpm));
+            test->updateItem(tt);
+            QString qq;
+            qq.append(QString("U相电压:%1V\n").arg(tmp.at(0).toDouble()));
+            qq.append(QString("U相电流:%1A\n").arg(tmp.at(1).toDouble()));
+            qq.append(QString("U相功率:%1W\n").arg(tmp.at(3).toDouble()));
+            qq.append(QString("V相电压:%1V\n").arg(tmp.at(10).toDouble()));
+            qq.append(QString("V相电流:%1A\n").arg(tmp.at(11).toDouble()));
+            qq.append(QString("V相功率:%1W\n").arg(tmp.at(13).toDouble()));
+            qq.append(QString("W相电压:%1V\n").arg(tmp.at(20).toDouble()));
+            qq.append(QString("W相电流:%1A\n").arg(tmp.at(21).toDouble()));
+            qq.append(QString("W相功率:%1W\n").arg(tmp.at(23).toDouble()));
+            test->setTextLoad(qq);
+            QString jj = "OK";
+            QStringList ss = noloadtest->readLimit();
+            if (I1 < ss.at(1).toDouble() || I1 > ss.at(2).toDouble())
+                jj = "NG";
+            if (I2 < ss.at(1).toDouble() || I2> ss.at(2).toDouble())
+                jj = "NG";
+            if (I3 < ss.at(1).toDouble() || I3 > ss.at(2).toDouble())
+                jj = "NG";
+            if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
+                jj = "NG";
+            test->updateJudge(jj);
+        } else {
+            QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
+            test->updateItem("NULL");
+            test->updateJudge("NG");
+        }
     }
     QStringList s = conf->testItems();
     QList<int> tt;
@@ -550,9 +550,10 @@ void MainPage::testEMF()
         else
             tmp.append(",");
     }
-    test->setTextBemf(tmp);
-    //    test->setTextBemf(power.join(","));
-    test->updateItem(power.join(","));
+    if (status != STATUS_OVER) {
+        test->setTextBemf(tmp);
+        test->updateItem(power.join(","));
+    }
 
     for (int i=1; i < 11; i++) {
         plc.setSpeed(speed*(10-i)/10);

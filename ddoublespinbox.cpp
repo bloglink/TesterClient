@@ -31,7 +31,7 @@ void DDoubleSpinBox::setModelData(QWidget *editor, QAbstractItemModel *model,
 {
     QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
     spinBox->interpretText();
-    int value = spinBox->value();
+    double value = spinBox->value();
     model->setData(index, value, Qt::EditRole);
 }
 
