@@ -80,6 +80,8 @@ private slots:
     void Printer();
     void printPreview(QPrinter *printer);
     void exportToCsv(QString title, QStringList wave);
+    QString CurrentSettings();
+    QString currentUser();
 private:
     QTableView *view;
     StandardItem *mView;
@@ -119,7 +121,6 @@ private:
     quint32 countAll;
 
     PopupBox *box;
-//    QTimer *timer;
 
     QString textBemf;
     QString textLoad;
@@ -135,6 +136,9 @@ private:
     QCPBars *bars1;
     QCPBars *bars2;
     QCPBars *bars3;
+    QLabel *textType;
+    QLabel *textNumb;
+    QLabel *textUser;
 };
 
 #endif // TESTPAGE_H

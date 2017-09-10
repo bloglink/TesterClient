@@ -626,10 +626,11 @@ void MainPage::testEMF()
         volt.append(power.at(52));
         volt.append(power.at(72));
         volt.append(power.at(92));
+        v.append("KU:");
         v.append(QString::number(power.at(52).toDouble()/100));
-        v.append(",");
+        v.append(",KV:");
         v.append(QString::number(power.at(72).toDouble()/100));
-        v.append(",");
+        v.append(",KW:");
         v.append(QString::number(power.at(92).toDouble()/100));
     } else {
         v.append("NULL");

@@ -284,10 +284,13 @@ void TestPage::initUI()
     waveBox->setLayout(waveLayout);
 
     QHBoxLayout *textLayout = new QHBoxLayout;
-    textLayout->addWidget(new QLabel("型号:__", this));
-    textLayout->addWidget(new QLabel("编号:__", this));
-    textLayout->addWidget(new QLabel("操作员:__", this));
-    textLayout->addWidget(new QLabel("温度:__", this));
+    textType = new QLabel("型号:__", this);
+    textNumb = new QLabel("编号:__", this);
+    textUser = new QLabel("操作员:__", this);
+    textLayout->addWidget(textType);
+    textLayout->addWidget(textNumb);
+    textLayout->addWidget(textUser);
+    //    textLayout->addWidget(new QLabel("温度:__", this));
 
     QVBoxLayout *mLayout = new QVBoxLayout;
     mLayout->addWidget(view);
@@ -675,6 +678,23 @@ void TestPage::exportToCsv(QString title, QStringList wave)
     file.close();
 }
 
+QString TestPage::CurrentSettings()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString n = ini->value("/GLOBAL/FileInUse", "Base_File").toString();
+    return n.remove(".ini");
+}
+
+QString TestPage::currentUser()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/GLOBAL/User", "0").toString();;
+    if (temp == "0")
+        return "guest";
+    else
+        return "admin";
+}
+
 void TestPage::windowChange()
 {
     emit buttonClicked(QObject::sender()->objectName().toUtf8());
@@ -685,4 +705,6 @@ void TestPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     emit sendNetMsg("6008");
+    textType->setText(QString("型号:%1").arg(CurrentSettings()));
+    textUser->setText(QString("操作员:%1").arg(CurrentSettings()));
 }
