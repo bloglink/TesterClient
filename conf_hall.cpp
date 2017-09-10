@@ -40,7 +40,7 @@ void ConfHall::readSettings()
 
 int ConfHall::readCount()
 {
-    return mView->item(0, 10)->text().toInt();
+    return mView->item(0, 14)->text().toInt();
 }
 
 void ConfHall::initUI()
@@ -51,11 +51,14 @@ void ConfHall::initUI()
             << tr("高电平下限") << tr("高电平上限")
             << tr("频率下限") << tr("频率上限")
             << tr("占空比下限") << tr("占空比上限")
-            << tr("相位差下限") << tr("相位差上限")
+            << tr("全波差下限") << tr("全波差上限")
+            << tr("半波差下限") << tr("半波差上限")
+            << tr("相间差下限") << tr("相间差上限")
             << tr("磁极数") << tr("Vcc电压") << tr("测试时间") << "测试方式";
     itemNames << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
               << "freq_min" << "freq_max" << "duty_min" << "duty_max"
-              << "skewing_min" << "skewing_max" << "count" << "vcc_volt" << "time" << "mode";
+              << "skewing_min_f" << "skewing_max_f" << "skewing_min_h" << "skewing_max_h"
+              << "skewing_min_s" << "skewing_max_s" << "count" << "vcc_volt" << "time" << "mode";
     mView = new StandardItem(1, headers.size());
     mView->setHorizontalHeaderLabels(headers);
     for (int i=0; i < 1; i++) {
@@ -68,7 +71,7 @@ void ConfHall::initUI()
     SpinBox *freq = new SpinBox;
     freq->setMaxinum(25000);
     DoubleSpinBox *skewing = new DoubleSpinBox;
-    skewing->setMaxinum(360);
+    skewing->setMaxinum(400);
     DoubleSpinBox *duty = new DoubleSpinBox;
     duty->setMaxinum(100);
     SpinBox *count = new SpinBox;
@@ -90,9 +93,13 @@ void ConfHall::initUI()
     view->setItemDelegateForColumn(7, duty);
     view->setItemDelegateForColumn(8, skewing);
     view->setItemDelegateForColumn(9, skewing);
-    view->setItemDelegateForColumn(10, count);
-    view->setItemDelegateForColumn(11, vcc);
-    view->setItemDelegateForColumn(12, time);
+    view->setItemDelegateForColumn(10, skewing);
+    view->setItemDelegateForColumn(11, skewing);
+    view->setItemDelegateForColumn(12, skewing);
+    view->setItemDelegateForColumn(13, skewing);
+    view->setItemDelegateForColumn(14, count);
+    view->setItemDelegateForColumn(15, vcc);
+    view->setItemDelegateForColumn(16, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 

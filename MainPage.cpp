@@ -790,7 +790,8 @@ void MainPage::readSettings()
     QJsonObject obj_hal;
     names_hal << "volt_low_min" << "volt_low_max" << "volt_up_min" << "volt_up_max"
               << "freq_min" << "freq_max" << "duty_min" << "duty_max"
-              << "skewing_min" << "skewing_max" << "count" << "vcc_volt" << "time" << "mode";
+              << "skewing_min_f" << "skewing_max_f" << "skewing_min_h" << "skewing_max_h"
+              << "skewing_min_s" << "skewing_max_s" << "count" << "vcc_volt" << "time" << "mode";
     ini->beginGroup("HALL");
     for (int i=0; i < names_hal.size(); i++) {
         QString def = "0";
