@@ -89,9 +89,12 @@ private slots:
     void testACW();
     void testIND();
     void testHAL();
+    void readHall();
+    double readWorst(double std, QStringList s);
     void testNLD();
     void testLOD();
     void testEMF();
+    int readBalance(QStringList s);
     void testStop();
     void testStopAction();
     void testTimeOut();

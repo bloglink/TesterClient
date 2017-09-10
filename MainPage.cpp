@@ -340,6 +340,109 @@ void MainPage::testHAL()
     emit transmitJson(obj);
     waitTimeOut(STATUS_HAL);
     wait(100);
+    readHall();
+}
+
+void MainPage::readHall()
+{
+    QString tmp;
+    QStringList names;
+    names << "UF1:" << "UF2:" << "UF3:"
+          << "VF1:" << "VF2:" << "VF3:"
+          << "WF1:" << "WF2:" << "WF3:"
+          << "UH1:" << "UH2:" << "UH3:"
+          << "VH1:" << "VH2:" << "VH3:"
+          << "WH1:" << "WH2:" << "WH2:"
+          << "UW1:" << "UW2:" << "UW3:"
+          << "VU1:" << "VU2:" << "VU3:"
+          << "WV1:" << "WV2:" << "WV3:"
+          << "WV-U1:" << "WV-U2:" << "WV-U3:"
+          << "UV-W1:" << "UV-W2:" << "UV-W3:"
+          << "WU-V1:" << "WU-V2:" << "WU-V3:";
+    QList<int> squn;
+    squn << 0 << 1 << 2
+         << 12 << 13 << 14
+         << 24 << 25 << 26
+         << 3 << 4 << 5
+         << 15 << 16 << 17
+         << 27 << 28 << 29
+         << 6 << 7 << 8
+         << 18 << 19 << 20
+         << 30 << 31 << 32
+         << 9 << 10 << 11
+         << 21 << 22 << 23
+         << 33 << 34 << 35;
+    int r = 60*100000/(backemftest->readSpeed()*halltesting->readCount());
+    QStringList full;
+    QStringList half;
+    QStringList with;
+    QStringList hall;
+    if (power.size() > 36) {
+        for (int i=0; i < 9; i++) {
+            full.append(QString::number(power.at(squn.at(i+0)).toDouble()*360/r));
+            half.append(QString::number(power.at(squn.at(i+9)).toDouble()*360/r));
+            with.append(QString::number(power.at(squn.at(i+18)).toDouble()*360/r));
+            hall.append(QString::number(power.at(squn.at(i+27)).toDouble()*360/r));
+        }
+        for (int i=0; i < names.size(); i++) {
+            double angle = power.at(squn.at(i)).toDouble()*360/r;
+            QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
+            tmp.append(t);
+            if (i%3 == 2) {
+                tmp.append("\n");
+            } else {
+                tmp.append("\t\t");
+            }
+            if (i%9 == 8)
+                tmp.append("\n");
+        }
+    }
+    QStringList item;
+    item << "H:" << "L:" << "A:" << "Max:" << "Min:" << "Z:"
+         << "ZC:" << "F:" << "D:" << "HZ:" << "C:";
+    for (int i=50; i < power.size(); i++) {
+        int t = (i-50)%20;
+        if (t==3 || t > 11)
+            continue;
+        if (t > 3)
+            t--;
+        tmp.append(item.at(t));
+        tmp.append(power.at(i));
+        if (t == 10)
+            tmp.append("\n");
+        else
+            tmp.append(",");
+    }
+    test->setTextHall(tmp);
+    QString v;
+    if (power.size() >= 120) {
+        v.append(QString("H:%1V,").arg(power.at(50+60).toDouble()));
+        v.append(QString("L:%1V,").arg(power.at(50+61).toDouble()));
+        v.append(QString("F:%1Hz,").arg(power.at(50+68).toDouble()));
+    }
+    v.append(QString("%1°,").arg(QString::number(readWorst(360,full), 'f', 1)));
+    v.append(QString("%1°,").arg(QString::number(readWorst(180,half), 'f', 1)));
+    v.append(QString("%1°,").arg(QString::number(readWorst(120,with), 'f', 1)));
+    v.append(QString("%1°").arg(QString::number(readWorst(32.5,hall), 'f', 1)));
+
+    test->updateItem(v);
+}
+
+double MainPage::readWorst(double std, QStringList s)
+{
+    QList<double> w;
+    for (int i=0; i < s.size(); i++) {
+        w.append(abs(std-s.at(i).toDouble()));
+    }
+    double max = w.at(0);
+    int t = 0;
+    for (int i=0; i < w.size(); i++) {
+        if (max < w.at(i)) {
+            max = w.at(i);
+            t = i;
+        }
+    }
+    return s.at(t).toDouble();
 }
 
 void MainPage::testNLD()
@@ -516,70 +619,29 @@ void MainPage::testEMF()
     obj.insert("TxMessage","6006 BEMF");
     emit transmitJson(obj);
     waitTimeOut(STATUS_EMF);
-    QString tmp;
-    QStringList names;
-    //    names << "UF1:" << "UF2:" << "UF3:"0
-    //          << "UH1:" << "UH2:" << "UH3:"3
-    //          << "UW1:" << "UW2:" << "UW3:"6
-    //          << "WV-U1:" << "WV-U2:" << "WV-U3:"9
-    //          << "VF1:" << "VF2:" << "VF3:"12
-    //          << "VH1:" << "VH2:" << "VH3:"15
-    //          << "VU1:" << "VU2:" << "VU3:"18
-    //          << "UV-W1:" << "UV-W2:" << "UV-W3:"21
-    //          << "WF1:" << "WF2:" << "WF3:"24
-    //          << "WH1:" << "WH2:" << "WH2:"27
-    //          << "WV1:" << "WV2:" << "WV3:"30
-    //          << "WU-V1:" << "WU-V2:" << "WU-V3:";33
-    names << "UF1:" << "UF2:" << "UF3:"
-          << "VF1:" << "VF2:" << "VF3:"
-          << "WF1:" << "WF2:" << "WF3:"
-          << "UH1:" << "UH2:" << "UH3:"
-          << "VH1:" << "VH2:" << "VH3:"
-          << "WH1:" << "WH2:" << "WH2:"
-          << "UW1:" << "UW2:" << "UW3:"
-          << "VU1:" << "VU2:" << "VU3:"
-          << "WV1:" << "WV2:" << "WV3:"
-          << "WV-U1:" << "WV-U2:" << "WV-U3:"
-          << "UV-W1:" << "UV-W2:" << "UV-W3:"
-          << "WU-V1:" << "WU-V2:" << "WU-V3:";
-    QList<int> squn;
-    squn << 0 << 1 << 2
-         << 12 << 13 << 14
-         << 24 << 25 << 26
-         << 3 << 4 << 5
-         << 15 << 16 << 17
-         << 27 << 28 << 29
-         << 6 << 7 << 8
-         << 18 << 19 << 20
-         << 30 << 31 << 32
-         << 9 << 10 << 11
-         << 21 << 22 << 23
-         << 33 << 34 << 35;
-    if (power.size() > 36) {
-        int r = 60*100000/(backemftest->readSpeed()*halltesting->readCount());
-        for (int i=0; i < names.size(); i++) {
-            int angle = power.at(squn.at(i)).toInt()*360/r;
-            QString t = QString("%1%2").arg(names.at(i)).arg(angle);
-            tmp.append(t);
-            if (i%3 == 2) {
-                tmp.append("\n");
-            } else {
-                tmp.append("\t\t");
-            }
-            if (i%9 == 8)
-                tmp.append("\n");
-        }
+
+    QStringList volt;
+    QString v;
+    if (power.size() > 92) {
+        volt.append(power.at(52));
+        volt.append(power.at(72));
+        volt.append(power.at(92));
+        v.append(QString::number(power.at(52).toDouble()/100));
+        v.append(",");
+        v.append(QString::number(power.at(72).toDouble()/100));
+        v.append(",");
+        v.append(QString::number(power.at(92).toDouble()/100));
+    } else {
+        v.append("NULL");
     }
-    for (int i=36; i < power.size(); i++) {
-        tmp.append(power.at(i));
-        if ((i-36)%50 == 49)
-            tmp.append("\n");
-        else
-            tmp.append(",");
-    }
+    v.append(",");
+    int b = readBalance(volt);
+    if (b == -1)
+        v.append("NULL");
+    else
+        v.append(QString("%1%").arg(b));
     if (status != STATUS_OVER) {
-        test->setTextBemf(tmp);
-        test->updateItem(power.join(","));
+        test->updateItem(v);
     }
 
     for (int i=1; i < 11; i++) {
@@ -610,6 +672,24 @@ void MainPage::testEMF()
         }
         wait(100);
     }
+}
+
+int MainPage::readBalance(QStringList s)
+{
+    if (s.isEmpty())
+        return -1;
+    double max = s.at(0).toDouble();
+    double min = s.at(0).toDouble();
+    double avr = 0;
+    for (int i=0; i < s.size(); i++) {
+        avr += s.at(i).toDouble();
+        max = qMax(max, s.at(i).toDouble());
+        min = qMin(min, s.at(i).toDouble());
+    }
+    avr /= s.size();
+    if (avr == 0)
+        return -1;
+    return ((max-min) * 100 / avr);
 }
 
 void MainPage::testStop()
