@@ -180,21 +180,27 @@ void TestPage::updateWave(QString w)
     if (w.startsWith("0 ")) {
         waveU = w.split(" ");
         waveU.removeFirst();
+        exportToCsv("U", waveU);
     } else if (w.startsWith("1 ")) {
         waveV = w.split(" ");
         waveV.removeFirst();
+        exportToCsv("V", waveV);
     } else if (w.startsWith("2 ")) {
         waveW = w.split(" ");
         waveW.removeFirst();
+        exportToCsv("W", waveW);
     } else if (w.startsWith("3 ")) {
         waveHu = w.split(" ");
         waveHu.removeFirst();
+        exportToCsv("Hu", waveHu);
     } else if (w.startsWith("4 ")) {
         waveHv = w.split(" ");
         waveHv.removeFirst();
+        exportToCsv("Hv", waveHv);
     } else if (w.startsWith("5 ")) {
         waveHw = w.split(" ");
         waveHw.removeFirst();
+        exportToCsv("Hw", waveHw);
     }
     DrawWave();
 }
@@ -226,9 +232,9 @@ void TestPage::initUI()
     view->setModel(mView);
     view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     view->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-    view->setColumnWidth(0, 150);
-    view->setColumnWidth(1, 450);
-    view->setColumnWidth(3, 150);
+    view->setColumnWidth(0, 120);
+    view->setColumnWidth(1, 400);
+    view->setColumnWidth(3, 120);
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(clickView()));
 
     wave = new QCustomPlot(this);
@@ -651,6 +657,22 @@ void TestPage::printPreview(QPrinter *printer)
     image=image.grabWidget(qrencode,0,0,qrencode->width(),qrencode->height());
     painter.drawPixmap(0,0,image);
     //    textEdit->print(printer);
+}
+
+void TestPage::exportToCsv(QString title, QStringList wave)
+{
+    QFile file(QString("wave-%1.csv").arg(QDate::currentDate().toString("yy-MM-dd")));
+    if (!file.open(QFile::WriteOnly | QIODevice::Append)) {
+        QMessageBox::warning(this,  "",   "创建失败",  QMessageBox::Ok);
+        return;
+    }
+    file.write(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss").toUtf8());
+    file.write(",");
+    file.write(title.toUtf8());
+    file.write(",");
+    file.write(wave.join(" ").toUtf8());
+    file.write("\n");
+    file.close();
 }
 
 void TestPage::windowChange()

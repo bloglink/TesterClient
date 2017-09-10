@@ -79,6 +79,7 @@ private slots:
     void DrawWave();
     void Printer();
     void printPreview(QPrinter *printer);
+    void exportToCsv(QString title, QStringList wave);
 private:
     QTableView *view;
     StandardItem *mView;
