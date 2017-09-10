@@ -209,6 +209,11 @@ void TestPage::setTextLoad(QString s)
     textLoad = s;
 }
 
+void TestPage::setTextHall(QString s)
+{
+    textHall = s;
+}
+
 void TestPage::initUI()
 {
     this->setObjectName("TestPage");
@@ -282,7 +287,7 @@ void TestPage::initUI()
     mLayout->addWidget(view);
     mLayout->addWidget(waveBox);
     mLayout->addLayout(textLayout);
-    mLayout->setStretch(0, 7);
+    mLayout->setStretch(0, 6);
     mLayout->setStretch(1, 3);
 
     QGroupBox *mGroup = new QGroupBox(this);
@@ -400,10 +405,10 @@ void TestPage::initUI()
     this->setLayout(layout);
 
     box = new PopupBox(this, "", "测试", QMessageBox::Ok);
-    box->resize(QSize(300, 350));
+    box->resize(QSize(1024, 768));
     box->hide();
-    timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), box, SLOT(hide()));
+    //    timer = new QTimer(this);
+    //    connect(timer, SIGNAL(timeout()), box, SLOT(hide()));
 }
 
 void TestPage::saveData()
@@ -450,20 +455,16 @@ void TestPage::clickView()
     if (row < 0)
         return;
     if (mView->item(row, 0)->text().contains(tr("空载"))) {
-        QString text2 = tr("显示空载参数");
-        if (!textLoad.isEmpty())
-            text2 = textLoad;
-        box->setText(text2);
+        box->setText(textLoad);
         box->show();
-        timer->start(5000);
     }
     if (mView->item(row, 0)->text().contains(tr("反势"))) {
-        QString text2 = tr("显示反势参数");
-        if (!textBemf.isEmpty())
-            text2 = textBemf;
-        box->setText(text2);
+        box->setText(textBemf);
         box->show();
-        timer->start(5000);
+    }
+    if (mView->item(row, 0)->text().contains(tr("霍尔"))) {
+        box->setText(textHall);
+        box->show();
     }
 }
 
@@ -497,11 +498,11 @@ void TestPage::deleteItem()
 
 void TestPage::DrawHistogram()
 {
-//    histogram->clearGraphs();
-//    histogram->clearFocus();
-//    histogram->clearItems();
-//    histogram->clearMask();
-//    histogram->clearPlottables();
+    //    histogram->clearGraphs();
+    //    histogram->clearFocus();
+    //    histogram->clearItems();
+    //    histogram->clearMask();
+    //    histogram->clearPlottables();
     // prepare data:
     QVector<double> x1(1), y1(1);
     QVector<double> x2(1), y2(1);
@@ -581,42 +582,42 @@ void TestPage::DrawWave()
     QVector<double> ux(waveU.size()),uy(waveU.size());
     for (int i=0; i < waveU.size(); i++) {
         ux[i] = i;
-        uy[i] = (QString(waveU.at(i)).toDouble()-128)*2+80;
+        uy[i] = (QString(waveU.at(i)).toDouble()-128)*20+800;
     }
     graph1->setData(ux, uy);
 
     QVector<double> vx(waveV.size()),vy(waveV.size());
     for (int i=0; i < waveV.size(); i++) {
         vx[i] = i;
-        vy[i] = (QString(waveV.at(i)).toDouble()-128)*2+80;
+        vy[i] = (QString(waveV.at(i)).toDouble()-128)*20+800;
     }
     graph2->setData(vx, vy);
 
     QVector<double> wx(waveW.size()),wy(waveW.size());
     for (int i=0; i < waveW.size(); i++) {
         wx[i] = i;
-        wy[i] = (QString(waveW.at(i)).toDouble()-128)*2+80;
+        wy[i] = (QString(waveW.at(i)).toDouble()-128)*20+800;
     }
     graph3->setData(wx, wy);
 
     QVector<double> hux(waveHu.size()),huy(waveHu.size());
     for (int i=0; i < waveHu.size(); i++) {
         hux[i] = i;
-        huy[i] = QString(waveHu.at(i)).toDouble()*18/256+40;
+        huy[i] = QString(waveHu.at(i)).toDouble()*180/256+400;
     }
     graph4->setData(hux, huy);
 
     QVector<double> hvx(waveHv.size()),hvy(waveHv.size());
     for (int i=0; i < waveHv.size(); i++) {
         hvx[i] = i;
-        hvy[i] = QString(waveHv.at(i)).toDouble()*18/256+20;
+        hvy[i] = QString(waveHv.at(i)).toDouble()*180/256+200;
     }
     graph5->setData(hvx, hvy);
 
     QVector<double> hwx(waveHw.size()),hwy(waveHw.size());
     for (int i=0; i < waveHw.size(); i++) {
         hwx[i] = i;
-        hwy[i] = QString(waveHw.at(i)).toDouble()*18/256+0;
+        hwy[i] = QString(waveHw.at(i)).toDouble()*180/256+0;
     }
     graph6->setData(hwx, hwy);
 
@@ -625,7 +626,7 @@ void TestPage::DrawWave()
     wave->xAxis2->setBasePen(Qt::NoPen);
     wave->yAxis2->setBasePen(Qt::NoPen);
     wave->xAxis->setRange(0, len);
-    wave->yAxis->setRange(0, 100);
+    wave->yAxis->setRange(0, 1000);
     wave->setBackground(QBrush(QColor(25, 25, 25)));
     wave->legend->setVisible(true);
     wave->replot();

@@ -39,6 +39,11 @@ void ConfHall::readSettings()
     emit buttonClicked(NULL);
 }
 
+int ConfHall::readCount()
+{
+    return mView->item(0, 10)->text().toInt();
+}
+
 void ConfHall::initUI()
 {
     this->setObjectName("ConfHall");

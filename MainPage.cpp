@@ -517,14 +517,41 @@ void MainPage::testEMF()
     emit transmitJson(obj);
     waitTimeOut(STATUS_EMF);
     QString tmp;
-    for (int i=0; i < power.size(); i++) {
+    QStringList names;
+    names << "UF1:" << "UF2:" << "UF3:"
+          << "UH1:" << "UH2:" << "UH3:"
+          << "UW1:" << "UW2:" << "UW3:"
+          << "WV-U1:" << "WV-U2:" << "WV-U3:"
+          << "VF1:" << "VF2:" << "VF3:"
+          << "VH1:" << "VH2:" << "VH3:"
+          << "VU1:" << "VU2:" << "VU3:"
+          << "UV-W1:" << "UV-W2:" << "UV-W3:"
+          << "WF1:" << "WF2:" << "WF3:"
+          << "WH1:" << "WH2:" << "WH2:"
+          << "WV1:" << "WV2:" << "WV3:"
+          << "WU-V1:" << "WU-V2:" << "WU-V3:";
+    if (power.size() > 36) {
+        int r = 60*100000/(backemftest->readSpeed()*halltesting->readCount());
+        for (int i=0; i < names.size(); i++) {
+            int angle = power.at(i).toInt()*360/r;
+            QString t = QString("%1%2").arg(names.at(i)).arg(angle);
+            tmp.append(t);
+            if (i%3 == 2) {
+                tmp.append("\n");
+            } else {
+                tmp.append("\t");
+            }
+        }
+    }
+    for (int i=36; i < power.size(); i++) {
         tmp.append(power.at(i));
-        if (i%2 == 1)
+        if ((i-36)%50 == 49)
             tmp.append("\n");
         else
-            tmp.append("\t");
+            tmp.append(",");
     }
     test->setTextBemf(tmp);
+    //    test->setTextBemf(power.join(","));
     test->updateItem(power.join(","));
 
     for (int i=1; i < 11; i++) {

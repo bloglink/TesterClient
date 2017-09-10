@@ -64,6 +64,7 @@ public slots:
     void updateWave(QString w);
     void setTextBemf(QString s);
     void setTextLoad(QString s);
+    void setTextHall(QString s);
 private slots:
     void initUI();
     void saveData();
@@ -117,10 +118,11 @@ private:
     quint32 countAll;
 
     PopupBox *box;
-    QTimer *timer;
+//    QTimer *timer;
 
     QString textBemf;
     QString textLoad;
+    QString textHall;
 
     QCPGraph *graph1;
     QCPGraph *graph2;
