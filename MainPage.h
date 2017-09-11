@@ -61,6 +61,7 @@
 #define STATUS_FREE 0x00
 #define STATUS_OVER 0xFF
 #define STATUS_STOP 0xFE
+#define STATUS_TIME 0xFD
 
 class MainPage : public QWidget
 {
@@ -91,10 +92,13 @@ private slots:
     void testHAL();
     void readHall();
     double readWorst(double std, QStringList s);
+    double readMax(QStringList s);
+    double readMin(QStringList s);
+    double readAvr(QStringList s);
     void testNLD();
     void testLOD();
     void testEMF();
-    int readBalance(QStringList s);
+    double readBalance(QStringList s);
     void testStop();
     void testStopAction();
     void testTimeOut();

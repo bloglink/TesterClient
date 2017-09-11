@@ -180,6 +180,9 @@ void MainPage::recvNetMsg(QString msg)
     case 6021:
         test->updateWave(dat);
         break;
+    case 6032:
+        //        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
+        break;
     default:
         break;
     }
@@ -221,12 +224,16 @@ void MainPage::wait(int ms)
 void MainPage::testInit()
 {
     test->initItems(station);
+
+    iobrd.sendPort(Y10);
+    if (!readCylinder(X01_ORIGIN | X03_ORIGIN)) {
+        iobrd.sendPort(0x00);
+        return;
+    }
+
     QJsonObject obj;
     obj.insert("TxMessage",QString("6020 %1").arg(station));
     emit transmitJson(obj);
-
-    iobrd.sendPort(Y10);
-    readCylinder(X01_ORIGIN | X03_ORIGIN);
 
     QStringList testItems = conf->testItems();
     testing = true;
@@ -263,7 +270,11 @@ void MainPage::testInit()
         }
         if (status == STATUS_OVER) {
             testStop();
+            break;
+        }
+        if (status == STATUS_TIME) {
             testTimeOut();
+            QMessageBox::warning(this, "超时", QString("测试超时"), QMessageBox::Ok);
             break;
         }
         if (isNG) {
@@ -274,6 +285,8 @@ void MainPage::testInit()
     }
     QString xx;
     xx.append(CurrentSettings());
+    xx.append("@");
+    xx.append(test->readNumb());
     xx.append("@");
     xx.append(currentUser());
     xx.append("@");
@@ -372,18 +385,18 @@ void MainPage::readHall()
          << 9 << 10 << 11
          << 21 << 22 << 23
          << 33 << 34 << 35;
+    QStringList item;
+    item << "H:" << "L:" << "A:" << "Max:" << "Min:" << "Z:"
+         << "ZC:" << "F:" << "D:" << "HZ:" << "C:";
+
     int r = 60*100000/(backemftest->readSpeed()*halltesting->readCount());
     QStringList full;
     QStringList half;
     QStringList with;
     QStringList hall;
-    if (power.size() > 36) {
-        for (int i=0; i < 9; i++) {
-            full.append(QString::number(power.at(squn.at(i+0)).toDouble()*360/r));
-            half.append(QString::number(power.at(squn.at(i+9)).toDouble()*360/r));
-            with.append(QString::number(power.at(squn.at(i+18)).toDouble()*360/r));
-            hall.append(QString::number(power.at(squn.at(i+27)).toDouble()*360/r));
-        }
+    QString vv;
+    QString jj = "OK";
+    if (power.size() >= 170) {
         for (int i=0; i < names.size(); i++) {
             double angle = power.at(squn.at(i)).toDouble()*360/r;
             QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
@@ -396,36 +409,73 @@ void MainPage::readHall()
             if (i%9 == 8)
                 tmp.append("\n");
         }
-    }
-    QStringList item;
-    item << "H:" << "L:" << "A:" << "Max:" << "Min:" << "Z:"
-         << "ZC:" << "F:" << "D:" << "HZ:" << "C:";
-    for (int i=50; i < power.size(); i++) {
-        int t = (i-50)%20;
-        if (t==3 || t > 11)
-            continue;
-        if (t > 3)
-            t--;
-        tmp.append(item.at(t));
-        tmp.append(power.at(i));
-        if (t == 10)
-            tmp.append("\n");
-        else
-            tmp.append(",");
-    }
-    test->setTextHall(tmp);
-    QString v;
-    if (power.size() >= 120) {
-        v.append(QString("H:%1V,").arg(power.at(50+60).toDouble()));
-        v.append(QString("L:%1V,").arg(power.at(50+61).toDouble()));
-        v.append(QString("F:%1Hz,").arg(power.at(50+68).toDouble()));
-    }
-    v.append(QString("%1°,").arg(QString::number(readWorst(360,full), 'f', 1)));
-    v.append(QString("%1°,").arg(QString::number(readWorst(180,half), 'f', 1)));
-    v.append(QString("%1°,").arg(QString::number(readWorst(120,with), 'f', 1)));
-    v.append(QString("%1°").arg(QString::number(readWorst(32.5,hall), 'f', 1)));
+        for (int i=50; i < power.size(); i++) {
+            int t = (i-50)%20;
+            if (t==3 || t > 11)
+                continue;
+            if (t > 3)
+                t--;
+            tmp.append(item.at(t));
+            tmp.append(power.at(i));
+            if (t == 10)
+                tmp.append("\n");
+            else
+                tmp.append(",");
+        }
+        test->setTextHall(tmp);
 
-    test->updateItem(v);
+        QStringList hh;
+        hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
+        double hMax = readMax(hh)*6.6/4095;
+        double hMin = readMin(hh)*6.6/4095;
+        QStringList ll;
+        ll << power.at(50+60) << power.at(50+80) << power.at(50+100);
+        double lMax = readMax(ll)*6.6/4095;
+        double lMin = readMin(ll)*6.6/4095;
+        QStringList ff;
+        ff << power.at(50+60) << power.at(50+80) << power.at(50+100);
+        double fMax = readMax(ff);
+        double fMin = readMin(ff);
+        vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
+        vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
+        vv.append(QString("H:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
+
+        for (int i=0; i < 9; i++) {
+            full.append(QString::number(power.at(squn.at(i+0)).toDouble()*360/r));
+            half.append(QString::number(power.at(squn.at(i+9)).toDouble()*360/r));
+            with.append(QString::number(power.at(squn.at(i+18)).toDouble()*360/r));
+            hall.append(QString::number(power.at(squn.at(i+27)).toDouble()*360/r));
+        }
+        double fl = readWorst(360, full);
+        double hf = readWorst(180, full);
+        double wh = readWorst(120, full);
+        double hl = readWorst(32.5, full);
+        vv.append(QString("%1°,").arg(QString::number(fl, 'f', 1)));
+        vv.append(QString("%1°,").arg(QString::number(hf, 'f', 1)));
+        vv.append(QString("%1°,").arg(QString::number(wh, 'f', 1)));
+        vv.append(QString("%1°").arg(QString::number(hl, 'f', 1)));
+        QStringList limit = halltesting->readLimit();
+        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
+            jj = "NG";
+        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
+            jj = "NG";
+        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
+            jj = "NG";
+        if (fl < limit.at(8).toDouble() || fl > limit.at(9).toDouble())
+            jj = "NG";
+        if (hf < limit.at(10).toDouble() || hf > limit.at(11).toDouble())
+            jj = "NG";
+        if (wh < limit.at(12).toDouble() || wh > limit.at(13).toDouble())
+            jj = "NG";
+        limit = backemftest->readLimit();
+        if (hl < limit.at(6).toDouble() || hl > limit.at(7).toDouble())
+            jj = "NG";
+    } else {
+        vv.append("NULL");
+        jj = "NG";
+    }
+    test->updateItem(vv);
+    test->updateJudge(jj);
 }
 
 double MainPage::readWorst(double std, QStringList s)
@@ -443,6 +493,43 @@ double MainPage::readWorst(double std, QStringList s)
         }
     }
     return s.at(t).toDouble();
+}
+
+double MainPage::readMax(QStringList s)
+{
+    QList<double> w;
+    for (int i=0; i < s.size(); i++) {
+        w.append(s.at(i).toDouble());
+    }
+    double max = w.at(0);
+    for (int i=0; i < w.size(); i++) {
+        max = qMax(max, w.at(i));
+    }
+    return max;
+}
+
+double MainPage::readMin(QStringList s)
+{
+    QList<double> w;
+    for (int i=0; i < s.size(); i++) {
+        w.append(s.at(i).toDouble());
+    }
+    double min = w.at(0);
+    for (int i=0; i < w.size(); i++) {
+        min = qMin(min, w.at(i));
+    }
+    return min;
+}
+
+double MainPage::readAvr(QStringList s)
+{
+    if (s.isEmpty())
+        return 0;
+    double w = 0;
+    for (int i=0; i < s.size(); i++) {
+        w += s.at(i).toDouble();
+    }
+    return w/s.size();
 }
 
 void MainPage::testNLD()
@@ -473,24 +560,28 @@ void MainPage::testNLD()
             double I1 = tmp.at(1).toDouble();
             double I2 = tmp.at(11).toDouble();
             double I3 = tmp.at(21).toDouble();
+            QStringList Is;
+            Is << tmp.at(1) << tmp.at(11) << tmp.at(21);
             double rpm = -1;
             QString tt;
-            tt.append(QString("%1A,").arg(I1));
-            tt.append(QString("%1A,").arg(I2));
-            tt.append(QString("%1A,").arg(I3));
+            tt.append(QString("%1A,").arg(QString::number(I1, 'f', 2)));
+            tt.append(QString("%1A,").arg(QString::number(I2, 'f', 2)));
+            tt.append(QString("%1A,").arg(QString::number(I3, 'f', 2)));
+            tt.append(QString("%1A,").arg(QString::number(readAvr(Is), 'f', 2)));
+            tt.append(QString("%1%,").arg(QString::number(readBalance(Is), 'f', 1)));
             if (power.size() > 1)
                 rpm = power.at(0).toDouble()*1000;
             tt.append(QString("%1rpm").arg(rpm));
             test->updateItem(tt);
             QString qq;
-            qq.append(QString("U相电压:%1V\n").arg(tmp.at(0).toDouble()));
-            qq.append(QString("U相电流:%1A\n").arg(tmp.at(1).toDouble()));
+            qq.append(QString("U相电压:%1V\t").arg(tmp.at(0).toDouble()));
+            qq.append(QString("U相电流:%1A\t").arg(tmp.at(1).toDouble()));
             qq.append(QString("U相功率:%1W\n").arg(tmp.at(3).toDouble()));
-            qq.append(QString("V相电压:%1V\n").arg(tmp.at(10).toDouble()));
-            qq.append(QString("V相电流:%1A\n").arg(tmp.at(11).toDouble()));
+            qq.append(QString("V相电压:%1V\t").arg(tmp.at(10).toDouble()));
+            qq.append(QString("V相电流:%1A\t").arg(tmp.at(11).toDouble()));
             qq.append(QString("V相功率:%1W\n").arg(tmp.at(13).toDouble()));
-            qq.append(QString("W相电压:%1V\n").arg(tmp.at(20).toDouble()));
-            qq.append(QString("W相电流:%1A\n").arg(tmp.at(21).toDouble()));
+            qq.append(QString("W相电压:%1V\t").arg(tmp.at(20).toDouble()));
+            qq.append(QString("W相电流:%1A\t").arg(tmp.at(21).toDouble()));
             qq.append(QString("W相功率:%1W\n").arg(tmp.at(23).toDouble()));
             test->setTextLoad(qq);
             QString jj = "OK";
@@ -611,6 +702,7 @@ void MainPage::testEMF()
     plc.setSpeed(100);
     wait(50);
     int speed = backemftest->readSpeed();
+    speed = speed + speed /250;
     for (int i=1; i < 11; i++) {
         plc.setSpeed(speed*i/10);
         wait(100);
@@ -621,28 +713,45 @@ void MainPage::testEMF()
     waitTimeOut(STATUS_EMF);
 
     QStringList volt;
-    QString v;
-    if (power.size() > 92) {
+    QString vv;
+    QString jj = "OK";
+    if (power.size() >= 170) {
         volt.append(power.at(52));
         volt.append(power.at(72));
         volt.append(power.at(92));
-        v.append("KU:");
-        v.append(QString::number(power.at(52).toDouble()/100));
-        v.append(",KV:");
-        v.append(QString::number(power.at(72).toDouble()/100));
-        v.append(",KW:");
-        v.append(QString::number(power.at(92).toDouble()/100));
+        double ku = power.at(52).toDouble()/100;
+        double kv = power.at(72).toDouble()/100;
+        double kw = power.at(92).toDouble()/100;
+        vv.append("KU:");
+        vv.append(QString::number(ku));
+        vv.append(",KV:");
+        vv.append(QString::number(kv));
+        vv.append(",KW:");
+        vv.append(QString::number(kw));
+        vv.append(",");
+        double b = readBalance(volt);
+        if (b == -1)
+            vv.append("NULL");
+        else
+            vv.append(QString("%1%").arg(QString::number(b, 'f', 1)));
+
+        QStringList limit = backemftest->readLimit();
+        if (ku < limit.at(2).toDouble() || ku > limit.at(3).toDouble())
+            jj = "NG";
+        if (kv < limit.at(2).toDouble() || kv > limit.at(3).toDouble())
+            jj = "NG";
+        if (kw < limit.at(2).toDouble() || kw > limit.at(3).toDouble())
+            jj = "NG";
+        if (b < 0 || b > limit.at(10).toDouble())
+            jj = "NG";
     } else {
-        v.append("NULL");
+        vv.append("NULL");
+        jj = "NG";
     }
-    v.append(",");
-    int b = readBalance(volt);
-    if (b == -1)
-        v.append("NULL");
-    else
-        v.append(QString("%1%").arg(b));
+
     if (status != STATUS_OVER) {
-        test->updateItem(v);
+        test->updateItem(vv);
+        test->updateJudge(jj);
     }
 
     for (int i=1; i < 11; i++) {
@@ -675,7 +784,7 @@ void MainPage::testEMF()
     }
 }
 
-int MainPage::readBalance(QStringList s)
+double MainPage::readBalance(QStringList s)
 {
     if (s.isEmpty())
         return -1;
@@ -712,15 +821,19 @@ void MainPage::testTimeOut()
     QJsonObject obj;
     obj.insert("TxMessage",QString("6026"));
     emit transmitJson(obj);
-    status = STATUS_OVER;
+    status = STATUS_TIME;
 }
 
 bool MainPage::readCylinder(quint16 s)
 {
     quint16 timeOut = 0x0000;
+    quint16 count = 0;
     while (1) {
-        if ((iobrd.readPort() & 0xFF00) == s)
-            return true;
+        if ((iobrd.readPort() & 0xFF00) == s) {
+            count++;
+            if (count > 50)
+                return true;
+        }
         wait(10);
         timeOut++;
         if (timeOut > 500) {
@@ -735,15 +848,8 @@ bool MainPage::readCylinder(quint16 s)
 bool MainPage::waitTimeOut(quint16 s)
 {
     status = s;
-    timeOut = 0;
     while (1) {
         wait(10);
-        timeOut++;
-        if (timeOut > 3000) {
-            QMessageBox::warning(this, "超时", QString("测试超时:%1").arg(s), QMessageBox::Ok);
-            testTimeOut();
-            return false;
-        }
         if (status != s)
             return true;
     }
@@ -1061,13 +1167,18 @@ void MainPage::readBtnStop()
 
 void MainPage::readStart(bool s)
 {
-    if (s && !testing)
-        QTimer::singleShot(50, this, SLOT(testInit()));
+    if (s && !testing) {
+        if (stack->currentWidget()->objectName() == "TestPage") {
+            testing = true;
+            QTimer::singleShot(10, this, SLOT(testInit()));
+        }
+    }
     if (!s && testing) {
         if (status == STATUS_FREE)
             testStopAction();
+        if (status == STATUS_NLD)
+            waitTimeOut(STATUS_NLD);
         testStop();
-        testTimeOut();
     }
 }
 
@@ -1084,6 +1195,23 @@ void MainPage::readSelfCheck(QString s)
 
 void MainPage::testDebug()
 {
+    //    qDebug() << "test readBance";
+    //    QStringList s;
+    //    s << "2425" << "2426" << "2427";
+    //    qDebug() << readBalance(s);
+
+    //    qDebug() << "test BEMF limnt";
+    //    qDebug() << backemftest->readLimit();
+
+    //    qDebug() << "test HALL limnt";
+    //    qDebug() << halltesting->readLimit();
+
+    //    qDebug() << "test sql";
+    //    QString xx = "1@2@3@4@5";
+    //    QJsonObject objs;
+    //    objs.insert("title", xx);
+    //    objs.insert("content", "1@2@3@4");
+    //    winData->saveSql(objs);
 }
 
 void MainPage::showWarnning()
