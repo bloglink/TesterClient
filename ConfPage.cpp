@@ -119,6 +119,10 @@ void ConfPage::initUI()
     typeLineEdit = new QLineEdit(this);
     typeLineEdit->setMinimumSize(97, 35);
     typeLineEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    QRegExp rx1;
+    rx1.setPattern("^[-|0-9|A-Z|a-z|^\s]{1,50}$"); // 限制接受1至50个字符,减号、数字和英文字母
+    QValidator *validator_16c = new QRegExpValidator(rx1, this);
+    typeLineEdit->setValidator(validator_16c);
 
     QPushButton *btnAppend = new QPushButton(this);
     btnAppend->setText(tr("添加型号"));
