@@ -47,6 +47,7 @@ private:
     QHostAddress txHost;
     QQueue <QString> send_queue;
     QQueue <QString> recv_queue;
+    quint32 timeCount;
 };
 
 #endif // SocketUdp_H

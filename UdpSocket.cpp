@@ -10,6 +10,7 @@
 
 UdpSocket::UdpSocket(QObject *parent) : QUdpSocket(parent)
 {
+    timeCount = 0;
 }
 
 void UdpSocket::initSocket(QString host, quint16 port)
@@ -39,6 +40,7 @@ void UdpSocket::recvNetMsg()
         quint16 senderPort;
         this->readDatagram(msg.data(), msg.size(), &sender, &senderPort);
         recv_queue.enqueue(msg);
+        timeCount = 0;
         qDebug() << "recv" << msg;
     }
 }
@@ -63,6 +65,14 @@ void UdpSocket::transmitJson()
     }
     if (!recv_queue.isEmpty())
         emit sendNetMsg(recv_queue.dequeue());
+    timeCount++;
+    if (timeCount%200 == 0) {
+        this->writeDatagram("6030", txHost, txPort);
+        if (timeCount > 1000) {
+            timeCount = 0;
+            emit sendNetMsg("6032");
+        }
+    }
 }
 
 /*********************************END OF FILE**********************************/
