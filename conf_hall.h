@@ -30,6 +30,7 @@ public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
     int readCount();
+    QStringList readLimit();
 private slots:
     void initUI();
     void back();
