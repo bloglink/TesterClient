@@ -79,10 +79,24 @@ int ConfBackEMFTest::readSpeed()
 int ConfBackEMFTest::readTurn()
 {
     if (mView->item(0, 5)->text() == "顺时针")
-        return 0;
-    if (mView->item(0, 5)->text() == "逆时针")
         return 1;
+    if (mView->item(0, 5)->text() == "逆时针")
+        return 0;
     return 0;
+}
+
+QStringList ConfBackEMFTest::readLimit()
+{
+    QStringList items = itemNames;
+    QStringList temp;
+    for (int i=0; i < items.size(); i++) {
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+    }
+    temp.append(QString::number(nounSpinBox->value()));
+    return temp;
 }
 
 void ConfBackEMFTest::initUI()
@@ -90,7 +104,7 @@ void ConfBackEMFTest::initUI()
     this->setObjectName("ConfBackForce");
     QStringList headers;
     headers << tr("电压下限") << tr("电压上限") << tr("反电势系数下限")<< tr("反电势系数上限")
-            << tr("伺服转速") << tr("伺服转向") << tr("相位差下限") << tr("相位差上限")
+            << tr("伺服转速") << tr("电机转向") << tr("相位差下限") << tr("相位差上限")
             << tr("Vcc") << tr("测试时间");
     itemNames << "volt_min" << "volt_max" << "bemf_min" << "bemf_max"
               << "speed" << "turn" << "skewing_min" << "skewing_max"

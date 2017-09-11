@@ -41,6 +41,7 @@ public slots:
     void readSettings();
     int readSpeed();
     int readTurn();
+    QStringList readLimit();
 private slots:
     void initUI();
     void back();
