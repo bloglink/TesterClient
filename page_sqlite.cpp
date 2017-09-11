@@ -89,7 +89,7 @@ void PageSqlite::initSql()
 
     QSqlQuery query(db);
     QString s = "create table if not exists TestData";
-    s += " (id integer primary key, date text, time text, type text, user text, judge text)";
+    s += " (id integer primary key, date text, time text, type text, code text, user text, judge text)";
     if (!query.exec(s))
         qDebug() << QTime::currentTime().toString() << "create table TestData Error";
 
@@ -106,7 +106,7 @@ void PageSqlite::initSqlTableModel()
     mView->select();
     QStringList header;
     header << tr("ID") << tr("测试日期") << tr("测试时间")
-           << tr("测试型号") << tr("测试人") << tr("测试判定");
+           << tr("测试型号") << tr("产品编码") << tr("测试人") << tr("测试判定");
     for (int i=0; i < header.size(); i++)
         mView->setHeaderData(i, Qt::Horizontal, header.at(i));
 
@@ -132,13 +132,14 @@ void PageSqlite::saveSql(QJsonObject obj)
     quint64 uuid = snow.getId();
     QStringList title = obj.value("title").toString().split("@");
     if (title.size() >= 3) {
-        query.prepare("insert into TestData values(?, ?, ?, ?, ?, ?)");
+        query.prepare("insert into TestData values(?, ?, ?, ?, ?, ?, ?)");
         query.bindValue(0, uuid);
         query.bindValue(1, QDate::currentDate().toString("yyyy-MM-dd"));
         query.bindValue(2, QTime::currentTime().toString("hh:mm:ss"));
         query.bindValue(3, title.at(0));
         query.bindValue(4, title.at(1));
         query.bindValue(5, title.at(2));
+        query.bindValue(6, title.at(3));
         query.exec();
     }
     QStringList content = obj.value("content").toString().split("\n");
@@ -248,7 +249,7 @@ void PageSqlite::exportSql()
     QSqlQuery query(db);
     QString cmd;
     cmd = "select TestData.id, TestData.date, ";
-    cmd += "TestData.time, TestData.type, ";
+    cmd += "TestData.time, TestData.type, TestData.code, ";
     cmd += "TestData.user, TestData.judge, ";
     cmd += "TestDatas.item, TestDatas.para, ";
     cmd += "TestDatas.result, TestDatas.judge ";
@@ -256,7 +257,7 @@ void PageSqlite::exportSql()
     cmd += "INNER JOIN TestDatas ON TestData.id = TestDatas.parent";
     query.exec(cmd);
     QStringList header;
-    header << tr("测试日期") << tr("测试时间") << tr("测试型号") << tr("测试人") << tr("测试判定")
+    header << tr("测试日期") << tr("测试时间") << tr("测试型号") << tr("产品编码") << tr("测试人") << tr("测试判定")
            << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
     for (int i=0; i < header.size(); i++) {
         file.write(ToGbk(header.at(i)));
@@ -277,19 +278,21 @@ void PageSqlite::exportSql()
             file.write(",");
             file.write(ToGbk(query.value(5).toString().replace(",", " ")));
             file.write(",");
+            file.write(ToGbk(query.value(6).toString().replace(",", " ")));
+            file.write(",");
         } else {
             file.write(",");
             file.write(",");
             file.write(",");
             file.write(",");
         }
-        file.write(ToGbk(query.value(6).toString().replace(",", " ")));
-        file.write(",");
         file.write(ToGbk(query.value(7).toString().replace(",", " ")));
         file.write(",");
         file.write(ToGbk(query.value(8).toString().replace(",", " ")));
         file.write(",");
         file.write(ToGbk(query.value(9).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(10).toString().replace(",", " ")));
         file.write("\n");
         current_id = id;
     }

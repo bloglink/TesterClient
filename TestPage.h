@@ -27,6 +27,7 @@
 #include <QColorDialog>
 #include <QPalette>
 #include <QColor>
+#include <QKeyEvent>
 
 #include "conf_delegation.h"
 #include "conf_qrencode.h"
@@ -65,6 +66,7 @@ public slots:
     void setTextBemf(QString s);
     void setTextLoad(QString s);
     void setTextHall(QString s);
+    QString readNumb();
 private slots:
     void initUI();
     void saveData();
@@ -82,6 +84,9 @@ private slots:
     void exportToCsv(QString title, QStringList wave);
     QString CurrentSettings();
     QString currentUser();
+    void showCode();
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
 private:
     QTableView *view;
     StandardItem *mView;
@@ -139,6 +144,10 @@ private:
     QLabel *textType;
     QLabel *textNumb;
     QLabel *textUser;
+
+    QString code;
+    QTimer *codeTimer;
+    QTimer *timer;
 };
 
 #endif // TESTPAGE_H

@@ -13,6 +13,8 @@ TestPage::TestPage(QWidget *parent) : QWidget(parent)
     initUI();
     countOk = 0;
     countAll = 0;
+    codeTimer = new QTimer(this);
+    connect(codeTimer, SIGNAL(timeout()), this, SLOT(showCode()));
 }
 
 TestPage::~TestPage()
@@ -220,6 +222,12 @@ void TestPage::setTextHall(QString s)
     textHall = s;
 }
 
+QString TestPage::readNumb()
+{
+    QString s = textNumb->text().remove("编码:");
+    return s.remove("@");
+}
+
 void TestPage::initUI()
 {
     this->setObjectName("TestPage");
@@ -235,6 +243,7 @@ void TestPage::initUI()
     view->setColumnWidth(0, 120);
     view->setColumnWidth(1, 400);
     view->setColumnWidth(3, 120);
+    view->setFocusPolicy(Qt::NoFocus);
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(clickView()));
 
     wave = new QCustomPlot(this);
@@ -285,7 +294,7 @@ void TestPage::initUI()
 
     QHBoxLayout *textLayout = new QHBoxLayout;
     textType = new QLabel("型号:__", this);
-    textNumb = new QLabel("编号:__", this);
+    textNumb = new QLabel("编码:__", this);
     textUser = new QLabel("操作员:__", this);
     textLayout->addWidget(textType);
     textLayout->addWidget(textNumb);
@@ -415,7 +424,7 @@ void TestPage::initUI()
 
     box = new PopupBox(this, "", "测试", QMessageBox::Ok);
     box->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
-    box->setStyleSheet("QDialog{border:2px solid red;}");
+    box->setStyleSheet("QDialog{border:2px solid cyan;}");
     box->resize(QSize(1024, 768));
     box->hide();
 }
@@ -695,6 +704,15 @@ QString TestPage::currentUser()
         return "admin";
 }
 
+void TestPage::showCode()
+{
+    codeTimer->stop();
+//    if (code.size() < 2)
+//        return;
+    textNumb->setText(QString("编码:%1").arg(code));
+    code.clear();
+}
+
 void TestPage::windowChange()
 {
     emit buttonClicked(QObject::sender()->objectName().toUtf8());
@@ -706,5 +724,18 @@ void TestPage::recvAppShow(QString win)
         return;
     emit sendNetMsg("6008");
     textType->setText(QString("型号:%1").arg(CurrentSettings()));
-    textUser->setText(QString("操作员:%1").arg(CurrentSettings()));
+    textUser->setText(QString("操作员:%1").arg(currentUser()));
+}
+void TestPage::keyPressEvent(QKeyEvent *e)
+{
+    this->setFocus();
+    codeTimer->stop();
+    code.append(e->text());
+    e->accept();
+}
+
+void TestPage::keyReleaseEvent(QKeyEvent *e)
+{
+    codeTimer->start(10);
+    e->accept();
 }
