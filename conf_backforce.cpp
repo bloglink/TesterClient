@@ -20,10 +20,10 @@ ConfBackEMFTest::~ConfBackEMFTest()
 void ConfBackEMFTest::initSettings(QJsonObject obj)
 {
     QStringList items = itemNames;
-    items << "nonu";
+    items << "noun";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
-        if (items.at(i) == "nonu") {
+        if (items.at(i) == "noun") {
             nounSpinBox->setValue(temp.at(0).toInt());
         } else if (items.at(i) == "turn") {
             for (int t=0; t < temp.size(); t++) {
