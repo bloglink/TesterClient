@@ -101,7 +101,7 @@ void ConfCurrent_AC::initUI()
     DoubleSpinBox *currentSpinBox = new DoubleSpinBox;
     currentSpinBox->setMaxinum(25);
     DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
-    doubleSpinBox->setMaxinum(99.99);
+    doubleSpinBox->setMaxinum(999.9);
     QStringList items;
     items << "50" << "60";
     ComboBox *freq = new ComboBox;

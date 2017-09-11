@@ -103,7 +103,7 @@ void ConfInsulation::initUI()
     SpinBox *spinBox = new SpinBox;
     spinBox->setMaxinum(500);
     DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
-    doubleSpinBox->setMaxinum(99.99);
+    doubleSpinBox->setMaxinum(999.9);
     view = new QTableView(this);
     view->setModel(mView);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
