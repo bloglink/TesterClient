@@ -476,10 +476,6 @@ void TestPage::clickView()
         box->setText(textLoad);
         box->show();
     }
-    if (mView->item(row, 0)->text().contains(tr("反势"))) {
-        box->setText(textBemf);
-        box->show();
-    }
     if (mView->item(row, 0)->text().contains(tr("霍尔"))) {
         box->setText(textHall);
         box->show();

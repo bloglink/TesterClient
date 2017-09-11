@@ -20,7 +20,7 @@ ConfResistance::~ConfResistance()
 void ConfResistance::initSettings(QJsonObject obj)
 {
     QStringList items = itemNames;
-    items << "std_temp" << "temp_comp" << "noun";
+    items << "std_temp" << "temp_comp" << "noun" << "time";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "test") {
