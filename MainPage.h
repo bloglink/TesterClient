@@ -74,6 +74,7 @@ public:
     explicit MainPage(QWidget *parent = 0);
     ~MainPage();
 public slots:
+    bool check();
     bool login();
     void readSettings();
     void showWarnning();

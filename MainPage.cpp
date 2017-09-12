@@ -16,10 +16,27 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     station = 0x13;
     testing = false;
     isNG = false;
+    gSpeed = 0;
+    isServo = false;
 }
 
 MainPage::~MainPage()
 {
+}
+
+bool MainPage::check()
+{
+#ifdef WIN32
+    QProcess* process = new QProcess;
+    process->start("tasklist" ,QStringList()<<"/FI"<<"imagename eq TesterClient.exe");
+    process->waitForFinished();
+    QString outputStr = QString::fromLocal8Bit(process->readAllStandardOutput());
+    if (outputStr.count("TesterClient.exe") > 1) {
+        QMessageBox::warning(this, "", "程序已开启", QMessageBox::Ok);
+        return false;
+    }
+#endif
+    return true;
 }
 
 bool MainPage::login()

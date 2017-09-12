@@ -14,6 +14,8 @@
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     MainPage w;
+    if (!w.check())
+        return 0;
     int ret = w.login();
     if (ret == QDialog::Rejected) {
         return 0;
