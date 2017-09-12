@@ -700,8 +700,6 @@ void MainPage::testEMF()
         status = STATUS_OVER;
         return;
     }
-    wait(100);
-
     iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
     cylinder = readCylinder(X01_TARGET | X03_TARGET);
     if (!cylinder) {
@@ -710,13 +708,13 @@ void MainPage::testEMF()
     }
     wait(100);
 
+    plc.setStart(1);
+    wait(50);
+    plc.setSpeed(0);
+    wait(50);
     plc.setMode(1);
     wait(50);
     plc.setTurn(backemftest->readTurn());
-    wait(50);
-    plc.setStart(1);
-    wait(50);
-    plc.setSpeed(100);
     wait(50);
     int speed = backemftest->readSpeed();
     speed = speed + speed /250;
@@ -728,6 +726,7 @@ void MainPage::testEMF()
     obj.insert("TxMessage","6006 BEMF");
     emit transmitJson(obj);
     waitTimeOut(STATUS_EMF);
+    isServo = true;
 
     QStringList volt;
     QString vv;
@@ -799,6 +798,7 @@ void MainPage::testEMF()
         }
         wait(100);
     }
+    isServo = false;
 }
 
 double MainPage::readBalance(QStringList s)
@@ -829,6 +829,8 @@ void MainPage::testStop()
 
 void MainPage::testStopAction()
 {
+    if (isServo)
+        return;
     iobrd.sendPort(0x00);  // 气缸全部归位
     readCylinder(X01_ORIGIN | X03_ORIGIN);
 }

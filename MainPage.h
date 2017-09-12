@@ -157,6 +157,7 @@ private:
 
     bool testing;
     bool isNG;
+    bool isServo;
 };
 
 #endif // MAINPAGE_H
