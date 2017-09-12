@@ -158,6 +158,8 @@ private:
     bool testing;
     bool isNG;
     bool isServo;
+
+    PopupBox *warnnig;
 };
 
 #endif // MAINPAGE_H

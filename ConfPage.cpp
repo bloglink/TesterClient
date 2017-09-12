@@ -354,6 +354,7 @@ void ConfPage::appendType()
     ini->setValue("FileInUse", name);
 
     updateType();
+    emit typeUpdate();
 }
 
 void ConfPage::deleteType()
@@ -376,6 +377,7 @@ void ConfPage::deleteType()
     ini->setValue("FileInUse", name);
 
     updateType();
+    emit typeUpdate();
 }
 
 void ConfPage::changeType()
@@ -391,6 +393,7 @@ void ConfPage::changeType()
     ini->setValue("FileInUse", name);
 
     updateType();
+    emit typeUpdate();
 }
 
 void ConfPage::updateType()
@@ -416,7 +419,6 @@ void ConfPage::updateType()
             continue;
         mView->appendRow(new QStandardItem(type.remove(".ini")));
     }
-    emit typeUpdate();
 }
 
 QString ConfPage::CurrentSettings()

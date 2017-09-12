@@ -136,6 +136,11 @@ void MainPage::initUI()
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(stack);
+
+    warnnig = new PopupBox(this, "", "配置中，请稍后", QMessageBox::Ok);
+    warnnig->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
+    warnnig->setStyleSheet("QDialog{border:2px solid cyan;}");
+    warnnig->hide();
 }
 
 void MainPage::initPLC()
@@ -303,8 +308,10 @@ void MainPage::testInit()
         }
         if (isNG) {
             isNG = false;
-            if (testPause())
+            if (testPause()) {
+                testStop();
                 break;
+            }
         }
     }
     QString xx;
@@ -387,28 +394,35 @@ void MainPage::readHall()
     names << "UF1:" << "UF2:" << "UF3:"
           << "VF1:" << "VF2:" << "VF3:"
           << "WF1:" << "WF2:" << "WF3:"
-          << "UH1:" << "UH2:" << "UH3:"
-          << "VH1:" << "VH2:" << "VH3:"
-          << "WH1:" << "WH2:" << "WH2:"
+
+          << "UHH1:" << "UHH2:" << "UHH3:"
+          << "VHH1:" << "VHH2:" << "VHH3:"
+          << "WHH1:" << "WHH2:" << "WHH2:"
+
+          << "UHL1:" << "UH2L:" << "UHL3:"
+          << "VHL1:" << "VH2L:" << "VHL3:"
+          << "WHL1:" << "WH2L:" << "WHL2:"
+
           << "UW1:" << "UW2:" << "UW3:"
           << "VU1:" << "VU2:" << "VU3:"
           << "WV1:" << "WV2:" << "WV3:"
+
           << "WV-U1:" << "WV-U2:" << "WV-U3:"
           << "UV-W1:" << "UV-W2:" << "UV-W3:"
           << "WU-V1:" << "WU-V2:" << "WU-V3:";
-    QList<int> squn;
-    squn << 0 << 1 << 2
-         << 12 << 13 << 14
-         << 24 << 25 << 26
-         << 3 << 4 << 5
-         << 15 << 16 << 17
-         << 27 << 28 << 29
-         << 6 << 7 << 8
-         << 18 << 19 << 20
-         << 30 << 31 << 32
-         << 9 << 10 << 11
-         << 21 << 22 << 23
-         << 33 << 34 << 35;
+//    QList<int> squn;
+//    squn << 0 << 1 << 2
+//         << 12 << 13 << 14
+//         << 24 << 25 << 26
+//         << 3 << 4 << 5
+//         << 15 << 16 << 17
+//         << 27 << 28 << 29
+//         << 6 << 7 << 8
+//         << 18 << 19 << 20
+//         << 30 << 31 << 32
+//         << 9 << 10 << 11
+//         << 21 << 22 << 23
+//         << 33 << 34 << 35;
     QStringList item;
     item << "H:" << "L:" << "A:" << "Max:" << "Min:" << "Z:"
          << "ZC:" << "F:" << "D:" << "HZ:" << "C:";
@@ -422,7 +436,7 @@ void MainPage::readHall()
     QString jj = "OK";
     if (power.size() >= 170) {
         for (int i=0; i < names.size(); i++) {
-            double angle = power.at(squn.at(i)).toDouble()*360/r;
+            double angle = power.at(i).toDouble()*360/r;
             QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
             tmp.append(t);
             if (i%3 == 2) {
@@ -467,10 +481,11 @@ void MainPage::readHall()
         vv.append(QString("H:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
 
         for (int i=0; i < 9; i++) {
-            full.append(QString::number(power.at(squn.at(i+0)).toDouble()*360/r));
-            half.append(QString::number(power.at(squn.at(i+9)).toDouble()*360/r));
-            with.append(QString::number(power.at(squn.at(i+18)).toDouble()*360/r));
-            hall.append(QString::number(power.at(squn.at(i+27)).toDouble()*360/r));
+            full.append(QString::number(power.at((i+0)).toDouble()*360/r));
+            half.append(QString::number(power.at((i+9)).toDouble()*360/r));
+            half.append(QString::number(power.at((i+18)).toDouble()*360/r));
+            with.append(QString::number(power.at((i+27)).toDouble()*360/r));
+            hall.append(QString::number(power.at((i+36)).toDouble()*360/r));
         }
         double fl = readWorst(360, full);
         double hf = readWorst(180, full);
@@ -1068,10 +1083,12 @@ void MainPage::readSettings()
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
-    conf_array.remove("Conf");
-    sendXmlCmd(conf_array);
-    conf_array.insert("Conf", obj_cnf);
-    conf_array = obj_array;
+//    warnnig->show();
+//    conf_array.remove("Conf");
+//    sendXmlCmd(conf_array);
+//    conf_array.insert("Conf", obj_cnf);
+//    conf_array = obj_array;
+//    warnnig->hide();
 }
 
 void MainPage::saveSettings()
