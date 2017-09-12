@@ -16,7 +16,6 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     station = 0x13;
     testing = false;
     isNG = false;
-    gSpeed = 0;
     isServo = false;
 }
 
@@ -145,6 +144,10 @@ void MainPage::initPLC()
     servo.initPort("COM5");
     plc.initPort("COM6");
     connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readStart(bool)));
+
+    iobrd.sendPort(0x00);  // 气缸全部归位
+    readCylinder(X01_ORIGIN | X03_ORIGIN);
+    plc.setStart(0);
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -198,7 +201,11 @@ void MainPage::recvNetMsg(QString msg)
         test->updateWave(dat);
         break;
     case 6032:
-        //        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
+        test->updateTemp(dat);
+        break;
+    case 9032:
+        readStart(false);
+        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
     default:
         break;
@@ -307,7 +314,7 @@ void MainPage::testInit()
     xx.append("@");
     xx.append(currentUser());
     xx.append("@");
-    if (test->updateResult()) {
+    if (test->updateResult(status)) {
         iobrd.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
         wait(currentAlarmTime("OK"));
         iobrd.sendPort(Y08);  // 绿灯
@@ -430,6 +437,8 @@ void MainPage::readHall()
             int t = (i-50)%20;
             if (t==3 || t > 11)
                 continue;
+            if (i >= 170)
+                break;
             if (t > 3)
                 t--;
             tmp.append(item.at(t));
@@ -588,6 +597,8 @@ void MainPage::testNLD()
             tt.append(QString("%1%,").arg(QString::number(readBalance(Is), 'f', 1)));
             if (power.size() > 1)
                 rpm = power.at(0).toDouble()*1000;
+            if (halltesting->readCount() != 0)
+                rpm /= halltesting->readCount();
             tt.append(QString("%1rpm").arg(rpm));
             test->updateItem(tt);
             QString qq;
@@ -769,7 +780,6 @@ void MainPage::testEMF()
         test->updateItem(vv);
         test->updateJudge(jj);
     }
-
     for (int i=1; i < 11; i++) {
         plc.setSpeed(speed*(10-i)/10);
         wait(100);
@@ -1058,9 +1068,9 @@ void MainPage::readSettings()
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
-    //    conf_array.remove("Conf");
-    //    sendXmlCmd(conf_array);
-    //    conf_array.insert("Conf", obj_cnf);
+    conf_array.remove("Conf");
+    sendXmlCmd(conf_array);
+    conf_array.insert("Conf", obj_cnf);
     conf_array = obj_array;
 }
 
@@ -1155,6 +1165,7 @@ void MainPage::sendXmlCmd(QJsonObject obj)
         s.append(keys.at(i));
         xx.insert("TxMessage", s);
         emit transmitJson(xx);
+        wait(100);
 
         QString msg = "6002 ";
         msg.append(doc.toByteArray());
@@ -1195,8 +1206,10 @@ void MainPage::readStart(bool s)
     if (!s && testing) {
         if (status == STATUS_FREE)
             testStopAction();
-        if (status == STATUS_NLD)
+        if (status == STATUS_NLD) {
+            testStop();
             waitTimeOut(STATUS_NLD);
+        }
         testStop();
     }
 }
