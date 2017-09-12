@@ -396,11 +396,10 @@ void MainPage::readHall()
           << "WF1:" << "WF2:" << "WF3:"
 
           << "UHH1:" << "UHH2:" << "UHH3:"
-          << "VHH1:" << "VHH2:" << "VHH3:"
-          << "WHH1:" << "WHH2:" << "WHH2:"
-
           << "UHL1:" << "UH2L:" << "UHL3:"
+          << "VHH1:" << "VHH2:" << "VHH3:"
           << "VHL1:" << "VH2L:" << "VHL3:"
+          << "WHH1:" << "WHH2:" << "WHH2:"
           << "WHL1:" << "WH2L:" << "WHL2:"
 
           << "UW1:" << "UW2:" << "UW3:"
@@ -410,19 +409,22 @@ void MainPage::readHall()
           << "WV-U1:" << "WV-U2:" << "WV-U3:"
           << "UV-W1:" << "UV-W2:" << "UV-W3:"
           << "WU-V1:" << "WU-V2:" << "WU-V3:";
-//    QList<int> squn;
-//    squn << 0 << 1 << 2
-//         << 12 << 13 << 14
-//         << 24 << 25 << 26
-//         << 3 << 4 << 5
-//         << 15 << 16 << 17
-//         << 27 << 28 << 29
-//         << 6 << 7 << 8
-//         << 18 << 19 << 20
-//         << 30 << 31 << 32
-//         << 9 << 10 << 11
-//         << 21 << 22 << 23
-//         << 33 << 34 << 35;
+    QList<int> squn;
+    squn << 0 << 1 << 2
+         << 15 << 16 << 17
+         << 30 << 31 << 32
+
+         << 3 << 4 << 5 << 6 << 7 << 8
+         << 18 << 19 << 20 << 21 << 22 << 23
+         << 33 << 34 << 35 << 36 << 37 << 38
+
+         << 9 << 10 << 11
+         << 24 << 25 << 26
+         << 39 << 40 << 41
+
+         << 12 << 13 << 14
+         << 27 << 28 << 29
+         << 42 << 43 << 44;
     QStringList item;
     item << "H:" << "L:" << "A:" << "Max:" << "Min:" << "Z:"
          << "ZC:" << "F:" << "D:" << "HZ:" << "C:";
@@ -1091,12 +1093,12 @@ void MainPage::readSettings()
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
 
-//    warnnig->show();
-//    conf_array.remove("Conf");
-//    sendXmlCmd(conf_array);
-//    conf_array.insert("Conf", obj_cnf);
-//    conf_array = obj_array;
-//    warnnig->hide();
+    //    warnnig->show();
+    //    conf_array.remove("Conf");
+    //    sendXmlCmd(conf_array);
+    //    conf_array.insert("Conf", obj_cnf);
+    //    conf_array = obj_array;
+    //    warnnig->hide();
 }
 
 void MainPage::saveSettings()

@@ -31,7 +31,8 @@ void TestPage::initItems(quint16 s)
         station->setText("左");
     else
         station->setText("右");
-    judge->setText("--");
+    judge->setText("ON");
+    judge->setStyleSheet("font:55pt;color:yellow");
     QVector<double> x(100), y(100);
     for (int i=0; i < 100; i++) {
         x[i] = -1;
