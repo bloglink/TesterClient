@@ -136,6 +136,9 @@ void ConfNoLoadTest::initUI()
     view->setItemDelegateForColumn(11, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    view->hideColumn(7);
+    view->hideColumn(10);
+    view->hideColumn(11);
 
     turnCheckBox = new QCheckBox(this);
     turnCheckBox->setText(tr("空载转向"));

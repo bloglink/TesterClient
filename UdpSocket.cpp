@@ -70,7 +70,7 @@ void UdpSocket::transmitJson()
         this->writeDatagram("6030", txHost, txPort);
         if (timeCount > 1000) {
             timeCount = 0;
-            emit sendNetMsg("6032");
+            emit sendNetMsg("9032");
         }
     }
 }

@@ -153,17 +153,14 @@ void ConfPage::initUI()
     mGroup->setLayout(mLayout);
 
     QStringList typeNames;
-    typeNames << "M1S0" << "M1S1" << "M1S2" << "M1S3"
-              << "M1S1L1" << "M1S1L2" << "M1S1L3"
-              << "ABC" << "ABC-N" << "ABC-O" << "ABC-Y"
-              << "None";
+    typeNames << "ABC-N";
     typeComboBox = new QComboBox(this);
     typeComboBox->addItems(typeNames);
     typeComboBox->setMinimumSize(97, 35);
     typeComboBox->setView(new QListView);
     connect(typeComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(autoPixmap(QString)));
     typePixmap = new QLabel(this);
-    typePixmap->setPixmap(QPixmap(":/source/M1S0.jpg"));
+    typePixmap->setPixmap(QPixmap(":/source/ABC-N.jpg"));
 
     QStringList testNames;
     testNames << tr("继续测试") << tr("暂停询问");

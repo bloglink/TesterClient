@@ -55,7 +55,7 @@ void PageSqlite::initUI()
     connect(btnClear, SIGNAL(clicked(bool)), this, SLOT(clearSql()));
 
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
     connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(saveData()));
 
