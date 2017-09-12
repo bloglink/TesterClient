@@ -122,6 +122,7 @@ private slots:
     void readStart(bool s);
     void readSelfCheck(QString s);
     void testDebug();
+    QStringList readOffset();
 
 private:
     QList<int> previous_window;

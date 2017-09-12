@@ -436,7 +436,22 @@ void MainPage::readHall()
     QString jj = "OK";
     if (power.size() >= 170) {
         for (int i=0; i < names.size(); i++) {
-            double angle = power.at(i).toDouble()*360/r;
+            double angle = power.at(squn.at(i)).toDouble()*360/r;
+            QStringList offset = readOffset();
+            if (squn.at(i) < 9) {
+                angle -= offset.at(0).toDouble();
+                full.append(QString::number(angle));
+            } else if  (squn.at(i) < 27) {
+                angle -= offset.at(1).toDouble();
+                half.append(QString::number(angle));
+            } else if (squn.at(i) < 36) {
+                angle -= offset.at(2).toDouble();
+                with.append(QString::number(angle));
+            } else if (squn.at(i) < 45){
+                angle -= offset.at(3).toDouble();
+                hall.append(QString::number(angle));
+            }
+
             QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
             tmp.append(t);
             if (i%3 == 2) {
@@ -444,7 +459,7 @@ void MainPage::readHall()
             } else {
                 tmp.append("\t\t");
             }
-            if (i%9 == 8)
+            if (i%9 == 8 && i != 17)
                 tmp.append("\n");
         }
         for (int i=50; i < power.size(); i++) {
@@ -480,17 +495,10 @@ void MainPage::readHall()
         vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
         vv.append(QString("H:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
 
-        for (int i=0; i < 9; i++) {
-            full.append(QString::number(power.at((i+0)).toDouble()*360/r));
-            half.append(QString::number(power.at((i+9)).toDouble()*360/r));
-            half.append(QString::number(power.at((i+18)).toDouble()*360/r));
-            with.append(QString::number(power.at((i+27)).toDouble()*360/r));
-            hall.append(QString::number(power.at((i+36)).toDouble()*360/r));
-        }
         double fl = readWorst(360, full);
-        double hf = readWorst(180, full);
-        double wh = readWorst(120, full);
-        double hl = readWorst(32.5, full);
+        double hf = readWorst(180, half);
+        double wh = readWorst(120, with);
+        double hl = readWorst(32.5, hall);
         vv.append(QString("%1°,").arg(QString::number(fl, 'f', 1)));
         vv.append(QString("%1°,").arg(QString::number(hf, 'f', 1)));
         vv.append(QString("%1°,").arg(QString::number(wh, 'f', 1)));
@@ -1261,6 +1269,16 @@ void MainPage::testDebug()
     //    objs.insert("title", xx);
     //    objs.insert("content", "1@2@3@4");
     //    winData->saveSql(objs);
+
+    //    qDebug() << "test offset";
+    //    qDebug() << readOffset();
+}
+
+QStringList MainPage::readOffset()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/OFFSET/hall", "0@0@0@0").toString();
+    return temp.split("@");
 }
 
 void MainPage::showWarnning()
