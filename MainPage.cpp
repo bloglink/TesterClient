@@ -497,15 +497,18 @@ void MainPage::readHall()
         vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
         vv.append(QString("H:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
 
+        QStringList limit = backemftest->readLimit();
         double fl = readWorst(360, full);
         double hf = readWorst(180, half);
         double wh = readWorst(120, with);
-        double hl = readWorst(32.5, hall);
+        double hl = readWorst((limit.at(6).toDouble()+limit.at(7).toDouble())/2, hall);
         vv.append(QString("%1°,").arg(QString::number(fl, 'f', 1)));
         vv.append(QString("%1°,").arg(QString::number(hf, 'f', 1)));
         vv.append(QString("%1°,").arg(QString::number(wh, 'f', 1)));
         vv.append(QString("%1°").arg(QString::number(hl, 'f', 1)));
-        QStringList limit = halltesting->readLimit();
+        if (hl < limit.at(6).toDouble() || hl > limit.at(7).toDouble())
+            jj = "NG";
+        limit = halltesting->readLimit();
         if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
             jj = "NG";
         if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
@@ -517,9 +520,6 @@ void MainPage::readHall()
         if (hf < limit.at(10).toDouble() || hf > limit.at(11).toDouble())
             jj = "NG";
         if (wh < limit.at(12).toDouble() || wh > limit.at(13).toDouble())
-            jj = "NG";
-        limit = backemftest->readLimit();
-        if (hl < limit.at(6).toDouble() || hl > limit.at(7).toDouble())
             jj = "NG";
     } else {
         vv.append("NULL");
@@ -1092,13 +1092,6 @@ void MainPage::readSettings()
     ini->endGroup();
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
-
-    //    warnnig->show();
-    //    conf_array.remove("Conf");
-    //    sendXmlCmd(conf_array);
-    //    conf_array.insert("Conf", obj_cnf);
-    //    conf_array = obj_array;
-    //    warnnig->hide();
 }
 
 void MainPage::saveSettings()
