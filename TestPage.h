@@ -60,7 +60,8 @@ public slots:
     void updateItems(QString items);
     void updateItem(QString item);
     bool updateJudge(QString item);
-    bool updateResult();
+    bool updateResult(quint16 s);
+    void updateTemp(QString s);
     QString readResult();
     void updateWave(QString w);
     void setTextBemf(QString s);
@@ -144,6 +145,7 @@ private:
     QLabel *textType;
     QLabel *textNumb;
     QLabel *textUser;
+    QLabel *textTemp;
 
     QString code;
     QTimer *codeTimer;

@@ -142,9 +142,14 @@ bool TestPage::updateJudge(QString item)
     return true;
 }
 
-bool TestPage::updateResult()
+bool TestPage::updateResult(quint16 s)
 {
     countAll++;
+    if (s != 0) {
+        judge->setStyleSheet("font:55pt;color:red");
+        judge->setText("NG");
+        return false;
+    }
     for (int i=0; i < mView->rowCount(); i++) {
         if (mView->item(i, 3)->text() != "OK") {
             judge->setStyleSheet("font:55pt;color:red");
@@ -161,6 +166,11 @@ bool TestPage::updateResult()
     return true;
 }
 
+void TestPage::updateTemp(QString s)
+{
+    textTemp->setText(s);
+}
+
 QString TestPage::readResult()
 {
     QString temp;
@@ -174,6 +184,7 @@ QString TestPage::readResult()
         temp.append(mView->item(i, 3)->text());
         temp.append("\n");
     }
+    textNumb->setText(QString("编码:__"));
     return temp;
 }
 
@@ -296,10 +307,11 @@ void TestPage::initUI()
     textType = new QLabel("型号:__", this);
     textNumb = new QLabel("编码:__", this);
     textUser = new QLabel("操作员:__", this);
+    textTemp = new QLabel("温度:__", this);
     textLayout->addWidget(textType);
     textLayout->addWidget(textNumb);
     textLayout->addWidget(textUser);
-    //    textLayout->addWidget(new QLabel("温度:__", this));
+    textLayout->addWidget(textTemp);
 
     QVBoxLayout *mLayout = new QVBoxLayout;
     mLayout->addWidget(view);
@@ -703,8 +715,8 @@ QString TestPage::currentUser()
 void TestPage::showCode()
 {
     codeTimer->stop();
-//    if (code.size() < 2)
-//        return;
+    //    if (code.size() < 2)
+    //        return;
     textNumb->setText(QString("编码:%1").arg(code));
     code.clear();
 }
