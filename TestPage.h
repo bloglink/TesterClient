@@ -70,6 +70,7 @@ public slots:
     QString readNumb();
 private slots:
     void initUI();
+    void initSettings();
     void saveData();
     void clickButton();
     void clickView();

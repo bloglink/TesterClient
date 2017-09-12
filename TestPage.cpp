@@ -441,6 +441,21 @@ void TestPage::initUI()
     box->hide();
 }
 
+void TestPage::initSettings()
+{
+    //当前使用的测试项目
+    QString n = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(n, QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+
+    QStringList WireColor = ini->value("/Conf/color", "").toString().split(",");
+    for (int i=0; i < qMin(colors.size(),WireColor.size()); i++) {
+        colors.at(i)->setStyleSheet(QString("background-color:%1").arg(WireColor.at(i)));
+    }
+    textType->setText(QString("型号:%1").arg(CurrentSettings()));
+    textUser->setText(QString("操作员:%1").arg(currentUser()));
+}
+
 void TestPage::saveData()
 {
     QDomText text;
@@ -731,8 +746,7 @@ void TestPage::recvAppShow(QString win)
     if (win != this->objectName())
         return;
     emit sendNetMsg("6008");
-    textType->setText(QString("型号:%1").arg(CurrentSettings()));
-    textUser->setText(QString("操作员:%1").arg(currentUser()));
+    initSettings();
 }
 void TestPage::keyPressEvent(QKeyEvent *e)
 {
