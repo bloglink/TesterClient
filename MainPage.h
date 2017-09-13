@@ -78,6 +78,7 @@ public slots:
     bool login();
     void readSettings();
     void showWarnning();
+    void testDebug();
 private slots:
     void initUI();
     void initPLC();
@@ -92,6 +93,12 @@ private slots:
     void testIND();
     void testHAL();
     void readHall();
+    QStringList angleOrder(QStringList s);
+    QStringList readRotation(QStringList s, int speed, int count);
+    QStringList angleFilter(QStringList s, double std, double min, double max);
+    QStringList angleOffset(QStringList s, double offset);
+    QString angleShow(QStringList s);
+    QString powerShow(QStringList s);
     double readWorst(double std, QStringList s);
     double readMax(QStringList s);
     double readMin(QStringList s);
@@ -121,7 +128,6 @@ private slots:
     void readBtnStop();
     void readStart(bool s);
     void readSelfCheck(QString s);
-    void testDebug();
     QStringList readOffset();
 
 private:
@@ -161,6 +167,7 @@ private:
     bool isServo;
 
     PopupBox *warnnig;
+    PopupBox *testBox;
 };
 
 #endif // MAINPAGE_H
