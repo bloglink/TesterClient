@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-//        testDebug();
+    //        testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -209,7 +209,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6021:
         test->updateWave(dat);
-//        readWave(dat);
+        readWave(dat);
         break;
     case 6032:
         test->updateTemp(dat);
@@ -438,20 +438,20 @@ void MainPage::readHall()
         vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
         vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
 
-        if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
+        if (wHall <= limit.at(6).toDouble() || wHall >= limit.at(7).toDouble())
             jj = "NG";
         limit = halltesting->readLimit();
-        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
+        if (hMax >= limit.at(3).toDouble() || hMin <= limit.at(2).toDouble())
             jj = "NG";
-        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
+        if (lMax >= limit.at(1).toDouble() || lMin <= limit.at(0).toDouble())
             jj = "NG";
-        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
+        if (fMax >= limit.at(5).toDouble() || fMin <= limit.at(4).toDouble())
             jj = "NG";
-        if (wFull < limit.at(8).toDouble() || wFull > limit.at(9).toDouble())
+        if (wFull <= limit.at(8).toDouble() || wFull >= limit.at(9).toDouble())
             jj = "NG";
-        if (wHalf < limit.at(10).toDouble() || wHalf > limit.at(11).toDouble())
+        if (wHalf <= limit.at(10).toDouble() || wHalf >= limit.at(11).toDouble())
             jj = "NG";
-        if (wWith < limit.at(12).toDouble() || wWith > limit.at(13).toDouble())
+        if (wWith <= limit.at(12).toDouble() || wWith >= limit.at(13).toDouble())
             jj = "NG";
 
         text.append(angleShow(angle));
@@ -836,26 +836,29 @@ void MainPage::testEMF()
     QStringList volt;
     QString vv;
     QString jj = "OK";
-    if (power.size() >= 170) {
-        volt.append(power.at(52));
-        volt.append(power.at(72));
-        volt.append(power.at(92));
-        double ku = power.at(52).toDouble()/100;
-        double kv = power.at(72).toDouble()/100;
-        double kw = power.at(92).toDouble()/100;
-//        volt.append(QString::number(UU));
-//        volt.append(QString::number(UV));
-//        volt.append(QString::number(UW));
-//        double ku = UU*13*3.6/128;
-//        double kv = UV*13*3.6/128;
-//        double kw = UW*13*3.6/128;
+    //    if (power.size() >= 170) {
+    if (power.size() >= 0) {
+        //        volt.append(power.at(52));
+        //        volt.append(power.at(72));
+        //        volt.append(power.at(92));
+        //        double ku = power.at(52).toDouble()/100;
+        //        double kv = power.at(72).toDouble()/100;
+        //        double kw = power.at(92).toDouble()/100;
+        volt.append(QString::number(UU, 'f', 2));
+        volt.append(QString::number(UV, 'f', 2));
+        volt.append(QString::number(UW, 'f', 2));
+        qDebug() << UU << UV << UW;
+        double ku = UU*12*3.3/128;
+        double kv = UV*12*3.3/128;
+        double kw = UW*12*3.3/128;
+        qDebug() << ku << kv << kw;
         vv.append("KU:");
-        vv.append(QString::number(ku));
-        vv.append(",KV:");
-        vv.append(QString::number(kv));
-        vv.append(",KW:");
-        vv.append(QString::number(kw));
-        vv.append(",");
+        vv.append(QString::number(ku, 'f', 2));
+        vv.append("V,KV:");
+        vv.append(QString::number(kv, 'f', 2));
+        vv.append("V,KW:");
+        vv.append(QString::number(kw, 'f', 2));
+        vv.append("V,");
         double b = readBalance(volt);
         if (b == -1)
             vv.append("NULL");
@@ -916,12 +919,22 @@ void MainPage::readWave(QString w)
     QStringList temp;
     temp = w.split(" ");
     temp.removeFirst();
-    if (w.startsWith("0 "))
+    if (w.startsWith("0 ")) {
+        waveU = temp;
         UU = readSquare(temp);
-    else if (w.startsWith("1 "))
+    } else if (w.startsWith("1 ")) {
+        waveV = temp;
         UV = readSquare(temp);
-    else if (w.startsWith("2 "))
+    } else if (w.startsWith("2 ")) {
+        waveW = temp;
         UW = readSquare(temp);
+    } else if (w.startsWith("3 ")) {
+        waveHu = temp;
+    } else if (w.startsWith("4 ")) {
+        waveHv = temp;
+    } else if (w.startsWith("5 ")) {
+        waveHw = temp;
+    }
 }
 
 double MainPage::readBalance(QStringList s)
@@ -968,6 +981,8 @@ void MainPage::testTimeOut()
 
 bool MainPage::readCylinder(quint16 s)
 {
+//    wait(1000);
+//    return true;
     quint16 timeOut = 0x0000;
     quint16 count = 0;
     while (1) {

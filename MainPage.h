@@ -104,6 +104,7 @@ private slots:
     double readMax(QStringList s);
     double readMin(QStringList s);
     double readAvr(QStringList s);
+    double readPhase(QStringList s1, QStringList s2);
     void testNLD();
     void testLOD();
     void testEMF();
@@ -175,6 +176,13 @@ private:
     double UU;
     double UV;
     double UW;
+
+    QStringList waveU;
+    QStringList waveV;
+    QStringList waveW;
+    QStringList waveHu;
+    QStringList waveHv;
+    QStringList waveHw;
 };
 
 #endif // MAINPAGE_H

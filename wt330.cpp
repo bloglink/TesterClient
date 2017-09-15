@@ -48,6 +48,7 @@ bool WT330::initPort(QString portName)
 
 bool WT330::readThread()
 {
+//    return true;
     if (com == NULL || !com->isOpen())
         return false;
     QByteArray cmd = ":NUMERIC:NORMAL:VALUE?";
