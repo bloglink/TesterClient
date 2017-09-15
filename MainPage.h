@@ -99,6 +99,7 @@ private slots:
     QStringList angleOffset(QStringList s, double offset);
     QString angleShow(QStringList s);
     QString powerShow(QStringList s);
+    double readSquare(QStringList s);
     double readWorst(double std, QStringList s);
     double readMax(QStringList s);
     double readMin(QStringList s);

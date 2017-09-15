@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-//    testDebug();
+    testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -582,6 +582,16 @@ QString MainPage::powerShow(QStringList s)
         }
     }
     return tmp;
+}
+
+double MainPage::readSquare(QStringList s)
+{
+    int w = 0;
+    for (int i=0; i < s.size(); i++) {
+        int t = s.at(i).toInt()-128;
+        w += t*t;
+    }
+    return sqrt(w/s.size());
 }
 
 double MainPage::readWorst(double std, QStringList s)
@@ -1347,9 +1357,9 @@ void MainPage::testDebug()
     qDebug() << offset;
     qDebug() << "angle offset";
     full = angleOffset(full, offset.at(0).toDouble());
-    half = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(9,18), 180, 10, 20), offset.at(1).toDouble());
-    with = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(27,9), 120, 10, 20), offset.at(2).toDouble());
-    hall = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(36,9), 32, 10, 20), offset.at(3).toDouble());
+    half = angleOffset(half, offset.at(1).toDouble());
+    with = angleOffset(with, offset.at(2).toDouble());
+    hall = angleOffset(hall, offset.at(3).toDouble());
     qDebug() << "test worst";
     double wFull = readWorst(360, full);
     double wHalf = readWorst(180, half);
@@ -1375,6 +1385,14 @@ void MainPage::testDebug()
     testBox->resize(QSize(1024, 768));
     testBox->setText(ss);
     testBox->show();
+
+    QStringList square;
+    for (int i=0; i < 360; i++) {
+        square << QString::number(128*sin(i*6.28/360));
+    }
+    qDebug() << "test square";
+    qDebug() << square;
+    qDebug() << readSquare(square);
 }
 
 QStringList MainPage::readOffset()
