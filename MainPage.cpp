@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-    testDebug();
+//        testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -18,6 +18,9 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     testing = false;
     isNG = false;
     isServo = false;
+    UU = 0;
+    UV = 0;
+    UW = 0;
 }
 
 MainPage::~MainPage()
@@ -206,6 +209,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6021:
         test->updateWave(dat);
+//        readWave(dat);
         break;
     case 6032:
         test->updateTemp(dat);
@@ -418,9 +422,9 @@ void MainPage::readHall()
         double tmp = (limit.at(6).toDouble()+limit.at(7).toDouble())/2;
         QStringList angle0 = readRotation(angleOrder(power), speed, count);
         QStringList full = angleOffset(angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
-        QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(0).toDouble());
-        QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(0).toDouble());
-        QStringList hall = angleOffset(angleFilter(angle0, tmp, 5, 10).mid(36,9), offset.at(0).toDouble());
+        QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(1).toDouble());
+        QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(2).toDouble());
+        QStringList hall = angleOffset(angleFilter(angle0, tmp, 5, 10).mid(36,9), offset.at(3).toDouble());
         QStringList angle;
         angle << full << half << with << hall;
 
@@ -435,7 +439,6 @@ void MainPage::readHall()
 
         if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
             jj = "NG";
-
         limit = halltesting->readLimit();
         if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
             jj = "NG";
@@ -839,6 +842,12 @@ void MainPage::testEMF()
         double ku = power.at(52).toDouble()/100;
         double kv = power.at(72).toDouble()/100;
         double kw = power.at(92).toDouble()/100;
+//        volt.append(QString::number(UU));
+//        volt.append(QString::number(UV));
+//        volt.append(QString::number(UW));
+//        double ku = UU*13*3.6/128;
+//        double kv = UV*13*3.6/128;
+//        double kw = UW*13*3.6/128;
         vv.append("KU:");
         vv.append(QString::number(ku));
         vv.append(",KV:");
@@ -899,6 +908,19 @@ void MainPage::testEMF()
         wait(100);
     }
     isServo = false;
+}
+
+void MainPage::readWave(QString w)
+{
+    QStringList temp;
+    temp = w.split(" ");
+    temp.removeFirst();
+    if (w.startsWith("0 "))
+        UU = readSquare(temp);
+    else if (w.startsWith("1 "))
+        UV = readSquare(temp);
+    else if (w.startsWith("2 "))
+        UW = readSquare(temp);
 }
 
 double MainPage::readBalance(QStringList s)
