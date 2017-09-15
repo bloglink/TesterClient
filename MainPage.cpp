@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-        testDebug();
+//    testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -1324,7 +1324,7 @@ void MainPage::testDebug()
     }
     QStringList s3;
     s3 << "3325" << "52" << "3300" << "3325" << "0" << "0" << "0" << "50" << "50" << "0";
-    s2 << s3 << s3 << s3 << s3 << s3 << s3;
+    s2 << s3 << s3 << s3 << s3 << s3 << s3 << s3 << s3 << s3;
     qDebug() << "test s";
     qDebug() << s2;
     qDebug() << "test order";
@@ -1344,15 +1344,22 @@ void MainPage::testDebug()
     QStringList offset = readOffset();
     qDebug() << offset;
     qDebug() << "angle offset";
-    full = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(0,9), 360, 10, 20), offset.at(0).toDouble());
+    full = angleOffset(full, offset.at(0).toDouble());
     half = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(9,18), 180, 10, 20), offset.at(1).toDouble());
     with = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(27,9), 120, 10, 20), offset.at(2).toDouble());
     hall = angleOffset(angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(36,9), 32, 10, 20), offset.at(3).toDouble());
     qDebug() << "test worst";
-    qDebug() << readWorst(360, full);
-    qDebug() << readWorst(180, half);
-    qDebug() << readWorst(120, with);
-    qDebug() << readWorst(32.5, hall);
+    double wFull = readWorst(360, full);
+    double wHalf = readWorst(180, half);
+    double wWith = readWorst(120, with);
+    double wHall = readWorst(32.5, hall);
+    qDebug() << wFull << wHalf << wWith << wHall;
+    QString vv;
+    vv.append(QString("%1°,").arg(QString::number(wFull, 'f', 1)));
+    vv.append(QString("%1°,").arg(QString::number(wHalf, 'f', 1)));
+    vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
+    vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
+    qDebug() << vv;
     qDebug() << "test hall";
     qDebug() << powerShow(s2);
     qDebug() << "test show";
