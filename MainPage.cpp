@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-    //        testDebug();
+//                testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -402,19 +402,23 @@ void MainPage::readHall()
     if (power.size() >= 170) {
         QStringList hh;
         hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
-        double hMax = readMax(hh)*6.6/4095;
-        double hMin = readMin(hh)*6.6/4095;
+        double hMax = readMax(hh)*5/4095;
+        double hMin = readMin(hh)*5/4095;
         QStringList ll;
         ll << power.at(50+61) << power.at(50+81) << power.at(50+101);
-        double lMax = readMax(ll)*6.6/4095;
-        double lMin = readMin(ll)*6.6/4095;
+        double lMax = readMax(ll)*5/4095;
+        double lMin = readMin(ll)*5/4095;
         QStringList ff;
-        ff << power.at(50+68) << power.at(50+88) << power.at(50+108);
+        ff << QString::number(power.at(50+150).toDouble()/1000);
+        ff << QString::number(power.at(50+154).toDouble()/1000);
+        ff << QString::number(power.at(50+158).toDouble()/1000);
+        qDebug() << "test freq";
+        qDebug() << ff;
         double fMax = readMax(ff);
         double fMin = readMin(ff);
         vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
         vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
-        vv.append(QString("H:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
+        vv.append(QString("F:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
 
         QStringList offset = readOffset();
         int speed = backemftest->readSpeed();
@@ -425,7 +429,11 @@ void MainPage::readHall()
         QStringList full = angleOffset(angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
         QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(1).toDouble());
         QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(2).toDouble());
-        QStringList hall = angleOffset(angleFilter(angle0, tmp, 5, 10).mid(36,9), offset.at(3).toDouble());
+        QStringList hall;
+        hall << QString::number(readPhase(waveU, waveHu)*6*(speed*count)/20000);
+        hall << QString::number(readPhase(waveV, waveHv)*6*(speed*count)/20000);
+        hall << QString::number(readPhase(waveW, waveHw)*6*(speed*count)/20000);
+        hall = angleOffset(hall, offset.at(3).toDouble());
         QStringList angle;
         angle << full << half << with << hall;
 
@@ -438,24 +446,24 @@ void MainPage::readHall()
         vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
         vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
 
-        if (wHall <= limit.at(6).toDouble() || wHall >= limit.at(7).toDouble())
+        if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
             jj = "NG";
         limit = halltesting->readLimit();
-        if (hMax >= limit.at(3).toDouble() || hMin <= limit.at(2).toDouble())
+        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
             jj = "NG";
-        if (lMax >= limit.at(1).toDouble() || lMin <= limit.at(0).toDouble())
+        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
             jj = "NG";
-        if (fMax >= limit.at(5).toDouble() || fMin <= limit.at(4).toDouble())
+        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
             jj = "NG";
-        if (wFull <= limit.at(8).toDouble() || wFull >= limit.at(9).toDouble())
+        if (wFull < limit.at(8).toDouble() || wFull > limit.at(9).toDouble())
             jj = "NG";
-        if (wHalf <= limit.at(10).toDouble() || wHalf >= limit.at(11).toDouble())
+        if (wHalf < limit.at(10).toDouble() || wHalf > limit.at(11).toDouble())
             jj = "NG";
-        if (wWith <= limit.at(12).toDouble() || wWith >= limit.at(13).toDouble())
+        if (wWith < limit.at(12).toDouble() || wWith > limit.at(13).toDouble())
             jj = "NG";
 
         text.append(angleShow(angle));
-        text.append(powerShow(power));
+        text.append(powerShow(power, ff));
         test->setTextHall(text);
     } else {
         vv = "NULL";
@@ -559,30 +567,33 @@ QString MainPage::angleShow(QStringList s)
     return tmp;
 }
 
-QString MainPage::powerShow(QStringList s)
+QString MainPage::powerShow(QStringList s1, QStringList s2)
 {
     QString tmp;
+    tmp.append("\n");
     QStringList item;
     item << "高电平:" << "低电平:" << "频率:";
-    for (int i=110; i < s.size(); i++) {
+    int tt = 0;
+    for (int i=110; i < s1.size(); i++) {
         if (i >= 170)
             break;
         int t = (i-50)%20;
         if (t == 0) {
             tmp.append(item.at(0));
-            tmp.append(QString::number(s.at(i).toDouble()*6.6/4095, 'f', 2));
+            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
             tmp.append("V");
             tmp.append("\t\t");
         } else if (t == 1) {
             tmp.append(item.at(1));
-            tmp.append(QString::number(s.at(i).toDouble()*6.6/4095, 'f', 2));
+            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
             tmp.append("V");
             tmp.append("\t\t");
         } else if (t == 7) {
             tmp.append(item.at(2));
-            tmp.append(QString::number(s.at(i).toDouble(), 'f', 1));
+            tmp.append(QString::number(s2.at(tt).toDouble(), 'f', 1));
             tmp.append("Hz");
             tmp.append("\n");
+            tt++;
         }
     }
     return tmp;
@@ -650,6 +661,41 @@ double MainPage::readAvr(QStringList s)
         w += s.at(i).toDouble();
     }
     return w/s.size();
+}
+
+double MainPage::readPhase(QStringList s1, QStringList s2)
+{
+    int t1 = 0;
+    int t2 = 0;
+    for (int i=0; i < s1.size()-10; i++) {
+        double a1 = 0;
+        double a2 = 0;
+        for (int j=0; j < 5; j++) {
+            a1 += s1.at(i+j).toInt();
+            a2 += s1.at(i+j+1).toInt();
+        }
+        a1 /=5;
+        a2 /=5;
+        if ((a1 <= 127) && (a2 >= 127)) {
+            t1 = i+2;
+            break;
+        }
+    }
+    for (int i=t1; i < s2.size()-10; i++) {
+        double a1 = 0;
+        double a2 = 0;
+        for (int j=0; j < 5; j++) {
+            a1 += s2.at(i+j).toInt();
+            a2 += s2.at(i+j+1).toInt();
+        }
+        a1 /=5;
+        a2 /=5;
+        if ((a1 >= 127) && (a2 <= 127)) {
+            t2 = i+2;
+            break;
+        }
+    }
+    return t2-t1;
 }
 
 void MainPage::testNLD()
@@ -848,9 +894,9 @@ void MainPage::testEMF()
         volt.append(QString::number(UV, 'f', 2));
         volt.append(QString::number(UW, 'f', 2));
         qDebug() << UU << UV << UW;
-        double ku = UU*12*3.3/128;
-        double kv = UV*12*3.3/128;
-        double kw = UW*12*3.3/128;
+        double ku = UU*13*3.3/128*readVoltScale().toInt()/100;
+        double kv = UV*13*3.3/128*readVoltScale().toInt()/100;
+        double kw = UW*13*3.3/128*readVoltScale().toInt()/100;
         qDebug() << ku << kv << kw;
         vv.append("KU:");
         vv.append(QString::number(ku, 'f', 2));
@@ -981,8 +1027,8 @@ void MainPage::testTimeOut()
 
 bool MainPage::readCylinder(quint16 s)
 {
-//    wait(1000);
-//    return true;
+//            wait(1000);
+//            return true;
     quint16 timeOut = 0x0000;
     quint16 count = 0;
     while (1) {
@@ -1246,6 +1292,13 @@ QString MainPage::readScale()
     return temp;
 }
 
+QString MainPage::readVoltScale()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/SCALE/volt", "100").toString();
+    return temp;
+}
+
 int MainPage::currentPauseMode()
 {
     QString n = QString("./config/%1.ini").arg(CurrentSettings());
@@ -1418,12 +1471,12 @@ void MainPage::testDebug()
     vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
     qDebug() << vv;
     qDebug() << "test hall";
-    qDebug() << powerShow(s2);
+//    qDebug() << powerShow(s2);
     qDebug() << "test show";
     QStringList angle;
     angle << full << half << with << hall;
     QString ss = angleShow(angle);
-    ss.append(powerShow(s2));
+//    ss.append(powerShow(s2));
     testBox = new PopupBox(this, "", "配置中，请稍后", QMessageBox::Ok);
     testBox->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     testBox->setStyleSheet("QDialog{border:2px solid cyan;}");
@@ -1432,12 +1485,20 @@ void MainPage::testDebug()
     testBox->show();
 
     QStringList square;
-    for (int i=0; i < 550; i++) {
-        square << QString::number(128*sin(i*6.28/360));
+    QStringList hallwave;
+    for (int i=0; i < 800; i++) {
+        square << QString::number(128*sin(i*6.28/360))+128;
+        if (((i+120)%360) > 180)
+            hallwave << "254";
+        else
+            hallwave << "14";
     }
+
     qDebug() << "test square";
     qDebug() << square;
     qDebug() << readSquare(square);
+    qDebug() << "test phase";
+    qDebug() << readPhase(square, hallwave);
 
     qDebug() << "test scale";
     qDebug() << readScale();
