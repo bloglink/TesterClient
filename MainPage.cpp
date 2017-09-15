@@ -404,7 +404,7 @@ void MainPage::readHall()
         double lMax = readMax(ll)*6.6/4095;
         double lMin = readMin(ll)*6.6/4095;
         QStringList ff;
-        ff << power.at(50+67) << power.at(50+87) << power.at(50+107);
+        ff << power.at(50+68) << power.at(50+88) << power.at(50+108);
         double fMax = readMax(ff);
         double fMin = readMin(ff);
         vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
@@ -417,10 +417,10 @@ void MainPage::readHall()
         QStringList limit = backemftest->readLimit();
         double tmp = (limit.at(6).toDouble()+limit.at(7).toDouble())/2;
         QStringList angle0 = readRotation(angleOrder(power), speed, count);
-        QStringList full = angleOffset(angleFilter(angle0, 360, 5, 10), offset.at(0).toDouble());
-        QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10), offset.at(0).toDouble());
-        QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10), offset.at(0).toDouble());
-        QStringList hall = angleOffset(angleFilter(angle0, tmp, 5, 10), offset.at(0).toDouble());
+        QStringList full = angleOffset(angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
+        QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(0).toDouble());
+        QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(0).toDouble());
+        QStringList hall = angleOffset(angleFilter(angle0, tmp, 5, 10).mid(36,9), offset.at(0).toDouble());
         QStringList angle;
         angle << full << half << with << hall;
 
@@ -537,9 +537,9 @@ QString MainPage::angleShow(QStringList s)
           << "VU1:" << "VU2:" << "VU3:"
           << "WV1:" << "WV2:" << "WV3:"
 
-          << "WV-U1:" << "WV-U2:" << "WV-U3:"
-          << "UV-W1:" << "UV-W2:" << "UV-W3:"
-          << "WU-V1:" << "WU-V2:" << "WU-V3:";
+          << "Hu-UV1:" << "Hu-UV2:" << "Hu-UV3:"
+          << "Hv-VW1:" << "Hv-VW2:" << "Hv-VW3:"
+          << "Hw-WU1:" << "Hw-WU2:" << "Hw-WU3:";
     for (int i=0; i < qMin(names.size(), s.size()); i++) {
         double angle = s.at(i).toDouble();
         QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
@@ -561,6 +561,8 @@ QString MainPage::powerShow(QStringList s)
     QStringList item;
     item << "高电平:" << "低电平:" << "频率:";
     for (int i=110; i < s.size(); i++) {
+        if (i >= 170)
+            break;
         int t = (i-50)%20;
         if (t == 0) {
             tmp.append(item.at(0));
