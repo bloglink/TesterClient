@@ -621,24 +621,25 @@ void TestPage::DrawWave()
     len = qMax(len, waveHu.size());
     len = qMax(len, waveHv.size());
     len = qMax(len, waveHw.size());
+    int t = readScale().toInt();
     QVector<double> ux(waveU.size()),uy(waveU.size());
     for (int i=0; i < waveU.size(); i++) {
         ux[i] = i;
-        uy[i] = (QString(waveU.at(i)).toDouble()-128)*20+800;
+        uy[i] = (QString(waveU.at(i)).toDouble()-128)*t/100+800;
     }
     graph1->setData(ux, uy);
 
     QVector<double> vx(waveV.size()),vy(waveV.size());
     for (int i=0; i < waveV.size(); i++) {
         vx[i] = i;
-        vy[i] = (QString(waveV.at(i)).toDouble()-128)*20+800;
+        vy[i] = (QString(waveV.at(i)).toDouble()-128)*t/100+800;
     }
     graph2->setData(vx, vy);
 
     QVector<double> wx(waveW.size()),wy(waveW.size());
     for (int i=0; i < waveW.size(); i++) {
         wx[i] = i;
-        wy[i] = (QString(waveW.at(i)).toDouble()-128)*20+800;
+        wy[i] = (QString(waveW.at(i)).toDouble()-128)*t/100+800;
     }
     graph3->setData(wx, wy);
 
@@ -726,6 +727,13 @@ QString TestPage::currentUser()
         return "guest";
     else
         return "admin";
+}
+
+QString TestPage::readScale()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/SCALE/bemf", "100").toString();
+    return temp;
 }
 
 void TestPage::showCode()

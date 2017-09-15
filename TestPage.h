@@ -86,6 +86,7 @@ private slots:
     void exportToCsv(QString title, QStringList wave);
     QString CurrentSettings();
     QString currentUser();
+    QString readScale();
     void showCode();
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);

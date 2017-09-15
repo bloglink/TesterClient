@@ -263,6 +263,7 @@ void MainPage::testInit()
     iobrd.sendPort(Y10);
     if (!readCylinder(X01_ORIGIN | X03_ORIGIN)) {
         iobrd.sendPort(0x00);
+        test->updateResult(STATUS_OVER);
         return;
     }
 
@@ -1223,6 +1224,13 @@ QString MainPage::currentUser()
         return "admin";
 }
 
+QString MainPage::readScale()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/SCALE/bemf", "100").toString();
+    return temp;
+}
+
 int MainPage::currentPauseMode()
 {
     QString n = QString("./config/%1.ini").arg(CurrentSettings());
@@ -1409,12 +1417,15 @@ void MainPage::testDebug()
     testBox->show();
 
     QStringList square;
-    for (int i=0; i < 360; i++) {
+    for (int i=0; i < 550; i++) {
         square << QString::number(128*sin(i*6.28/360));
     }
     qDebug() << "test square";
     qDebug() << square;
     qDebug() << readSquare(square);
+
+    qDebug() << "test scale";
+    qDebug() << readScale();
 }
 
 QStringList MainPage::readOffset()

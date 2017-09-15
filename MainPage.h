@@ -107,6 +107,7 @@ private slots:
     void testNLD();
     void testLOD();
     void testEMF();
+    void readWave(QString s);
     double readBalance(QStringList s);
     void testStop();
     void testStopAction();
@@ -119,6 +120,7 @@ private slots:
     QString CurrentSettings();
     QString currentPassword();
     QString currentUser();
+    QString readScale();
     int currentPauseMode();
     int currentAlarmTime(QString msg);
     void setCurrentUser(QString s);
@@ -169,6 +171,10 @@ private:
 
     PopupBox *warnnig;
     PopupBox *testBox;
+
+    double UU;
+    double UV;
+    double UW;
 };
 
 #endif // MAINPAGE_H
