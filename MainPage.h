@@ -123,6 +123,7 @@ private slots:
     QString currentUser();
     QString readScale();
     QString readVoltScale();
+    QString readHighVolt();
     int currentPauseMode();
     int currentAlarmTime(QString msg);
     void setCurrentUser(QString s);

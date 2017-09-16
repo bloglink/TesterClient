@@ -402,8 +402,8 @@ void MainPage::readHall()
     if (power.size() >= 170) {
         QStringList hh;
         hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
-        double hMax = readMax(hh)*5/4095;
-        double hMin = readMin(hh)*5/4095;
+        double hMax = readMax(hh)*5/4095*readHighVolt().toDouble()/100;
+        double hMin = readMin(hh)*5/4095*readHighVolt().toDouble()/100;
         QStringList ll;
         ll << power.at(50+61) << power.at(50+81) << power.at(50+101);
         double lMax = readMax(ll)*5/4095;
@@ -549,7 +549,7 @@ QString MainPage::angleShow(QStringList s)
           << "VU1:" << "VU2:" << "VU3:"
           << "WV1:" << "WV2:" << "WV3:"
 
-          << "Hu-UV1:" << "Hu-UV2:" << "Hu-UV3:"
+          << "Hu-UV:" << "Hv-VW:" << "Hw-WU:"
           << "Hv-VW1:" << "Hv-VW2:" << "Hv-VW3:"
           << "Hw-WU1:" << "Hw-WU2:" << "Hw-WU3:";
     for (int i=0; i < qMin(names.size(), s.size()); i++) {
@@ -681,6 +681,11 @@ double MainPage::readPhase(QStringList s1, QStringList s2)
             break;
         }
     }
+    int max = 0;
+    for (int i=0; i < s2.size(); i++) {
+        if (max < s2.at(i).toInt())
+            max = s2.at(i).toInt();
+    }
     for (int i=t1; i < s2.size()-10; i++) {
         double a1 = 0;
         double a2 = 0;
@@ -690,7 +695,7 @@ double MainPage::readPhase(QStringList s1, QStringList s2)
         }
         a1 /=5;
         a2 /=5;
-        if ((a1 >= 127) && (a2 <= 127)) {
+        if ((a1 >= max/2) && (a2 <= max/2)) {
             t2 = i+2;
             break;
         }
@@ -1296,6 +1301,13 @@ QString MainPage::readVoltScale()
 {
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
     QString temp = ini->value("/SCALE/volt", "100").toString();
+    return temp;
+}
+
+QString MainPage::readHighVolt()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/HALL/volt", "100").toString();
     return temp;
 }
 
