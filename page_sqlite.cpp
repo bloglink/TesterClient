@@ -86,7 +86,11 @@ void PageSqlite::initSql()
     db.setDatabaseName("./nandflash/aip.db");
     if (!db.open())
         qDebug() << QTime::currentTime().toString() << "open sql Error";
+    initTable();
+}
 
+void PageSqlite::initTable()
+{
     QSqlQuery query(db);
     QString s = "create table if not exists TestData";
     s += " (id integer primary key, date text, time text, type text, code text, user text, judge text)";
@@ -232,10 +236,14 @@ void PageSqlite::querySql()
 
 void PageSqlite::clearSql()
 {
+    db.close();
+    db.open();
     QSqlQuery query(db);
-    query.exec("drop table TestData");
-    query.exec("drop table TestDatas");
-    initSql();
+    if (!query.exec("drop table TestData"))
+        qDebug() << query.lastError();
+    if (!query.exec("drop table TestDatas"))
+        qDebug() << query.lastError();
+    initTable();
     initSqlTableModel();
 }
 

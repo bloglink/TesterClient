@@ -23,6 +23,7 @@
 #include <QSqlDatabase>
 #include <QDateTime>
 #include <QDateEdit>
+#include <QSqlError>
 
 #include "conf_delegation.h"
 
@@ -42,6 +43,7 @@ public slots:
 private slots:
     void initUI();
     void initSql();
+    void initTable();
     void initSqlTableModel();
     void readViews(QModelIndex index);
     void drawHistogram(QStringList names);
