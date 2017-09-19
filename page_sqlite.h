@@ -24,6 +24,7 @@
 #include <QDateTime>
 #include <QDateEdit>
 #include <QSqlError>
+#include <QFileDialog>
 
 #include "conf_delegation.h"
 
@@ -46,12 +47,12 @@ private slots:
     void initTable();
     void initSqlTableModel();
     void readViews(QModelIndex index);
-    void drawHistogram(QStringList names);
     void saveData();
     void querySql();
     void clearSql();
     void exportSql();
     QByteArray ToGbk(const QString &inStr);
+    QString getSaveFileName();
 private:
     QTableView *view;
     SqlTableModel *mView;

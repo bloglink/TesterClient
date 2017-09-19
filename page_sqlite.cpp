@@ -170,59 +170,6 @@ void PageSqlite::readViews(QModelIndex index)
     mViews->select();
 }
 
-void PageSqlite::drawHistogram(QStringList names)
-{
-    customplot = new QCustomPlot(this);
-    customplot->setBackground(QBrush(QColor(25, 25, 25))); //设置背景色
-    customplot->axisRect()->setMinimumMargins(QMargins(0, 0, 0, 0));
-    customplot->axisRect()->setupFullAxesBox();
-    QStringList colors;
-    colors << "red" << "green" << "blue" << "cyan" << "magenta"
-           << "yellow" << "darkRed" << "darkGreen" << "darkBlue"
-           << "darkCyan" << "darkMagenta" << "darkYellow";
-    for (int i=0; i < names.size(); i++) {
-        QVector<double> x1(1), y1(1);
-        x1[0] = i+1;
-        y1[0] = (i+1)*8;
-
-        QCPBars *bars1 = new QCPBars(customplot->xAxis, customplot->yAxis);
-        bars1->setWidth(0.9);
-        bars1->setData(x1, y1);
-        bars1->setPen(Qt::NoPen);
-        bars1->setBrush(QColor(colors.at(i)));
-    }
-    QLinearGradient plotGradient;
-    plotGradient.setStart(0, 0);
-    plotGradient.setFinalStop(0, 350);
-    plotGradient.setColorAt(0, QColor(80, 80, 80));
-    plotGradient.setColorAt(1, QColor(50, 50, 50));
-    customplot->setBackground(plotGradient);
-
-    QVector<double> ticks(names.size());
-    QVector<QString> labels(names.size());
-    for (int i=0; i < names.size(); i++) {
-        ticks[i] = i+1;
-        labels[i] = names.at(i);
-    }
-    QSharedPointer<QCPAxisTickerText> textTicker(new QCPAxisTickerText);
-    textTicker->addTicks(ticks, labels);
-    customplot->xAxis->setTicker(textTicker);
-    customplot->xAxis->setTickLabelRotation(0);
-    customplot->xAxis->setSubTicks(false);
-    customplot->xAxis->setTickLength(0, 1);
-    customplot->xAxis->setRange(0.5, names.size()+0.5);
-    customplot->xAxis->setBasePen(QPen(Qt::black));
-    customplot->xAxis->setTickPen(QPen(Qt::black));
-    customplot->xAxis->grid()->setVisible(false);
-    customplot->yAxis->grid()->setVisible(false);
-    customplot->xAxis->setTickLabelColor(Qt::white);
-    customplot->xAxis->setLabelColor(Qt::white);
-    customplot->yAxis->setTicks(false);
-    customplot->yAxis2->setTicks(false);
-    customplot->xAxis2->setTicks(false);
-    customplot->yAxis->setRange(0, 100);
-}
-
 void PageSqlite::saveData()
 {
     emit buttonClicked(NULL);
@@ -249,7 +196,8 @@ void PageSqlite::clearSql()
 
 void PageSqlite::exportSql()
 {
-    QFile file(QString("%1.csv").arg(QDate::currentDate().toString("yy-MM-dd")));
+    QString name = getSaveFileName();
+    QFile file(QString("%1.csv").arg(name));
     if (!file.open(QFile::WriteOnly)) {
         QMessageBox::warning(this,  "",   "创建失败",  QMessageBox::Ok);
         return;
@@ -312,4 +260,13 @@ QByteArray PageSqlite::ToGbk(const QString &inStr)
 {
     QTextCodec *gbk = QTextCodec::codecForName("GB18030");
     return gbk->fromUnicode(inStr);
+}
+
+QString PageSqlite::getSaveFileName()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    tr("Open Config"),
+                                                    QDate::currentDate().toString("yy-MM-dd"),
+                                                    tr("Config Files (*.csv)"));
+    return fileName;
 }
