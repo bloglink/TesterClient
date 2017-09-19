@@ -261,7 +261,7 @@ void MainPage::testInit()
     test->initItems(station);
 
     iobrd.sendPort(Y10);
-    if (!readCylinder(X01_ORIGIN | X03_ORIGIN)) {
+    if (!readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN)) {
         iobrd.sendPort(0x00);
         test->updateResult(STATUS_OVER);
         return;
@@ -359,19 +359,55 @@ void MainPage::testDCR()
 
 void MainPage::testINR()
 {
+    bool cylinder = false;
+
+    iobrd.sendPort(Y03 | Y10);
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
     QJsonObject obj;
     obj.insert("TxMessage","6006 IR");
     emit transmitJson(obj);
     waitTimeOut(STATUS_INR);
     wait(100);
+
+    iobrd.sendPort(Y10);
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 }
 
 void MainPage::testACW()
 {
+    bool cylinder = false;
+
+    iobrd.sendPort(Y03 | Y10);  // 气缸3压紧
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
     QJsonObject obj;
     obj.insert("TxMessage","6006 ACW");
     emit transmitJson(obj);
     waitTimeOut(STATUS_ACW);
+    wait(100);
+
+    iobrd.sendPort(Y10);  // 气缸3压紧
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
     wait(100);
 }
 
@@ -708,142 +744,103 @@ void MainPage::testNLD()
     bool cylinder = false;
 
     iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X04_ORIGIN | X03_TARGET);
     if (!cylinder) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
 
-    if (!wt330.initPort("COM4")) {
-        QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
-        status = STATUS_OVER;
-        return;
-    }
-
     QJsonObject obj;
     obj.insert("TxMessage","6006 NOLAOD");
     emit transmitJson(obj);
     waitTimeOut(STATUS_NLD);
-    if (status != STATUS_OVER) {
-        QStringList tmp = wt330.readMeter();
-        if (tmp.size() >= 30) {
-            double I1 = tmp.at(1).toDouble();
-            double I2 = tmp.at(11).toDouble();
-            double I3 = tmp.at(21).toDouble();
-            QStringList Is;
-            Is << tmp.at(1) << tmp.at(11) << tmp.at(21);
-            double rpm = -1;
-            QString tt;
-            tt.append(QString("%1A,").arg(QString::number(I1, 'f', 2)));
-            tt.append(QString("%1A,").arg(QString::number(I2, 'f', 2)));
-            tt.append(QString("%1A,").arg(QString::number(I3, 'f', 2)));
-            tt.append(QString("%1A,").arg(QString::number(readAvr(Is), 'f', 2)));
-            tt.append(QString("%1%,").arg(QString::number(readBalance(Is), 'f', 1)));
-            if (power.size() > 1)
-                rpm = power.at(0).toDouble()*1000;
-            if (halltesting->readCount() != 0)
-                rpm /= halltesting->readCount();
-            tt.append(QString("%1rpm").arg(rpm));
-            test->updateItem(tt);
-            QString qq;
-            qq.append(QString("U相电压:%1V\t").arg(tmp.at(0).toDouble()));
-            qq.append(QString("U相电流:%1A\t").arg(tmp.at(1).toDouble()));
-            qq.append(QString("U相功率:%1W\n").arg(tmp.at(3).toDouble()));
-            qq.append(QString("V相电压:%1V\t").arg(tmp.at(10).toDouble()));
-            qq.append(QString("V相电流:%1A\t").arg(tmp.at(11).toDouble()));
-            qq.append(QString("V相功率:%1W\n").arg(tmp.at(13).toDouble()));
-            qq.append(QString("W相电压:%1V\t").arg(tmp.at(20).toDouble()));
-            qq.append(QString("W相电流:%1A\t").arg(tmp.at(21).toDouble()));
-            qq.append(QString("W相功率:%1W\n").arg(tmp.at(23).toDouble()));
-            test->setTextLoad(qq);
-            QString jj = "OK";
-            QStringList ss = noloadtest->readLimit();
-            if (I1 < ss.at(1).toDouble() || I1 > ss.at(2).toDouble())
-                jj = "NG";
-            if (I2 < ss.at(1).toDouble() || I2> ss.at(2).toDouble())
-                jj = "NG";
-            if (I3 < ss.at(1).toDouble() || I3 > ss.at(2).toDouble())
-                jj = "NG";
-            if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
-                jj = "NG";
-            test->updateJudge(jj);
-        } else {
-            QMessageBox::warning(this, "", "电参失败", QMessageBox::Ok);
-            test->updateItem("NULL");
-            test->updateJudge("NG");
-        }
+
+    iobrd.sendPort(Y10);  // 气缸全部归位
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
     }
-    QStringList s = conf->testItems();
-    QList<int> tt;
-    for (int i=0; i < s.size(); i++) {
-        tt.append(QString(s.at(i)).toInt());
-    }
-    if (tt.indexOf(STATUS_EMF) - tt.indexOf(STATUS_NLD) != 1) {
-        iobrd.sendPort(Y10);  // 气缸全部归位
-        cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-        if (!cylinder) {
-            status = STATUS_OVER;
-            return;
-        }
-        wait(100);
-    }
-    wt330.initPort(NULL);
+    wait(100);
 }
 
 void MainPage::testLOD()
 {
-    //    bool cylinder = false;
-    //    iobrd.sendPort(Y10);  // 气缸全部归位
-    //    cylinder = readCylinderL(X01_ORIGIN | X03_ORIGIN);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
+    bool cylinder = false;
+    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 
-    //    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    //    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
+    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
+    cylinder = readCylinder(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 
-    //    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-    //    cylinder = readCylinderL(X01_ORIGIN | X03_TARGET);
-    //    if (!cylinder) {
-    //        status = STATUS_OVER;
-    //        return;
-    //    }
-    //    wait(100);
+    iobrd.sendPort(Y00 | Y01 | Y02 | Y10);  // 气缸1上升
+    cylinder = readCylinder(X01_TARGET | X02_TARGET | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 
-    //    QJsonObject obj;
-    //    obj.insert("TxMessage","6006 LOAD");
-    //    emit transmitJson(obj);
-    //    wait(1500);
+    QJsonObject obj;
+    obj.insert("TxMessage","6006 LOAD");
+    emit transmitJson(obj);
+    wait(1500);
 
-    //    plc->pre_speed();
-    //    int load = loadtesting->readLoad()*2446;
+    plc.setStart(1);
+    wait(50);
+    plc.setTorque(0);
+    wait(50);
+    plc.setMode(0);
+    wait(50);
+    plc.setTurn(0);
+    wait(50);
+    int torque = 500;
+    torque = torque + torque /250;
+    for (int i=1; i < 11; i++) {
+        plc.setTorque(torque*i/10);
+        wait(100);
+    }
+    wait(5000);
+    for (int i=1; i < 11; i++) {
+        plc.setTorque(torque/10*(10-i));
+        wait(100);
+    }
+    wait(100);
 
-    //    for (int i=0; i < 11; i++) {
-    //        plc->add_speed(load/10*i);
-    //        wait(100);
-    //    }
-    //    plc->readPlc();
-    //    quint16 speed = plc->speed;
-    //    quint16 torque = plc->torque;
-    //    QString s = QString("转速:%1,转矩:%2\n").arg(speed).arg(torque);
-    //    QMessageBox::warning(this, "伺服", s, QMessageBox::Ok);
-    //    wait(1500);
-    //    for (int i=0; i < 11; i++) {
-    //        plc->add_speed(load/10*(10-i));
-    //        wait(100);
-    //    }
+    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
+    cylinder = readCylinder(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 
-    //    wait(1500);
-    //    plc->end_speed();
-    //    wait(100);
+    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
+
+    iobrd.sendPort(Y10);  // 气缸全部归位
+    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
+    if (!cylinder) {
+        status = STATUS_OVER;
+        return;
+    }
+    wait(100);
 
 }
 
@@ -1032,8 +1029,8 @@ void MainPage::testTimeOut()
 
 bool MainPage::readCylinder(quint16 s)
 {
-//            wait(1000);
-//            return true;
+    //            wait(1000);
+    //            return true;
     quint16 timeOut = 0x0000;
     quint16 count = 0;
     while (1) {
