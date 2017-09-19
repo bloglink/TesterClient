@@ -10,7 +10,7 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-//                testDebug();
+    //                testDebug();
     initUI();
     initPLC();
     status = STATUS_FREE;
@@ -88,7 +88,7 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonTest3()), this, SLOT(testACW()));
     connect(test, SIGNAL(buttonTest4()), this, SLOT(testIND()));
     connect(test, SIGNAL(buttonTest5()), this, SLOT(testNLD()));
-    connect(test, SIGNAL(buttonTest6()), this, SLOT(testEMF()));
+    connect(test, SIGNAL(buttonTest6()), this, SLOT(testLOD()));
 
     resistance = new ConfResistance(this);
     connect(resistance, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
@@ -216,7 +216,7 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 9032:
         readStart(false);
-        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
+        //        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
     default:
         break;
@@ -1480,12 +1480,12 @@ void MainPage::testDebug()
     vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
     qDebug() << vv;
     qDebug() << "test hall";
-//    qDebug() << powerShow(s2);
+    //    qDebug() << powerShow(s2);
     qDebug() << "test show";
     QStringList angle;
     angle << full << half << with << hall;
     QString ss = angleShow(angle);
-//    ss.append(powerShow(s2));
+    //    ss.append(powerShow(s2));
     testBox = new PopupBox(this, "", "配置中，请稍后", QMessageBox::Ok);
     testBox->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     testBox->setStyleSheet("QDialog{border:2px solid cyan;}");
