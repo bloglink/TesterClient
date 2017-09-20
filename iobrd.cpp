@@ -87,13 +87,14 @@ bool IOBrd::waitPort(quint16 hex)
             if (count > 5)
                 return true;
         }
-        wait(10);
+        wait(50);
         timeOut++;
-        if (timeOut > 500) {
+        if (timeOut > 100) {
             QMessageBox::warning(NULL, "气缸", "气缸超时", QMessageBox::Ok);
             return false;
         }
         if (isQuit) {
+            QMessageBox::warning(NULL, "气缸", "气缸退出", QMessageBox::Ok);
             isQuit = false;
             return false;
         }
@@ -112,9 +113,9 @@ bool IOBrd::readThread()
     if (com->bytesAvailable() > 7) {
         QByteArray msg = com->readAll();
         status = quint16(msg.at(3)*256) + quint8(msg.at(4));
-        if (status & X10)
+        if ((status & X10) || (status & X11))
             emit sendStart(1);
-        if (status & X12)
+        if ((status & X12) || (status & X13))
             emit sendStart(0);
         return true;
     }
