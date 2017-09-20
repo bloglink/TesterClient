@@ -57,6 +57,8 @@ void MainPage::initUI()
     qss = QLatin1String(file.readAll());
     qApp->setStyleSheet(qss);
 
+    connect(this, SIGNAL(transmitShow(QString)), this, SLOT(recvAppShow(QString)));
+
     HomePage *home = new HomePage(this);
     connect(home, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
@@ -155,13 +157,6 @@ void MainPage::initCom()
 
     connect(&iobrdL, SIGNAL(sendStart(bool)), this, SLOT(readStartL(bool)));
     connect(&iobrdR, SIGNAL(sendStart(bool)), this, SLOT(readStartR(bool)));
-
-    mbdktL.setStart(0);     // 关闭伺服
-    mbdktR.setStart(0);     // 关闭伺服
-    iobrdL.sendPort(0x00);  // 气缸全部归位
-    iobrdL.waitPort(0x00);  // 等待气缸归位
-    iobrdR.sendPort(0x00);  // 气缸全部归位
-    iobrdR.waitPort(0x00);  // 等待气缸归位
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -976,6 +971,18 @@ bool MainPage::cylinderAction(quint16 cylinder, quint16 s)
         return iobrdR.waitPort(cylinder);
     }
     return false;
+}
+
+void MainPage::recvAppShow(QString win)
+{
+    if (win == "TestPage") {
+        mbdktL.setStart(0);     // 关闭伺服
+        mbdktR.setStart(0);     // 关闭伺服
+        iobrdL.sendPort(0x00);  // 气缸全部归位
+        iobrdL.waitPort(0x00);  // 等待气缸归位
+        iobrdR.sendPort(0x00);  // 气缸全部归位
+        iobrdR.waitPort(0x00);  // 等待气缸归位
+    }
 }
 
 void MainPage::showWarnning()

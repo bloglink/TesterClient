@@ -122,6 +122,7 @@ private slots:
     QStringList readOffset();
     void sendUdpCommand(QString cmd);
     bool cylinderAction(quint16 cylinder, quint16 s);
+    void recvAppShow(QString win);
 
 private:
     QList<int> previous_window;
