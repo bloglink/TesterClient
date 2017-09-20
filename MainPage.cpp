@@ -157,11 +157,11 @@ void MainPage::initUI()
 void MainPage::initCom()
 {
     iobrdL.initPort("COM3");
-    mbdktL.initPort("COM4");
-    servoL.initPort("COM5");
+    servoL.initPort("COM4");
+    mbdktL.initPort("COM5");
     iobrdR.initPort("COM6");
-    mbdktR.initPort("COM7");
-    servoR.initPort("COM8");
+    servoR.initPort("COM7");
+    mbdktR.initPort("COM8");
 
     connect(&iobrdL, SIGNAL(sendStart(bool)), this, SLOT(readStartL(bool)));
     connect(&iobrdR, SIGNAL(sendStart(bool)), this, SLOT(readStartR(bool)));
@@ -225,6 +225,9 @@ void MainPage::recvNetMsg(QString msg)
         readStartR(false);
         QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
+    case 6033:
+        mbdktActionStop(loadtesting->readTorque()*1000, station);
+        break;
     default:
         break;
     }
@@ -239,7 +242,6 @@ void MainPage::readButtons(QByteArray win)
         emit transmitShow(stack->widget(previous_window.last())->objectName());
         stack->setCurrentIndex(previous_window.last());
         previous_window.removeLast();
-        //        testDebug();
         return;
     }
     for (int i=0; i < stack->count(); i++) {
@@ -536,28 +538,7 @@ void MainPage::testLOD()
     }
     wait(100);
     sendUdpCommand("6006 LOAD");          // 启动
-    wait(1500);
-
-    mbdktL.setStart(1);
-    wait(50);
-    mbdktL.setTorque(0);
-    wait(50);
-    mbdktL.setMode(0);
-    wait(50);
-    mbdktL.setTurn(0);
-    wait(50);
-    int torque = 500;
-    torque = torque + torque /250;
-    for (int i=1; i < 11; i++) {
-        mbdktL.setTorque(torque*i/10);
-        wait(100);
-    }
-    wait(5000);
-    for (int i=1; i < 11; i++) {
-        mbdktL.setTorque(torque/10*(10-i));
-        wait(100);
-    }
-    wait(100);
+    waitTimeOut(STATUS_LOD);                // 等待测试完成
 
     if (!cylinderAction(Y00 | Y02 | Y10, station)) {
         status = STATUS_OVER;
@@ -910,7 +891,9 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 
 void MainPage::readNoLoad()
 {
-
+    if (status == STATUS_LOD) {
+        mbdktAction(loadtesting->readTorque()*1000, station);
+    }
 }
 
 void MainPage::readBtnStart()
@@ -994,6 +977,65 @@ bool MainPage::cylinderAction(quint16 cylinder, quint16 s)
     return false;
 }
 
+bool MainPage::mbdktAction(int torque, quint16 s)
+{
+    if (s == 0x13) {
+        if (!mbdktL.setStart(1))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktL.setTurn(0))
+            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktL.setMode(0))
+            QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktL.setTorque(0))
+            QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
+        wait(100);
+        torque = torque + torque /250;
+        for (int i=1; i < 11; i++) {
+            if (!mbdktL.setTorque(torque*i/10))
+                QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
+            wait(100);
+        }
+    } else if (s == 0x14) {
+        mbdktR.setStart(1);
+        wait(50);
+        mbdktR.setTorque(0);
+        wait(50);
+        mbdktR.setMode(0);
+        wait(50);
+        mbdktR.setTurn(0);
+        wait(50);
+        torque = torque + torque /250;
+        for (int i=1; i < 11; i++) {
+            mbdktR.setTorque(torque*i/10);
+            wait(100);
+        }
+    }
+    return false;
+}
+
+bool MainPage::mbdktActionStop(int torque, quint16 s)
+{
+    if (s == 0x13) {
+        for (int i=1; i < 11; i++) {
+            mbdktL.setTorque(torque/10*(10-i));
+            wait(100);
+        }
+        mbdktL.setStart(0);
+        return true;
+    } else if (s == 0x14) {
+        for (int i=1; i < 11; i++) {
+            mbdktR.setTorque(torque/10*(10-i));
+            wait(100);
+        }
+        mbdktR.setStart(0);
+        return true;
+    }
+    return false;
+}
+
 void MainPage::recvAppShow(QString win)
 {
     if (win == "TestPage") {
@@ -1004,6 +1046,14 @@ void MainPage::recvAppShow(QString win)
         iobrdR.sendPort(0x00);  // 气缸全部归位
         iobrdR.waitPort(0x00);  // 等待气缸归位
     }
+}
+
+void MainPage::showDebug(QString s)
+{
+    box2->setText(s);
+    box2->show();
+    wait(3000);
+    box2->hide();
 }
 
 void MainPage::showWarnning()

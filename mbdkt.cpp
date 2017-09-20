@@ -120,6 +120,9 @@ bool MBDKT::sendCommand(QByteArray cmd)
         if (timeOut > 100)
             return false;
     }
-    com->readAll();
-    return true;
+    QByteArray msg = com->readAll();
+    if (msg.at(3) == '!')
+        return false;
+    else
+        return true;
 }

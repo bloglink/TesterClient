@@ -35,6 +35,7 @@
 
 #include "WinSyst.h"
 #include "page_sqlite.h"
+#include "backpage.h"
 
 #include "iobrd.h"
 #include "servo.h"
@@ -122,7 +123,10 @@ private slots:
     QStringList readOffset();
     void sendUdpCommand(QString cmd);
     bool cylinderAction(quint16 cylinder, quint16 s);
+    bool mbdktAction(int torque, quint16 s);
+    bool mbdktActionStop(int torque, quint16 s);
     void recvAppShow(QString win);
+    void showDebug(QString s);
 
 private:
     QList<int> previous_window;
@@ -133,6 +137,7 @@ private:
     ConfPage *conf;
     TestPage *test;
     PageSqlite *winData;
+    BackPage *winBack;
 
     ConfResistance *resistance;
     ConfCurrent_AC *current_ac;
@@ -173,6 +178,7 @@ private:
     QStringList waveHw;
 
     LQMath math;
+    PopupBox *box2;
 };
 
 #endif // MAINPAGE_H
