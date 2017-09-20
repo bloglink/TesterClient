@@ -65,6 +65,9 @@ void MainPage::initUI()
     WinSyst *syst = new WinSyst(this);
     connect(syst, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
+    winBack = new BackPage(this);
+    connect(winBack, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+
     winData = new PageSqlite(this);
     connect(winData, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
@@ -124,6 +127,7 @@ void MainPage::initUI()
     stack->addWidget(home);
     stack->addWidget(syst);
     stack->addWidget(winData);
+    stack->addWidget(winBack);
     stack->addWidget(conf);
     stack->addWidget(test);
     stack->addWidget(resistance);
@@ -143,6 +147,11 @@ void MainPage::initUI()
     warnnig->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     warnnig->setStyleSheet("QDialog{border:2px solid cyan;}");
     warnnig->hide();
+
+    box2 = new PopupBox(this, "", "", QMessageBox::Ok);
+    box2->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
+    box2->setStyleSheet("QDialog{border:2px solid cyan;}");
+    box2->hide();
 }
 
 void MainPage::initCom()
