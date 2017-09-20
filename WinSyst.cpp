@@ -45,6 +45,7 @@ void WinSyst::initButtons()
     btnGroup->addButton(ui->BtnSystPasswordOK, Qt::Key_3);
     btnGroup->addButton(ui->BtnSystPasswordExit, Qt::Key_4);
     btnGroup->addButton(ui->BtnExit, Qt::Key_4);
+    btnGroup->addButton(ui->btnBack, Qt::Key_5);
     connect(btnGroup, SIGNAL(buttonClicked(int)), this, SLOT(ReadButtons(int)));
 }
 
@@ -53,7 +54,7 @@ void WinSyst::ReadButtons(int id)
     switch (id) {
     case Qt::Key_0:
         if (ui->EditPassword->text() == "AIP9918")
-            emit SendCommand(ADDR, CMD_JUMP, "WinBack");
+            emit buttonClicked("BackPage");
         else if (ui->EditPassword->text() == password)
             ui->StackWinSyst->setCurrentIndex(0);
         else if (ui->EditPassword->text() == "aip9918")
@@ -74,6 +75,9 @@ void WinSyst::ReadButtons(int id)
         ui->StackWinSyst->setCurrentIndex(1);
         SaveSettings();
         emit buttonClicked(NULL);
+        break;
+    case Qt::Key_5:
+        ui->StackWinSyst->setCurrentIndex(1);
         break;
     default:
         break;
