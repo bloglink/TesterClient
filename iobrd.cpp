@@ -94,7 +94,6 @@ bool IOBrd::waitPort(quint16 hex)
             return false;
         }
         if (isQuit) {
-            QMessageBox::warning(NULL, "气缸", "气缸退出", QMessageBox::Ok);
             isQuit = false;
             return false;
         }
