@@ -3,6 +3,7 @@
 IOBrd::IOBrd(QObject *parent) : QObject(parent)
 {
     com = NULL;
+    isQuit = false;
     status = 0x0000;
 }
 
@@ -56,6 +57,52 @@ bool IOBrd::sendPort(quint16 hex)
     return true;
 }
 
+bool IOBrd::waitPort(quint16 hex)
+{
+    quint16 s = 0x0000;
+    if (hex & Y00)
+        s |= X01_TARGET;
+    else
+        s |= X01_ORIGIN;
+    if (hex & Y01)
+        s |= X02_TARGET;
+    else
+        s |= X02_ORIGIN;
+    if (hex & Y02)
+        s |= X03_TARGET;
+    else
+        s |= X03_ORIGIN;
+    if (hex & Y03)
+        s |= X04_TARGET;
+    else
+        s |= X04_ORIGIN;
+
+    quint16 timeOut = 0x0000;
+    quint16 count = 0;
+    while (1) {
+        if ((status & 0xFF00) == s) {
+            count++;
+            if (count > 50)
+                return true;
+        }
+        wait(10);
+        timeOut++;
+        if (timeOut > 500) {
+            QMessageBox::warning(NULL, "气缸", "气缸超时", QMessageBox::Ok);
+            return false;
+        }
+        if (isQuit) {
+            isQuit = false;
+            return false;
+        }
+    }
+}
+
+void IOBrd::quitPort(bool s)
+{
+    isQuit = s;
+}
+
 bool IOBrd::readThread()
 {
     if (com == NULL || !com->isOpen())
@@ -70,6 +117,15 @@ bool IOBrd::readThread()
         return true;
     }
     com->write(QByteArray::fromHex("7B06F100F77D"));  // 读取IO板状态
+    return true;
+}
+
+bool IOBrd::wait(int ms)
+{
+    QElapsedTimer t;
+    t.start();
+    while (t.elapsed() < ms)
+        QCoreApplication::processEvents();
     return true;
 }
 

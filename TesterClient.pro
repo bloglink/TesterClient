@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     dcombobox.cpp \
     dspinbox.cpp \
     ddoublespinbox.cpp \
-    MessageBox.cpp
+    MessageBox.cpp \
+    lqmath.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -76,7 +77,8 @@ HEADERS  += \
     dcombobox.h \
     dspinbox.h \
     ddoublespinbox.h \
-    MessageBox.h
+    MessageBox.h \
+    lqmath.h
 
 FORMS    += \
     WinSyst.ui

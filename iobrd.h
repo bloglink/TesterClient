@@ -1,9 +1,13 @@
 #ifndef IOBRD_H
 #define IOBRD_H
 
+#include <QDebug>
 #include <QTimer>
 #include <QObject>
 #include <QDataStream>
+#include <QMessageBox>
+#include <QElapsedTimer>
+#include <QCoreApplication>
 #include <QtSerialPort/QSerialPort>
 
 //#define X01_TARGET 0x0100
@@ -51,8 +55,8 @@
 
 #define LED_B Y08
 #define LED_R Y09
-#define LEY_Y Y10
-#define LEY_G Y11
+#define LED_Y Y10
+#define LED_G Y11
 
 class IOBrd : public QObject
 {
@@ -66,11 +70,15 @@ public slots:
     bool initPort(QString portName);
     quint16 readPort();
     bool sendPort(quint16 hex);
+    bool waitPort(quint16 hex);
+    void quitPort(bool s);
 private slots:
     bool readThread();
+    bool wait(int t);
 private:
     QSerialPort *com;
     quint16 status;
+    bool isQuit;
 };
 
 #endif // IOBRD_H

@@ -10,17 +10,13 @@
 
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
-    //                testDebug();
     initUI();
-    initPLC();
+    initCom();
     status = STATUS_FREE;
     station = 0x13;
     testing = false;
     isNG = false;
     isServo = false;
-    UU = 0;
-    UV = 0;
-    UW = 0;
 }
 
 MainPage::~MainPage()
@@ -148,16 +144,24 @@ void MainPage::initUI()
 
 }
 
-void MainPage::initPLC()
+void MainPage::initCom()
 {
-    iobrd.initPort("COM3");
-    servo.initPort("COM5");
-    plc.initPort("COM6");
-    connect(&iobrd, SIGNAL(sendStart(bool)), this, SLOT(readStart(bool)));
+    iobrdL.initPort("COM3");
+    mbdktL.initPort("COM4");
+    servoL.initPort("COM5");
+    iobrdR.initPort("COM6");
+    mbdktR.initPort("COM7");
+    servoR.initPort("COM8");
 
-    iobrd.sendPort(0x00);  // 气缸全部归位
-    readCylinder(X01_ORIGIN | X03_ORIGIN);
-    plc.setStart(0);
+    connect(&iobrdL, SIGNAL(sendStart(bool)), this, SLOT(readStartL(bool)));
+    connect(&iobrdR, SIGNAL(sendStart(bool)), this, SLOT(readStartR(bool)));
+
+    mbdktL.setStart(0);     // 关闭伺服
+    mbdktR.setStart(0);     // 关闭伺服
+    iobrdL.sendPort(0x00);  // 气缸全部归位
+    iobrdL.waitPort(0x00);  // 等待气缸归位
+    iobrdR.sendPort(0x00);  // 气缸全部归位
+    iobrdR.waitPort(0x00);  // 等待气缸归位
 }
 
 void MainPage::initUdp(QJsonObject obj)
@@ -209,14 +213,14 @@ void MainPage::recvNetMsg(QString msg)
         break;
     case 6021:
         test->updateWave(dat);
-        readWave(dat);
         break;
     case 6032:
         test->updateTemp(dat);
         break;
     case 9032:
-        readStart(false);
-        //        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
+        readStartL(false);
+        readStartR(false);
+        QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
     default:
         break;
@@ -260,9 +264,9 @@ void MainPage::testInit()
 {
     test->initItems(station);
 
-    iobrd.sendPort(Y10);
-    if (!readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN)) {
-        iobrd.sendPort(0x00);
+    iobrdL.sendPort(LED_Y);
+    if(!iobrdL.waitPort(Y10)) {
+        iobrdL.sendPort(0x00);
         test->updateResult(STATUS_OVER);
         return;
     }
@@ -298,9 +302,6 @@ void MainPage::testInit()
         case STATUS_LOD:
             testLOD();
             break;
-        case STATUS_EMF:
-            testEMF();
-            break;
         default:
             break;
         }
@@ -329,14 +330,14 @@ void MainPage::testInit()
     xx.append(currentUser());
     xx.append("@");
     if (test->updateResult(status)) {
-        iobrd.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
+        iobrdL.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
         wait(currentAlarmTime("OK"));
-        iobrd.sendPort(Y08);  // 绿灯
+        iobrdL.sendPort(Y08);  // 绿灯
         xx.append("OK");
     } else {
-        iobrd.sendPort(Y09 | Y11);  // 红灯加蜂鸣器
+        iobrdL.sendPort(Y09 | Y11);  // 红灯加蜂鸣器
         wait(currentAlarmTime("NG"));
-        iobrd.sendPort(Y11);  // 红灯
+        iobrdL.sendPort(Y11);  // 红灯
         xx.append("NG");
     }
     QJsonObject objs;

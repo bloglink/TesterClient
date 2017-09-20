@@ -80,10 +80,9 @@ public slots:
     bool login();
     void readSettings();
     void showWarnning();
-    void testDebug();
 private slots:
     void initUI();
-    void initPLC();
+    void initCom();
     void initUdp(QJsonObject obj);
     void recvNetMsg(QString msg);
     void readButtons(QByteArray win);
@@ -117,9 +116,12 @@ private slots:
     void readNoLoad();
     void readBtnStart();
     void readBtnStop();
-    void readStart(bool s);
+    void readStartL(bool s);
+    void readStartR(bool s);
     void readSelfCheck(QString s);
     QStringList readOffset();
+    void sendUdpCommand(QString cmd);
+    bool cylinderAction(quint16 cylinder, quint16 s);
 
 private:
     QList<int> previous_window;
@@ -140,10 +142,12 @@ private:
     ConfBackEMFTest *backemftest;
     ConfHall *halltesting;
 
-    IOBrd iobrd;
-    Servo servo;
-    MBDKT plc;
-    WT330 wt330;
+    IOBrd iobrdL;
+    Servo servoL;
+    MBDKT mbdktL;
+    IOBrd iobrdR;
+    Servo servoR;
+    MBDKT mbdktR;
 
     int status;
     int station;
@@ -160,16 +164,14 @@ private:
     PopupBox *warnnig;
     PopupBox *testBox;
 
-    double UU;
-    double UV;
-    double UW;
-
     QStringList waveU;
     QStringList waveV;
     QStringList waveW;
     QStringList waveHu;
     QStringList waveHv;
     QStringList waveHw;
+
+    LQMath math;
 };
 
 #endif // MAINPAGE_H
