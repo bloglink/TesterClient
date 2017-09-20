@@ -143,7 +143,6 @@ void MainPage::initUI()
     warnnig->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
     warnnig->setStyleSheet("QDialog{border:2px solid cyan;}");
     warnnig->hide();
-
 }
 
 void MainPage::initCom()
@@ -325,14 +324,14 @@ void MainPage::testInit()
     xx.append(currentUser());
     xx.append("@");
     if (test->updateResult(status)) {
-        iobrdL.sendPort(Y08 | Y09);  // 绿灯加蜂鸣器
+        iobrdL.sendPort(LED_G | LED_B);  // 绿灯加蜂鸣器
         wait(currentAlarmTime("OK"));
-        iobrdL.sendPort(Y08);  // 绿灯
+        iobrdL.sendPort(LED_G);  // 绿灯
         xx.append("OK");
     } else {
-        iobrdL.sendPort(Y09 | Y11);  // 红灯加蜂鸣器
+        iobrdL.sendPort(LED_R | LED_B);  // 红灯加蜂鸣器
         wait(currentAlarmTime("NG"));
-        iobrdL.sendPort(Y11);  // 红灯
+        iobrdL.sendPort(LED_R);  // 红灯
         xx.append("NG");
     }
     QJsonObject objs;

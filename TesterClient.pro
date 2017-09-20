@@ -13,8 +13,7 @@ linux{
 LIBS += /usr/lib/i386-linux-gnu/libqrencode.so
 }
 win32{
-LIBS+= E:\Code\TesterClient\qrcodelib.lib
-LIBS+= E:\Code\TesterClient\qrcodelib.dll
+LIBS += E:\Var\TesterClient\qrcodelib.lib
 }
 TARGET = TesterClient
 TEMPLATE = app

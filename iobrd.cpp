@@ -77,12 +77,14 @@ bool IOBrd::waitPort(quint16 hex)
     else
         s |= X04_ORIGIN;
 
+    qDebug() << "recv" << QString::number(s, 16);
+
     quint16 timeOut = 0x0000;
     quint16 count = 0;
     while (1) {
         if ((status & 0xFF00) == s) {
             count++;
-            if (count > 50)
+            if (count > 5)
                 return true;
         }
         wait(10);
