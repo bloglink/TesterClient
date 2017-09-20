@@ -43,6 +43,8 @@
 
 #include "MessageBox.h"
 
+#include "lqmath.h"
+
 #define STATUS_DCR 0x01
 #define STATUS_MAG 0x02
 #define STATUS_INR 0x03
@@ -93,27 +95,10 @@ private slots:
     void testIND();
     void testHAL();
     void readHall();
-    QStringList angleOrder(QStringList s);
-    QStringList readRotation(QStringList s, int speed, int count);
-    QStringList angleFilter(QStringList s, double std, double min, double max);
-    QStringList angleOffset(QStringList s, double offset);
-    QString angleShow(QStringList s);
-    QString powerShow(QStringList s1, QStringList s2);
-    double readSquare(QStringList s);
-    double readWorst(double std, QStringList s);
-    double readMax(QStringList s);
-    double readMin(QStringList s);
-    double readAvr(QStringList s);
-    double readPhase(QStringList s1, QStringList s2);
     void testNLD();
     void testLOD();
-    void testEMF();
-    void readWave(QString s);
-    double readBalance(QStringList s);
     void testStop();
-    void testStopAction();
     void testTimeOut();
-    bool readCylinder(quint16 s);
     bool waitTimeOut(quint16 s);
     bool testPause();
 

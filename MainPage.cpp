@@ -350,34 +350,24 @@ void MainPage::testInit()
 
 void MainPage::testDCR()
 {
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 DCR");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 DCR");
     waitTimeOut(STATUS_DCR);
     wait(100);
 }
 
 void MainPage::testINR()
 {
-    bool cylinder = false;
-
-    iobrd.sendPort(Y03 | Y10);
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
-    if (!cylinder) {
+    if (!cylinderAction(Y03 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
 
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 IR");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 IR");
     waitTimeOut(STATUS_INR);
     wait(100);
 
-    iobrd.sendPort(Y10);
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return;
     }
@@ -386,25 +376,15 @@ void MainPage::testINR()
 
 void MainPage::testACW()
 {
-    bool cylinder = false;
-
-    iobrd.sendPort(Y03 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_TARGET);
-    if (!cylinder) {
+    if (!cylinderAction(Y03 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 ACW");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 ACW");
     waitTimeOut(STATUS_ACW);
     wait(100);
-
-    iobrd.sendPort(Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return;
     }
@@ -413,18 +393,14 @@ void MainPage::testACW()
 
 void MainPage::testIND()
 {
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 IND");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 IND");
     waitTimeOut(STATUS_IND);
     wait(100);
 }
 
 void MainPage::testHAL()
 {
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 HALL");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 HALL");
     waitTimeOut(STATUS_HAL);
     wait(100);
     readHall();
@@ -432,333 +408,93 @@ void MainPage::testHAL()
 
 void MainPage::readHall()
 {
-    QString vv;
-    QString jj = "OK";
-    QString text;
-    if (power.size() >= 170) {
-        QStringList hh;
-        hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
-        double hMax = readMax(hh)*5/4095*readHighVolt().toDouble()/100;
-        double hMin = readMin(hh)*5/4095*readHighVolt().toDouble()/100;
-        QStringList ll;
-        ll << power.at(50+61) << power.at(50+81) << power.at(50+101);
-        double lMax = readMax(ll)*5/4095;
-        double lMin = readMin(ll)*5/4095;
-        QStringList ff;
-        ff << QString::number(power.at(50+150).toDouble()/1000);
-        ff << QString::number(power.at(50+154).toDouble()/1000);
-        ff << QString::number(power.at(50+158).toDouble()/1000);
-        qDebug() << "test freq";
-        qDebug() << ff;
-        double fMax = readMax(ff);
-        double fMin = readMin(ff);
-        vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
-        vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
-        vv.append(QString("F:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
+    //    QString vv;
+    //    QString jj = "OK";
+    //    QString text;
+    //    if (power.size() >= 170) {
+    //        QStringList hh;
+    //        hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
+    //        double hMax = readMax(hh)*5/4095*readHighVolt().toDouble()/100;
+    //        double hMin = readMin(hh)*5/4095*readHighVolt().toDouble()/100;
+    //        QStringList ll;
+    //        ll << power.at(50+61) << power.at(50+81) << power.at(50+101);
+    //        double lMax = readMax(ll)*5/4095;
+    //        double lMin = readMin(ll)*5/4095;
+    //        QStringList ff;
+    //        ff << QString::number(power.at(50+150).toDouble()/1000);
+    //        ff << QString::number(power.at(50+154).toDouble()/1000);
+    //        ff << QString::number(power.at(50+158).toDouble()/1000);
+    //        qDebug() << "test freq";
+    //        qDebug() << ff;
+    //        double fMax = readMax(ff);
+    //        double fMin = readMin(ff);
+    //        vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
+    //        vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
+    //        vv.append(QString("F:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
 
-        QStringList offset = readOffset();
-        int speed = backemftest->readSpeed();
-        int count = halltesting->readCount();
-        QStringList limit = backemftest->readLimit();
-        double tmp = (limit.at(6).toDouble()+limit.at(7).toDouble())/2;
-        QStringList angle0 = readRotation(angleOrder(power), speed, count);
-        QStringList full = angleOffset(angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
-        QStringList half = angleOffset(angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(1).toDouble());
-        QStringList with = angleOffset(angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(2).toDouble());
-        QStringList hall;
-        hall << QString::number(readPhase(waveU, waveHu)*6*(speed*count)/20000);
-        hall << QString::number(readPhase(waveV, waveHv)*6*(speed*count)/20000);
-        hall << QString::number(readPhase(waveW, waveHw)*6*(speed*count)/20000);
-        hall = angleOffset(hall, offset.at(3).toDouble());
-        QStringList angle;
-        angle << full << half << with << hall;
+    //        QStringList offset = readOffset();
+    //        int speed = backemftest->readSpeed();
+    //        int count = halltesting->readCount();
+    //        QStringList limit = backemftest->readLimit();
+    //        double tmp = (limit.at(6).toDouble()+limit.at(7).toDouble())/2;
+    //        QStringList angle0 = math.readRotation(math.angleOrder(power), speed, count);
+    //        QStringList full = angleOffset(math.angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
+    //        QStringList half = angleOffset(math.angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(1).toDouble());
+    //        QStringList with = angleOffset(math.angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(2).toDouble());
+    //        QStringList hall;
+    //        hall << QString::number(readPhase(waveU, waveHu)*6*(speed*count)/20000);
+    //        hall << QString::number(readPhase(waveV, waveHv)*6*(speed*count)/20000);
+    //        hall << QString::number(readPhase(waveW, waveHw)*6*(speed*count)/20000);
+    //        hall = angleOffset(hall, offset.at(3).toDouble());
+    //        QStringList angle;
+    //        angle << full << half << with << hall;
 
-        double wFull = readWorst(360, full);
-        double wHalf = readWorst(180, half);
-        double wWith = readWorst(120, with);
-        double wHall = readWorst(tmp, hall);
-        vv.append(QString("%1°,").arg(QString::number(wFull, 'f', 1)));
-        vv.append(QString("%1°,").arg(QString::number(wHalf, 'f', 1)));
-        vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
-        vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
+    //        double wFull = readWorst(360, full);
+    //        double wHalf = readWorst(180, half);
+    //        double wWith = readWorst(120, with);
+    //        double wHall = readWorst(tmp, hall);
+    //        vv.append(QString("%1°,").arg(QString::number(wFull, 'f', 1)));
+    //        vv.append(QString("%1°,").arg(QString::number(wHalf, 'f', 1)));
+    //        vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
+    //        vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
 
-        if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
-            jj = "NG";
-        limit = halltesting->readLimit();
-        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
-            jj = "NG";
-        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
-            jj = "NG";
-        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
-            jj = "NG";
-        if (wFull < limit.at(8).toDouble() || wFull > limit.at(9).toDouble())
-            jj = "NG";
-        if (wHalf < limit.at(10).toDouble() || wHalf > limit.at(11).toDouble())
-            jj = "NG";
-        if (wWith < limit.at(12).toDouble() || wWith > limit.at(13).toDouble())
-            jj = "NG";
+    //        if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
+    //            jj = "NG";
+    //        limit = halltesting->readLimit();
+    //        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
+    //            jj = "NG";
+    //        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
+    //            jj = "NG";
+    //        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
+    //            jj = "NG";
+    //        if (wFull < limit.at(8).toDouble() || wFull > limit.at(9).toDouble())
+    //            jj = "NG";
+    //        if (wHalf < limit.at(10).toDouble() || wHalf > limit.at(11).toDouble())
+    //            jj = "NG";
+    //        if (wWith < limit.at(12).toDouble() || wWith > limit.at(13).toDouble())
+    //            jj = "NG";
 
-        text.append(angleShow(angle));
-        text.append(powerShow(power, ff));
-        test->setTextHall(text);
-    } else {
-        vv = "NULL";
-        jj = "NG";
-    }
-    test->updateItem(vv);
-    test->updateJudge(jj);
-}
-
-QStringList MainPage::angleOrder(QStringList s)
-{
-    QList<int> squn;
-    QStringList strs;
-    squn << 0 << 1 << 2
-         << 15 << 16 << 17
-         << 30 << 31 << 32
-         << 3 << 4 << 5 << 6 << 7 << 8
-         << 18 << 19 << 20 << 21 << 22 << 23
-         << 33 << 34 << 35 << 36 << 37 << 38
-         << 9 << 10 << 11
-         << 24 << 25 << 26
-         << 39 << 40 << 41
-         << 12 << 13 << 14
-         << 27 << 28 << 29
-         << 42 << 43 << 44;
-    for (int i=0; i < qMin(squn.size(), s.size()); i++)
-        strs.append(s.at(squn.at(i)));
-    return strs;
-}
-
-QStringList MainPage::readRotation(QStringList s, int speed, int count)
-{
-    QStringList str;
-    int r = 60*100000/(speed*count);
-    for (int i=0; i < s.size(); i++)
-        str.append(QString::number(s.at(i).toDouble()*360/r));
-    return str;
-}
-
-
-QStringList MainPage::angleFilter(QStringList s, double std, double min, double max)
-{
-    QStringList angles;
-    for (int i=0; i < s.size(); i++) {
-        double r = s.at(i).toDouble();
-        if (abs(r-std)/std > min/100 && abs(r-std)/std < max/100) {
-            if (r > std)
-                angles.append(QString::number(r-std/min));
-            else
-                angles.append(QString::number(r+std/min));
-        } else
-            angles.append(s.at(i));
-    }
-    return angles;
-}
-
-QStringList MainPage::angleOffset(QStringList s, double offset)
-{
-    QStringList str;
-    for (int i=0; i < s.size(); i++) {
-        double r = s.at(i).toDouble();
-        str.append(QString::number(r+offset));
-    }
-    return str;
-}
-
-QString MainPage::angleShow(QStringList s)
-{
-    QString tmp;
-    QStringList names;
-    names << "U1:" << "U2:" << "U3:"
-          << "V1:" << "V2:" << "V3:"
-          << "W1:" << "W2:" << "W3:"
-
-          << "UH1:" << "UH2:" << "UH3:"
-          << "UL1:" << "UL2:" << "UL3:"
-          << "VH1:" << "VH2:" << "VH3:"
-          << "VL1:" << "VL2:" << "VL3:"
-          << "WH1:" << "WH2:" << "WH2:"
-          << "WL1:" << "WL3:" << "WL2:"
-
-          << "UW1:" << "UW2:" << "UW3:"
-          << "VU1:" << "VU2:" << "VU3:"
-          << "WV1:" << "WV2:" << "WV3:"
-
-          << "Hu-UV:" << "Hv-VW:" << "Hw-WU:"
-          << "Hv-VW1:" << "Hv-VW2:" << "Hv-VW3:"
-          << "Hw-WU1:" << "Hw-WU2:" << "Hw-WU3:";
-    for (int i=0; i < qMin(names.size(), s.size()); i++) {
-        double angle = s.at(i).toDouble();
-        QString t = QString("%1%2").arg(names.at(i)).arg(QString::number(angle, 'f', 1));
-        tmp.append(t);
-        if (i%3 == 2) {
-            tmp.append("\n");
-        } else {
-            tmp.append("\t\t");
-        }
-        if (i%9 == 8 && i != 17)
-            tmp.append("\n");
-    }
-    return tmp;
-}
-
-QString MainPage::powerShow(QStringList s1, QStringList s2)
-{
-    QString tmp;
-    tmp.append("\n");
-    QStringList item;
-    item << "高电平:" << "低电平:" << "频率:";
-    int tt = 0;
-    for (int i=110; i < s1.size(); i++) {
-        if (i >= 170)
-            break;
-        int t = (i-50)%20;
-        if (t == 0) {
-            tmp.append(item.at(0));
-            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
-            tmp.append("V");
-            tmp.append("\t\t");
-        } else if (t == 1) {
-            tmp.append(item.at(1));
-            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
-            tmp.append("V");
-            tmp.append("\t\t");
-        } else if (t == 7) {
-            tmp.append(item.at(2));
-            tmp.append(QString::number(s2.at(tt).toDouble(), 'f', 1));
-            tmp.append("Hz");
-            tmp.append("\n");
-            tt++;
-        }
-    }
-    return tmp;
-}
-
-double MainPage::readSquare(QStringList s)
-{
-    int w = 0;
-    for (int i=0; i < s.size(); i++) {
-        int t = s.at(i).toInt()-128;
-        w += t*t;
-    }
-    return sqrt(w/s.size());
-}
-
-double MainPage::readWorst(double std, QStringList s)
-{
-    QList<double> w;
-    for (int i=0; i < s.size(); i++) {
-        w.append(abs(std-s.at(i).toDouble()));
-    }
-    double max = w.at(0);
-    int t = 0;
-    for (int i=0; i < w.size(); i++) {
-        if (max < w.at(i)) {
-            max = w.at(i);
-            t = i;
-        }
-    }
-    return s.at(t).toDouble();
-}
-
-double MainPage::readMax(QStringList s)
-{
-    QList<double> w;
-    for (int i=0; i < s.size(); i++) {
-        w.append(s.at(i).toDouble());
-    }
-    double max = w.at(0);
-    for (int i=0; i < w.size(); i++) {
-        max = qMax(max, w.at(i));
-    }
-    return max;
-}
-
-double MainPage::readMin(QStringList s)
-{
-    QList<double> w;
-    for (int i=0; i < s.size(); i++) {
-        w.append(s.at(i).toDouble());
-    }
-    double min = w.at(0);
-    for (int i=0; i < w.size(); i++) {
-        min = qMin(min, w.at(i));
-    }
-    return min;
-}
-
-double MainPage::readAvr(QStringList s)
-{
-    if (s.isEmpty())
-        return 0;
-    double w = 0;
-    for (int i=0; i < s.size(); i++) {
-        w += s.at(i).toDouble();
-    }
-    return w/s.size();
-}
-
-double MainPage::readPhase(QStringList s1, QStringList s2)
-{
-    int t1 = 0;
-    int t2 = 0;
-    for (int i=0; i < s1.size()-10; i++) {
-        double a1 = 0;
-        double a2 = 0;
-        for (int j=0; j < 5; j++) {
-            a1 += s1.at(i+j).toInt();
-            a2 += s1.at(i+j+1).toInt();
-        }
-        a1 /=5;
-        a2 /=5;
-        if ((a1 <= 127) && (a2 >= 127)) {
-            t1 = i+2;
-            break;
-        }
-    }
-    int max = 0;
-    for (int i=0; i < s2.size(); i++) {
-        if (max < s2.at(i).toInt())
-            max = s2.at(i).toInt();
-    }
-    for (int i=t1; i < s2.size()-10; i++) {
-        double a1 = 0;
-        double a2 = 0;
-        for (int j=0; j < 5; j++) {
-            a1 += s2.at(i+j).toInt();
-            a2 += s2.at(i+j+1).toInt();
-        }
-        a1 /=5;
-        a2 /=5;
-        if ((a1 >= max/2) && (a2 <= max/2)) {
-            t2 = i+2;
-            break;
-        }
-    }
-    return t2-t1;
+    //        text.append(angleShow(angle));
+    //        text.append(powerShow(power, ff));
+    //        test->setTextHall(text);
+    //    } else {
+    //        vv = "NULL";
+    //        jj = "NG";
+    //    }
+    //    test->updateItem(vv);
+    //    test->updateJudge(jj);
 }
 
 void MainPage::testNLD()
 {
-    bool cylinder = false;
-
-    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X04_ORIGIN | X03_TARGET);
-    if (!cylinder) {
+    if (!cylinderAction(Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 NOLAOD");
-    emit transmitJson(obj);
-    waitTimeOut(STATUS_NLD);
-
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-    if (!cylinder) {
+    sendUdpCommand("6006 NOLAOD");          // 启动
+    waitTimeOut(STATUS_NLD);                // 等待测试完成
+    if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return;
     }
@@ -767,240 +503,60 @@ void MainPage::testNLD()
 
 void MainPage::testLOD()
 {
-    bool cylinder = false;
-    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-    cylinder = readCylinder(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y00 | Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    iobrd.sendPort(Y00 | Y01 | Y02 | Y10);  // 气缸1上升
-    cylinder = readCylinder(X01_TARGET | X02_TARGET | X03_TARGET | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 LOAD");
-    emit transmitJson(obj);
+    sendUdpCommand("6006 LOAD");          // 启动
     wait(1500);
 
-    plc.setStart(1);
+    mbdktL.setStart(1);
     wait(50);
-    plc.setTorque(0);
+    mbdktL.setTorque(0);
     wait(50);
-    plc.setMode(0);
+    mbdktL.setMode(0);
     wait(50);
-    plc.setTurn(0);
+    mbdktL.setTurn(0);
     wait(50);
     int torque = 500;
     torque = torque + torque /250;
     for (int i=1; i < 11; i++) {
-        plc.setTorque(torque*i/10);
+        mbdktL.setTorque(torque*i/10);
         wait(100);
     }
     wait(5000);
     for (int i=1; i < 11; i++) {
-        plc.setTorque(torque/10*(10-i));
+        mbdktL.setTorque(torque/10*(10-i));
         wait(100);
     }
     wait(100);
 
-    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-    cylinder = readCylinder(X01_TARGET | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y00 | Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_TARGET | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-    iobrd.sendPort(Y10);  // 气缸全部归位
-    cylinder = readCylinder(X01_ORIGIN | X02_ORIGIN | X03_ORIGIN | X04_ORIGIN);
-    if (!cylinder) {
+    if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-
-}
-
-void MainPage::testEMF()
-{
-    bool cylinder = false;
-    iobrd.sendPort(Y02 | Y10);  // 气缸3压紧
-    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
-    }
-    iobrd.sendPort(Y00 | Y02 | Y10);  // 气缸1上升
-    cylinder = readCylinder(X01_TARGET | X03_TARGET);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-
-    plc.setStart(1);
-    wait(50);
-    plc.setSpeed(0);
-    wait(50);
-    plc.setMode(1);
-    wait(50);
-    plc.setTurn(backemftest->readTurn());
-    wait(50);
-    int speed = backemftest->readSpeed();
-    speed = speed + speed /250;
-    for (int i=1; i < 11; i++) {
-        plc.setSpeed(speed*i/10);
-        wait(100);
-    }
-    QJsonObject obj;
-    obj.insert("TxMessage","6006 BEMF");
-    emit transmitJson(obj);
-    waitTimeOut(STATUS_EMF);
-    isServo = true;
-
-    QStringList volt;
-    QString vv;
-    QString jj = "OK";
-    //    if (power.size() >= 170) {
-    if (power.size() >= 0) {
-        //        volt.append(power.at(52));
-        //        volt.append(power.at(72));
-        //        volt.append(power.at(92));
-        //        double ku = power.at(52).toDouble()/100;
-        //        double kv = power.at(72).toDouble()/100;
-        //        double kw = power.at(92).toDouble()/100;
-        volt.append(QString::number(UU, 'f', 2));
-        volt.append(QString::number(UV, 'f', 2));
-        volt.append(QString::number(UW, 'f', 2));
-        qDebug() << UU << UV << UW;
-        double ku = UU*13*3.3/128*readVoltScale().toInt()/100;
-        double kv = UV*13*3.3/128*readVoltScale().toInt()/100;
-        double kw = UW*13*3.3/128*readVoltScale().toInt()/100;
-        qDebug() << ku << kv << kw;
-        vv.append("KU:");
-        vv.append(QString::number(ku, 'f', 2));
-        vv.append("V,KV:");
-        vv.append(QString::number(kv, 'f', 2));
-        vv.append("V,KW:");
-        vv.append(QString::number(kw, 'f', 2));
-        vv.append("V,");
-        double b = readBalance(volt);
-        if (b == -1)
-            vv.append("NULL");
-        else
-            vv.append(QString("%1%").arg(QString::number(b, 'f', 1)));
-
-        QStringList limit = backemftest->readLimit();
-        if (ku < limit.at(2).toDouble() || ku > limit.at(3).toDouble())
-            jj = "NG";
-        if (kv < limit.at(2).toDouble() || kv > limit.at(3).toDouble())
-            jj = "NG";
-        if (kw < limit.at(2).toDouble() || kw > limit.at(3).toDouble())
-            jj = "NG";
-        if (b < 0 || b > limit.at(10).toDouble())
-            jj = "NG";
-    } else {
-        vv.append("NULL");
-        jj = "NG";
-    }
-
-    if (status != STATUS_OVER) {
-        test->updateItem(vv);
-        test->updateJudge(jj);
-    }
-    for (int i=1; i < 11; i++) {
-        plc.setSpeed(speed*(10-i)/10);
-        wait(100);
-    }
-    plc.setStart(0);
-
-    iobrd.sendPort(Y02 | Y10);  // 气缸1下降
-    cylinder = readCylinder(X01_ORIGIN | X03_TARGET);
-    if (!cylinder) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-
-    QStringList s = conf->testItems();
-    QList<int> tt;
-    for (int i=0; i < s.size(); i++) {
-        tt.append(QString(s.at(i)).toInt());
-    }
-    if (tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_EMF) != 1) {
-        iobrd.sendPort(Y10);  // 气缸全部归位
-        cylinder = readCylinder(X01_ORIGIN | X03_ORIGIN);
-        if (!cylinder) {
-            status = STATUS_OVER;
-            return;
-        }
-        wait(100);
-    }
-    isServo = false;
-}
-
-void MainPage::readWave(QString w)
-{
-    QStringList temp;
-    temp = w.split(" ");
-    temp.removeFirst();
-    if (w.startsWith("0 ")) {
-        waveU = temp;
-        UU = readSquare(temp);
-    } else if (w.startsWith("1 ")) {
-        waveV = temp;
-        UV = readSquare(temp);
-    } else if (w.startsWith("2 ")) {
-        waveW = temp;
-        UW = readSquare(temp);
-    } else if (w.startsWith("3 ")) {
-        waveHu = temp;
-    } else if (w.startsWith("4 ")) {
-        waveHv = temp;
-    } else if (w.startsWith("5 ")) {
-        waveHw = temp;
-    }
-}
-
-double MainPage::readBalance(QStringList s)
-{
-    if (s.isEmpty())
-        return -1;
-    double max = s.at(0).toDouble();
-    double min = s.at(0).toDouble();
-    double avr = 0;
-    for (int i=0; i < s.size(); i++) {
-        avr += s.at(i).toDouble();
-        max = qMax(max, s.at(i).toDouble());
-        min = qMin(min, s.at(i).toDouble());
-    }
-    avr /= s.size();
-    if (avr == 0)
-        return -1;
-    return ((max-min) * 100 / avr);
 }
 
 void MainPage::testStop()
@@ -1011,43 +567,12 @@ void MainPage::testStop()
     status = STATUS_OVER;
 }
 
-void MainPage::testStopAction()
-{
-    if (isServo)
-        return;
-    iobrd.sendPort(0x00);  // 气缸全部归位
-    readCylinder(X01_ORIGIN | X03_ORIGIN);
-}
-
 void MainPage::testTimeOut()
 {
     QJsonObject obj;
     obj.insert("TxMessage",QString("6026"));
     emit transmitJson(obj);
     status = STATUS_TIME;
-}
-
-bool MainPage::readCylinder(quint16 s)
-{
-    //            wait(1000);
-    //            return true;
-    quint16 timeOut = 0x0000;
-    quint16 count = 0;
-    while (1) {
-        if ((iobrd.readPort() & 0xFF00) == s) {
-            count++;
-            if (count > 50)
-                return true;
-        }
-        wait(10);
-        timeOut++;
-        if (timeOut > 500) {
-            QMessageBox::warning(this, "气缸", "气缸到位超时", QMessageBox::Ok);
-            return false;
-        }
-        if (status == STATUS_OVER)
-            return false;
-    }
 }
 
 bool MainPage::waitTimeOut(quint16 s)
@@ -1368,40 +893,49 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 
 void MainPage::readNoLoad()
 {
-    //    QStringList m = wt330.readMeter();
-    //    if (m.size() < 30) {
-    //        QMessageBox::warning(this, "", "电参Error", QMessageBox::Ok);
-    //        return;
-    //    }
-    //    meter = m;
-    //    QMessageBox::warning(this, "", m.join(","), QMessageBox::Ok);
+
 }
 
 void MainPage::readBtnStart()
 {
-    readStart(true);
+    readStartL(true);
 }
 
 void MainPage::readBtnStop()
 {
-    readStart(false);
+    readStartL(false);
 }
 
-void MainPage::readStart(bool s)
+void MainPage::readStartL(bool s)
 {
     if (s && !testing) {
         if (stack->currentWidget()->objectName() == "TestPage") {
             testing = true;
+            station = 0x13;
             QTimer::singleShot(10, this, SLOT(testInit()));
         }
     }
     if (!s && testing) {
-        if (status == STATUS_FREE)
-            testStopAction();
-        if (status == STATUS_NLD) {
-            testStop();
-            waitTimeOut(STATUS_NLD);
+        if (station != 0x13)
+            return;
+        iobrdL.quitPort(true);
+        testStop();
+    }
+}
+
+void MainPage::readStartR(bool s)
+{
+    if (s && !testing) {
+        if (stack->currentWidget()->objectName() == "TestPage") {
+            testing = true;
+            station = 0x14;
+            QTimer::singleShot(10, this, SLOT(testInit()));
         }
+    }
+    if (!s && testing) {
+        if (station != 0x14)
+            return;
+        iobrdR.quitPort(true);
         testStop();
     }
 }
@@ -1417,102 +951,6 @@ void MainPage::readSelfCheck(QString s)
     }
 }
 
-void MainPage::testDebug()
-{
-    qDebug() << "test readBance";
-    QStringList s1;
-    s1 << "2425" << "2426" << "2427";
-    qDebug() << readBalance(s1);
-
-    srand(QDateTime::currentDateTime().toMSecsSinceEpoch());
-    QStringList s2;
-    for (int i=0; i < 5; i++) {
-        for (int t=0; t < 3; t++)
-            s2 << QString::number((360+rand()%2)/0.18);
-        for (int t=0; t < 3; t++)
-            s2 << QString::number((180+rand()%1)/0.18);
-        for (int t=0; t < 3; t++)
-            s2 << QString::number((180+rand()%1)/0.18);
-        for (int t=0; t < 3; t++)
-            s2 << QString::number((120+rand()%1)/0.18);
-        for (int t=0; t < 3; t++)
-            s2 << QString::number((50+rand()%1)/0.18);
-    }
-    for (int i=s2.size(); i < 110; i++) {
-        s2.append("0");
-    }
-    QStringList s3;
-    s3 << "3325" << "52" << "3300" << "3325" << "0" << "0" << "0" << "50" << "50" << "0";
-    s2 << s3 << s3 << s3 << s3 << s3 << s3 << s3 << s3 << s3;
-    qDebug() << "test s";
-    qDebug() << s2;
-    qDebug() << "test order";
-    qDebug() << angleOrder(s2);
-    qDebug() << "test rotation";
-    qDebug() << readRotation(angleOrder(s2), 1000, 3);
-    qDebug() << "test filter";
-    QStringList full = angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(0,9), 360, 10, 20);
-    qDebug() << full;
-    QStringList half = angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(9,18), 180, 10, 20);
-    qDebug() << half;
-    QStringList with = angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(27,9), 120, 10, 20);
-    qDebug() << with;
-    QStringList hall = angleFilter(readRotation(angleOrder(s2), 1000, 3).mid(36,9), 32.5, 10, 20);
-    qDebug() << hall;
-    qDebug() << "test offset";
-    QStringList offset = readOffset();
-    qDebug() << offset;
-    qDebug() << "angle offset";
-    full = angleOffset(full, offset.at(0).toDouble());
-    half = angleOffset(half, offset.at(1).toDouble());
-    with = angleOffset(with, offset.at(2).toDouble());
-    hall = angleOffset(hall, offset.at(3).toDouble());
-    qDebug() << "test worst";
-    double wFull = readWorst(360, full);
-    double wHalf = readWorst(180, half);
-    double wWith = readWorst(120, with);
-    double wHall = readWorst(32.5, hall);
-    qDebug() << wFull << wHalf << wWith << wHall;
-    QString vv;
-    vv.append(QString("%1°,").arg(QString::number(wFull, 'f', 1)));
-    vv.append(QString("%1°,").arg(QString::number(wHalf, 'f', 1)));
-    vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
-    vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
-    qDebug() << vv;
-    qDebug() << "test hall";
-    //    qDebug() << powerShow(s2);
-    qDebug() << "test show";
-    QStringList angle;
-    angle << full << half << with << hall;
-    QString ss = angleShow(angle);
-    //    ss.append(powerShow(s2));
-    testBox = new PopupBox(this, "", "配置中，请稍后", QMessageBox::Ok);
-    testBox->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Popup);
-    testBox->setStyleSheet("QDialog{border:2px solid cyan;}");
-    testBox->resize(QSize(1024, 768));
-    testBox->setText(ss);
-    testBox->show();
-
-    QStringList square;
-    QStringList hallwave;
-    for (int i=0; i < 800; i++) {
-        square << QString::number(128*sin(i*6.28/360))+128;
-        if (((i+120)%360) > 180)
-            hallwave << "254";
-        else
-            hallwave << "14";
-    }
-
-    qDebug() << "test square";
-    qDebug() << square;
-    qDebug() << readSquare(square);
-    qDebug() << "test phase";
-    qDebug() << readPhase(square, hallwave);
-
-    qDebug() << "test scale";
-    qDebug() << readScale();
-}
-
 QStringList MainPage::readOffset()
 {
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
@@ -1520,12 +958,31 @@ QStringList MainPage::readOffset()
     return temp.split("@");
 }
 
+void MainPage::sendUdpCommand(QString cmd)
+{
+    QJsonObject obj;
+    obj.insert("TxMessage", cmd);
+    emit transmitJson(obj);
+}
+
+bool MainPage::cylinderAction(quint16 cylinder, quint16 s)
+{
+    if (s == 0x13) {
+        iobrdL.sendPort(cylinder);
+        return iobrdL.waitPort(cylinder);
+    } else if (s == 0x14) {
+        iobrdR.sendPort(cylinder);
+        return iobrdR.waitPort(cylinder);
+    }
+    return false;
+}
+
 void MainPage::showWarnning()
 {
-    QString text2 = tr("不放置带连轴器电机时,请禁止启动测试");
-    PopupBox *box2 = new PopupBox(this, "", text2, QMessageBox::Ok);
-    wait(100);
-    box2->exec();
+    //    QString text2 = tr("不放置带连轴器电机时,请禁止启动测试");
+    //    PopupBox *box2 = new PopupBox(this, "", text2, QMessageBox::Ok);
+    //    wait(100);
+    //    box2->exec();
 }
 
 int MainPage::currentAlarmTime(QString msg)
