@@ -999,17 +999,22 @@ bool MainPage::mbdktAction(int torque, quint16 s)
             wait(100);
         }
     } else if (s == 0x14) {
-        mbdktR.setStart(1);
-        wait(50);
-        mbdktR.setTorque(0);
-        wait(50);
-        mbdktR.setMode(0);
-        wait(50);
-        mbdktR.setTurn(0);
-        wait(50);
+        if (!mbdktR.setStart(1))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktR.setTurn(0))
+            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktR.setMode(0))
+            QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
+        wait(100);
+        if (!mbdktR.setTorque(0))
+            QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
+        wait(100);
         torque = torque + torque /250;
         for (int i=1; i < 11; i++) {
-            mbdktR.setTorque(torque*i/10);
+            if (!mbdktR.setTorque(torque*i/10))
+                QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
             wait(100);
         }
     }
