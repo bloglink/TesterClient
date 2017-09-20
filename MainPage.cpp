@@ -335,14 +335,14 @@ void MainPage::testInit()
     xx.append(currentUser());
     xx.append("@");
     if (test->updateResult(status)) {
-        iobrdL.sendPort(LED_G | LED_B);  // 绿灯加蜂鸣器
+        cylinderAction(LED_G | LED_B, station);
         wait(currentAlarmTime("OK"));
-        iobrdL.sendPort(LED_G);  // 绿灯
+        cylinderAction(LED_G, station);
         xx.append("OK");
     } else {
-        iobrdL.sendPort(LED_R | LED_B);  // 红灯加蜂鸣器
+        cylinderAction(LED_R | LED_B, station);
         wait(currentAlarmTime("NG"));
-        iobrdL.sendPort(LED_R);  // 红灯
+        cylinderAction(LED_R, station);
         xx.append("NG");
     }
     QJsonObject objs;
