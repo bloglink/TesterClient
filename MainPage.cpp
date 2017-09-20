@@ -522,12 +522,12 @@ void MainPage::testNLD()
 
 void MainPage::testLOD()
 {
-    if (!cylinderAction(Y02 | Y10, station)) {
+    if (!cylinderAction(Y00 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-    if (!cylinderAction(Y00 | Y02 | Y10, station)) {
+    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
@@ -540,12 +540,12 @@ void MainPage::testLOD()
     sendUdpCommand("6006 LOAD");          // 启动
     waitTimeOut(STATUS_LOD);                // 等待测试完成
 
-    if (!cylinderAction(Y00 | Y02 | Y10, station)) {
+    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
     wait(100);
-    if (!cylinderAction(Y02 | Y10, station)) {
+    if (!cylinderAction(Y00 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
