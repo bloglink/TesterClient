@@ -24,7 +24,7 @@ void ConfLoadTesting::initSettings(QJsonObject obj)
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "sequence") {
-            for (int t=0; t < temp.size(); t++)
+            for (int t=0; t < qMin(temp.size(), tModel->columnCount()); t++)
                 tModel->item(0, t)->setText(temp.at(t));
         } else {
             for (int t=0; t < temp.size(); t++)
@@ -55,7 +55,11 @@ void ConfLoadTesting::readSettings()
     QJsonObject array;
     array.insert("LOAD", obj);
     emit sendAppCmd(array);
-    emit buttonClicked(NULL);
+}
+
+double ConfLoadTesting::readTorque()
+{
+    return mView->item(0, 7)->text().toDouble();
 }
 
 void ConfLoadTesting::initUI()
@@ -115,19 +119,24 @@ void ConfLoadTesting::initUI()
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
+    QPushButton *btnSave = new QPushButton(this);
+    btnSave->setText(tr("保存"));
+    btnSave->setMinimumSize(97, 35);
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+
     QPushButton *btnExit = new QPushButton(this);
-    btnExit->setText(tr("保存退出"));
+    btnExit->setText(tr("退出"));
     btnExit->setMinimumSize(97, 35);
-    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
     btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);
 
     QStringList header;
     header << tr("T0") << tr("T1") << tr("T2") << tr("T3") << tr("T4")
-           << tr("T5") << tr("T6") << tr("T7") << tr("T8") << tr("T9")
-           << tr("T10") << tr("T11") << tr("T12") << tr("T13");
+           << tr("T5") << tr("T6") << tr("T7") << tr("T8") << tr("T9");
     tModel = new StandardItem(1, header.size());
     tModel->setHorizontalHeaderLabels(header);
     for (int i=0; i < 1; i++) {
@@ -180,16 +189,11 @@ void ConfLoadTesting::sequence()
     double T3 = 50;
     double T4 = 100;
 
-    double T5 = 50;
+    double T5 = 100;
     double T6 = 50;
-    double T7 = 50;
+    double T7 = 100;
     double T8 = 50;
-
     double T9 = 100;
-    double T10 = 50;
-    double T11 = 100;
-    double T12 = 50;
-    double T13 = 100;
 
     if (!tModel->item(0, 0)->text().isEmpty())
         T0 = tModel->item(0, 0)->text().toDouble()*100;
@@ -211,16 +215,8 @@ void ConfLoadTesting::sequence()
         T8 = tModel->item(0, 8)->text().toDouble()*100;
     if (!tModel->item(0, 9)->text().isEmpty())
         T9 = tModel->item(0, 9)->text().toDouble()*100;
-    if (!tModel->item(0, 10)->text().isEmpty())
-        T10 = tModel->item(0, 10)->text().toDouble()*100;
-    if (!tModel->item(0, 11)->text().isEmpty())
-        T11 = tModel->item(0, 11)->text().toDouble()*100;
-    if (!tModel->item(0, 12)->text().isEmpty())
-        T12 = tModel->item(0, 12)->text().toDouble()*100;
-    if (!tModel->item(0, 13)->text().isEmpty())
-        T13 = tModel->item(0, 13)->text().toDouble()*100;
 
-    double t = (T0+T1+T2+T3+T4+T10+T11+T12+T13+T5+T6+T7+T8)*2;
+    double t = (T0+T1+T2+T3+T4+T6+T7+T8+T9)*2;
     double Ts = t/20;
     double Te = t/15;
 
@@ -230,16 +226,12 @@ void ConfLoadTesting::sequence()
     double t3 = Ts+T0+T1+T2;
     double t4 = Ts+T0+T1+T2+T3;
     double t5 = Ts+T0+T1+T2+T3+T4;
-    double tn0 = Ts+T0+T1+T2+T3+T4+T5;
-    double tn1 = Ts+T0+T1+T2+T3+T4+T5+T6;
 
-    double tn2 = t-Te-T13-T12-T11-T10-T9-T8-T7;
-    double tn3 = t-Te-T13-T12-T11-T10-T9-T8;
-    double t6 = t-Te-T13-T12-T11-T10-T9;
-    double t7 = t-Te-T13-T12-T11-T10;
-    double t8 = t-Te-T13-T12-T11;
-    double t9 = t-Te-T13-T12;
-    double t10 = t-Te-T13;
+    double t6 = t-Te-T9-T8-T7-T6-T5;
+    double t7 = t-Te-T9-T8-T7-T6;
+    double t8 = t-Te-T9-T8-T7;
+    double t9 = t-Te-T9-T8;
+    double t10 = t-Te-T9;
     double t11 = t-Te;
 
     ruler(t0);
@@ -253,34 +245,27 @@ void ConfLoadTesting::sequence()
     wavePacket(t3, t4, "T3");
     ruler(t5);
     wavePacket(t4, t5, "T4");
-    ruler(tn0);
-    wavePacket(t5, tn0, "T5");
-    ruler(tn1);
-    wavePacket(tn0, tn1, "T6");
 
-    wavePacket(tn1, tn2, "测试时间");
-    ruler(tn2);
-    wavePacket(tn2, tn3, "T7");
-    ruler(tn3);
-    wavePacket(tn3, t6, "T8");
+    wavePacket(t5, t6, "测试时间");
+
     ruler(t6);
-    wavePacket(t6, t7, "T9");
+    wavePacket(t6, t7, "T5");
     ruler(t7);
-    wavePacket(t7, t8, "T10");
+    wavePacket(t7, t8, "T6");
     ruler(t8);
-    wavePacket(t8, t9, "T11");
+    wavePacket(t8, t9, "T7");
     ruler(t9);
-    wavePacket(t9, t10, "T12");
+    wavePacket(t9, t10, "T8");
     ruler(t10);
-    wavePacket(t10, t11, "T13");
+    wavePacket(t10, t11, "T9");
     ruler(t11);
 
     customplot->legend->clearItems();
 
-    QVector<double> x(t); //可变数组存放绘图的坐标的数据，分别存放x和y坐标的数据
-    QVector<double> hu(t), hv(t), hw(t), hn(t);
+    QVector<double> x(t);
+    QVector<double> hu(t), hv(t), hw(t);
 
-    for (int i = 0; i<t; i++) { //添加数据
+    for (int i=0; i < t; i++) { //添加数据
         x[i] = i;
         if (i < t0)
             hu[i] = 0;
@@ -289,7 +274,7 @@ void ConfLoadTesting::sequence()
         else if (i < t10)
             hu[i] = 35;
         else if (i < t11)
-            hu[i] = (t11-i)*(35/T13);
+            hu[i] = (t11-i)*(35/T9);
         else
             hu[i] = 0;
 
@@ -300,7 +285,7 @@ void ConfLoadTesting::sequence()
         else if (i < t8)
             hv[i] = 40;
         else if (i < t9)
-            hv[i] = (t9-i)*(40/T11);
+            hv[i] = (t9-i)*(40/T7);
         else
             hv[i] = 0;
 
@@ -311,39 +296,23 @@ void ConfLoadTesting::sequence()
         else if (i < t6)
             hw[i] = 30;
         else if (i < t7)
-            hw[i] = (t7-i)*(30/T9);
+            hw[i] = (t7-i)*(30/T5);
         else
             hw[i] = 0;
-
-        if (i < tn0)
-            hn[i] = 0;
-        else if (i < tn1)
-            hn[i] = (i-tn0)*(25/T6);
-        else if (i < tn2)
-            hn[i] = 25;
-        else if (i < tn3)
-            hn[i] = (tn3-i)*(25/T7);
-        else
-            hn[i] = 0;
-
     }
 
-    QCPGraph *graph1 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph1 = customplot->addGraph();
     graph1->setPen(QPen(Qt::yellow, 2, Qt::SolidLine));
     graph1->setData(x, hu);
     graph1->setName("Vcc");
-    QCPGraph *graph2 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph2 = customplot->addGraph();
     graph2->setPen(QPen(Qt::green, 2, Qt::SolidLine));
     graph2->setData(x, hv);
     graph2->setName("Vm");
-    QCPGraph *graph3 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
+    QCPGraph *graph3 = customplot->addGraph();
     graph3->setPen(QPen(Qt::red, 2, Qt::SolidLine));
     graph3->setData(x, hw);
     graph3->setName("Vsp");
-    QCPGraph *graph4 = customplot->addGraph();  //向绘图区域QCustomPlot添加一条曲线
-    graph4->setPen(QPen(Qt::blue, 2, Qt::SolidLine));
-    graph4->setData(x, hn);
-    graph4->setName("Load");
 
     QLinearGradient gradient(0, 0, 0, 400);
     gradient.setColorAt(0, QColor(90, 90, 90));
@@ -392,5 +361,10 @@ void ConfLoadTesting::wavePacket(double x1, double x2, QString name)
     wavePacketText->setText(name);
     wavePacketText->setFont(QFont(font().family(), 10));
     wavePacketText->setColor(QColor(Qt::white));
+}
+
+void ConfLoadTesting::back()
+{
+    emit buttonClicked(NULL);
 }
 
