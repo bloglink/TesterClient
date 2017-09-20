@@ -180,6 +180,8 @@ void ConfResistance::initUI()
     view->setItemDelegateForColumn(9, spinBox);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    view->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+    view->setColumnWidth(0, 50);
 
     nounSpinBox = new QSpinBox(this);
     nounSpinBox->setMinimumSize(97, 35);

@@ -24,5 +24,9 @@
         <file>icons/left.png</file>
         <file>icons/right.png</file>
         <file>icons/shop.png</file>
+        <file>source/check_128px_1.ico</file>
+        <file>source/check_128px_2.ico</file>
+        <file>source/circle_green_128px.png</file>
+        <file>source/circle_grey_128px.png</file>
     </qresource>
 </RCC>

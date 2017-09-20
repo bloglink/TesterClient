@@ -27,6 +27,9 @@ QTableView::item:hover{color:white;
 background:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #506B79,stop:1.0 #0D95A6);}
 QTableView::item:selected{color:white;
 background:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #506B79,stop:1.0 #0D95A6);}
+QTableView::indicator {width:44px;height:44px;}
+QTableView::indicator:enabled:unchecked {image:url(:/source/check_128px_2.ico);}
+QTableView::indicator:enabled:checked {image:url(:/source/check_128px_1.ico);}
 /*version:0.1 author:link date:2016.12.08 brief:网格线,悬停,选中*/
 QTreeWidget{border:1px solid #447684;gridline-color:#447684;
 background:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #080B10,stop:1.0 #212C3F);}
