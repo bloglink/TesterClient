@@ -209,7 +209,7 @@ void MainPage::recvNetMsg(QString msg)
         status = STATUS_FREE;
         break;
     case 6015:  // 空载启动完成
-        readNoLoad();
+        readNoLoadStart();
         break;
     case 6019:
         power = dat.split(" ");
@@ -226,7 +226,7 @@ void MainPage::recvNetMsg(QString msg)
         QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
     case 6033:
-        mbdktActionStop(loadtesting->readTorque()*1000, station);
+        readNoLoadStop();
         break;
     default:
         break;
@@ -829,6 +829,13 @@ QString MainPage::readHighVolt()
     return temp;
 }
 
+QString MainPage::readTorqueComp()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/GLOBAL/torqueComp", "0.1").toString();
+    return temp;
+}
+
 int MainPage::currentPauseMode()
 {
     QString n = QString("./config/%1.ini").arg(CurrentSettings());
@@ -887,10 +894,19 @@ void MainPage::sendXmlCmd(QJsonObject obj)
     }
 }
 
-void MainPage::readNoLoad()
+void MainPage::readNoLoadStart()
 {
     if (status == STATUS_LOD) {
-        mbdktAction(loadtesting->readTorque()*1000, station);
+        double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
+        mbdktAction(tmp*2500, station);
+    }
+}
+
+void MainPage::readNoLoadStop()
+{
+    if (status == STATUS_LOD) {
+        double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
+        mbdktActionStop(tmp*2500, station);
     }
 }
 
@@ -978,12 +994,12 @@ bool MainPage::cylinderAction(quint16 cylinder, quint16 s)
 bool MainPage::mbdktAction(int torque, quint16 s)
 {
     if (s == 0x13) {
-        if (!mbdktL.setStart(1))
-            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(100);
-        if (!mbdktL.setTurn(0))
-            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
-        wait(100);
+        //        if (!mbdktL.setStart(1))
+        //            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        //        wait(100);
+        //        if (!mbdktL.setTurn(0))
+        //            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
+        //        wait(100);
         if (!mbdktL.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
         wait(100);
@@ -997,12 +1013,12 @@ bool MainPage::mbdktAction(int torque, quint16 s)
             wait(100);
         }
     } else if (s == 0x14) {
-        if (!mbdktR.setStart(1))
-            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(100);
-        if (!mbdktR.setTurn(0))
-            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
-        wait(100);
+        //        if (!mbdktR.setStart(1))
+        //            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        //        wait(100);
+        //        if (!mbdktR.setTurn(0))
+        //            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
+        //        wait(100);
         if (!mbdktR.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
         wait(100);
@@ -1026,14 +1042,12 @@ bool MainPage::mbdktActionStop(int torque, quint16 s)
             mbdktL.setTorque(torque/10*(10-i));
             wait(100);
         }
-        mbdktL.setStart(0);
         return true;
     } else if (s == 0x14) {
         for (int i=1; i < 11; i++) {
             mbdktR.setTorque(torque/10*(10-i));
             wait(100);
         }
-        mbdktR.setStart(0);
         return true;
     }
     return false;
@@ -1042,8 +1056,11 @@ bool MainPage::mbdktActionStop(int torque, quint16 s)
 void MainPage::recvAppShow(QString win)
 {
     if (win == "TestPage") {
-        mbdktL.setStart(0);     // 关闭伺服
-        mbdktR.setStart(0);     // 关闭伺服
+        mbdktL.setStart(1);     // 启动伺服
+        mbdktR.setStart(1);     // 启动伺服
+        wait(100);
+        mbdktL.setTorque(0);
+        mbdktR.setTorque(0);
         iobrdL.sendPort(0x00);  // 气缸全部归位
         iobrdL.waitPort(0x00);  // 等待气缸归位
         iobrdR.sendPort(0x00);  // 气缸全部归位
