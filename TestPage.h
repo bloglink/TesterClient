@@ -47,8 +47,7 @@ public:
 signals:
     void sendNetMsg(QByteArray dat);
     void buttonClicked(QByteArray win);
-    void buttonTest();
-    void buttonStop();
+    void buttonTest(bool s, quint16 st);
     void buttonTest1();
     void buttonTest2();
     void buttonTest3();
@@ -70,6 +69,7 @@ public slots:
     QString readNumb();
 private slots:
     void initUI();
+    void readBtn();
     void initSettings();
     void saveData();
     void clickButton();

@@ -82,8 +82,7 @@ void MainPage::initUI()
     connect(test, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
     connect(test, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
     connect(this, SIGNAL(transmitShow(QString)), test, SLOT(recvAppShow(QString)));
-    connect(test, SIGNAL(buttonTest()), this, SLOT(readBtnStart()));
-    connect(test, SIGNAL(buttonStop()), this, SLOT(readBtnStop()));
+    connect(test, SIGNAL(buttonTest(bool, quint16)), this, SLOT(readStart(bool, quint16)));
     connect(test, SIGNAL(buttonTest1()), this, SLOT(testDCR()));
     connect(test, SIGNAL(buttonTest2()), this, SLOT(testINR()));
     connect(test, SIGNAL(buttonTest3()), this, SLOT(testACW()));
@@ -912,14 +911,14 @@ void MainPage::readNoLoadStop()
     }
 }
 
-void MainPage::readBtnStart()
+void MainPage::readStart(bool s, quint16 st)
 {
-    readStartL(true);
-}
-
-void MainPage::readBtnStop()
-{
-    readStartL(false);
+    if (!s)
+        st = station;
+    if (st == 0x13)
+        readStartL(s);
+    else if (st == 0x14)
+        readStartR(s);
 }
 
 void MainPage::readStartL(bool s)
