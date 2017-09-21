@@ -111,12 +111,12 @@ QString LQMath::powerShow(QStringList s1, QStringList s2)
         int t = (i-50)%20;
         if (t == 0) {
             tmp.append(item.at(0));
-            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
+            tmp.append(QString::number(s1.at(i).toDouble()*15.28/4095, 'f', 2));
             tmp.append("V");
             tmp.append("\t\t");
         } else if (t == 1) {
             tmp.append(item.at(1));
-            tmp.append(QString::number(s1.at(i).toDouble()*5/4095, 'f', 2));
+            tmp.append(QString::number(s1.at(i).toDouble()*15.28/4095, 'f', 2));
             tmp.append("V");
             tmp.append("\t\t");
         } else if (t == 7) {
