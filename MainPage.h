@@ -97,7 +97,9 @@ private slots:
     void testHAL();
     void readHall();
     void testNLD();
+    void readNLD();
     void testLOD();
+    void readLOD();
     void testStop();
     void testTimeOut();
     bool waitTimeOut(quint16 s);
@@ -118,8 +120,7 @@ private slots:
     void sendXmlCmd(QJsonObject obj);
     void readNoLoadStart();
     void readNoLoadStop();
-    void readBtnStart();
-    void readBtnStop();
+    void readStart(bool s, quint16 station);
     void readStartL(bool s);
     void readStartR(bool s);
     void readSelfCheck(QString s);
