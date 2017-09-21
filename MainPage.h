@@ -17,6 +17,7 @@
 #include <QLayout>
 #include <QElapsedTimer>
 #include <QMessageBox>
+#include <QCloseEvent>
 
 #include "LoginPage.h"
 #include "UdpSocket.h"
@@ -109,12 +110,14 @@ private slots:
     QString readScale();
     QString readVoltScale();
     QString readHighVolt();
+    QString readTorqueComp();
     int currentPauseMode();
     int currentAlarmTime(QString msg);
     void setCurrentUser(QString s);
     void recvAppCmd(QJsonObject obj);
     void sendXmlCmd(QJsonObject obj);
-    void readNoLoad();
+    void readNoLoadStart();
+    void readNoLoadStop();
     void readBtnStart();
     void readBtnStop();
     void readStartL(bool s);
@@ -127,6 +130,7 @@ private slots:
     bool mbdktActionStop(int torque, quint16 s);
     void recvAppShow(QString win);
     void showDebug(QString s);
+    void closeEvent(QCloseEvent *e);
 
 private:
     QList<int> previous_window;

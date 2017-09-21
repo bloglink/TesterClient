@@ -1076,6 +1076,21 @@ void MainPage::showDebug(QString s)
     box2->hide();
 }
 
+void MainPage::closeEvent(QCloseEvent *e)
+{
+    int ret = 0;
+    if (testing)
+        ret = QMessageBox::warning(this, "警告", "程序有一个任务正在运行中,确定要关闭软件吗？", QMessageBox::Ok,QMessageBox::Cancel);
+    else
+        ret = QMessageBox::warning(this, "警告", "确定要关闭软件吗？", QMessageBox::Ok,QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        status = STATUS_OVER;
+        e->accept();
+    } else {
+        e->ignore();
+    }
+}
+
 void MainPage::showWarnning()
 {
     //    QString text2 = tr("不放置带连轴器电机时,请禁止启动测试");
