@@ -38,6 +38,7 @@ public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
     double readTorque();
+    QStringList readLimit();
 private slots:
     void initUI();
     void sequence(void);

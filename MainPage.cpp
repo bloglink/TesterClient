@@ -537,6 +537,7 @@ void MainPage::testLOD()
     mbdktPrevAction(station);
     sendUdpCommand("6006 LOAD");          // 启动
     waitTimeOut(STATUS_LOD);                // 等待测试完成
+    readLOD();
     mbdktPrevActionStop(station);
 
     if (!cylinderAction(Y00 | Y01 | Y10, station)) {
@@ -554,6 +555,41 @@ void MainPage::testLOD()
         return;
     }
     wait(100);
+}
+
+void MainPage::readLOD()
+{
+    if (power.size() >= 8 && status != STATUS_OVER) {
+        double rpm = power.at(0).toDouble();
+        if (halltesting->readCount() != 0)
+            rpm /= halltesting->readCount();
+        double crr = power.at(4).toDouble();
+        double vlt = power.at(5).toDouble();
+        double pwr = power.at(6).toDouble();
+        double phs = power.at(7).toDouble();
+
+        QString tt;
+        tt.append(QString("%1A,").arg(QString::number(crr, 'f', 2)));
+        tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 2)));
+        tt.append(QString("%1W,").arg(QString::number(pwr, 'f', 2)));
+        tt.append(QString("%1,").arg(QString::number(phs, 'f', 2)));
+        tt.append(QString("%1rpm").arg(rpm));
+        test->updateItem(tt);
+
+        QString jj = "OK";
+        QStringList ss = loadtesting->readLimit();
+
+        if (crr < ss.at(1).toDouble() || crr > ss.at(2).toDouble())
+            jj = "NG";
+        if (pwr < ss.at(3).toDouble() || pwr > ss.at(4).toDouble())
+            jj = "NG";
+        if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
+            jj = "NG";
+        test->updateJudge(jj);
+    } else {
+        test->updateItem("NULL");
+        test->updateJudge("NG");
+    }
 }
 
 void MainPage::testStop()

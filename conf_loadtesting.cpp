@@ -62,6 +62,19 @@ double ConfLoadTesting::readTorque()
     return mView->item(0, 7)->text().toDouble();
 }
 
+QStringList ConfLoadTesting::readLimit()
+{
+    QStringList items = itemNames;
+    QStringList temp;
+    for (int i=0; i < items.size(); i++) {
+        for (int t=0; t < mView->rowCount(); t++) {
+            double x = mView->item(t, i)->text().toDouble();
+            temp.append(QString::number(x));
+        }
+    }
+    return temp;
+}
+
 void ConfLoadTesting::initUI()
 {
     this->setObjectName("ConfLoadTesting");
