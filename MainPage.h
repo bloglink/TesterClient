@@ -126,6 +126,8 @@ private slots:
     QStringList readOffset();
     void sendUdpCommand(QString cmd);
     bool cylinderAction(quint16 cylinder, quint16 s);
+    bool mbdktPrevAction(quint16 s);
+    bool mbdktPrevActionStop(quint16 s);
     bool mbdktAction(int torque, quint16 s);
     bool mbdktActionStop(int torque, quint16 s);
     void recvAppShow(QString win);

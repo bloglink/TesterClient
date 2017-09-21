@@ -535,8 +535,10 @@ void MainPage::testLOD()
         return;
     }
     wait(100);
+    mbdktPrevAction(station);
     sendUdpCommand("6006 LOAD");          // 启动
     waitTimeOut(STATUS_LOD);                // 等待测试完成
+    mbdktPrevActionStop(station);
 
     if (!cylinderAction(Y00 | Y01 | Y10, station)) {
         status = STATUS_OVER;
@@ -991,41 +993,55 @@ bool MainPage::cylinderAction(quint16 cylinder, quint16 s)
     return false;
 }
 
-bool MainPage::mbdktAction(int torque, quint16 s)
+bool MainPage::mbdktPrevAction(quint16 s)
 {
     if (s == 0x13) {
-        //        if (!mbdktL.setStart(1))
-        //            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        //        wait(100);
-        //        if (!mbdktL.setTurn(0))
-        //            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
-        //        wait(100);
         if (!mbdktL.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
         wait(100);
         if (!mbdktL.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
         wait(100);
-        torque = torque + torque /250;
-        for (int i=1; i < 11; i++) {
-            if (!mbdktL.setTorque(torque*i/10))
-                QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-            wait(100);
-        }
+        if (!mbdktL.setStart(1))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        wait(100);
     } else if (s == 0x14) {
-        //        if (!mbdktR.setStart(1))
-        //            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        //        wait(100);
-        //        if (!mbdktR.setTurn(0))
-        //            QMessageBox::warning(this, "", "伺服转向失败", QMessageBox::Ok);
-        //        wait(100);
         if (!mbdktR.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
         wait(100);
         if (!mbdktR.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
         wait(100);
-        torque = torque + torque /250;
+        if (!mbdktR.setStart(1))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        wait(100);
+
+    }
+    return false;
+}
+
+bool MainPage::mbdktPrevActionStop(quint16 s)
+{
+    if (s == 0x13) {
+        if (!mbdktL.setStart(0))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+        wait(100);
+    } else if (s == 0x14) {
+        if (!mbdktR.setStart(0))
+            QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
+    }
+    return false;
+}
+
+bool MainPage::mbdktAction(int torque, quint16 s)
+{
+    if (s == 0x13) {
+        for (int i=1; i < 11; i++) {
+            if (!mbdktL.setTorque(torque*i/10))
+                QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
+            wait(100);
+        }
+    } else if (s == 0x14) {
         for (int i=1; i < 11; i++) {
             if (!mbdktR.setTorque(torque*i/10))
                 QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
@@ -1056,11 +1072,9 @@ bool MainPage::mbdktActionStop(int torque, quint16 s)
 void MainPage::recvAppShow(QString win)
 {
     if (win == "TestPage") {
-        mbdktL.setStart(1);     // 启动伺服
-        mbdktR.setStart(1);     // 启动伺服
-        wait(100);
-        mbdktL.setTorque(0);
-        mbdktR.setTorque(0);
+        mbdktL.setStart(0);     // 停止伺服
+        mbdktR.setStart(0);     // 停止伺服
+
         iobrdL.sendPort(0x00);  // 气缸全部归位
         iobrdL.waitPort(0x00);  // 等待气缸归位
         iobrdR.sendPort(0x00);  // 气缸全部归位
