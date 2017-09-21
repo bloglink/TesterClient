@@ -428,77 +428,48 @@ void MainPage::readHall()
     QString jj = "OK";
     QString text;
     if (power.size() >= 220) {
-        //        QStringList hh;
-        //        hh << power.at(50+60) << power.at(50+80) << power.at(50+100);
-        //        double hMax = math.readMax(hh)*5/4095*readHighVolt().toDouble()/100;
-        //        double hMin = math.readMin(hh)*5/4095*readHighVolt().toDouble()/100;
-        //        QStringList ll;
-        //        ll << power.at(50+61) << power.at(50+81) << power.at(50+101);
-        //        double lMax = math.readMax(ll)*5/4095;
-        //        double lMin = math.readMin(ll)*5/4095;
+        QStringList hh;
+        hh << power.at(50+60);
+        double hMax = math.readMax(hh)*15.3/4095*readHighVolt().toDouble()/100;
+        double hMin = math.readMin(hh)*15.3/4095*readHighVolt().toDouble()/100;
+        QStringList ll;
+        ll << power.at(50+61);
+        double lMax = math.readMax(ll)*15.3/4095;
+        double lMin = math.readMin(ll)*15.3/4095;
+        QStringList dd;
+        dd << QString::number(power.at(50+151).toDouble()/1000);
+        double dMax = math.readMax(dd);
+        double dMin = math.readMin(dd);
         QStringList ff;
         ff << QString::number(power.at(50+150).toDouble()/1000);
         ff << QString::number(power.at(50+154).toDouble()/1000);
         ff << QString::number(power.at(50+158).toDouble()/1000);
-        //        qDebug() << "test freq";
-        //        qDebug() << ff;
-        //        double fMax = math.readMax(ff);
-        //        double fMin = math.readMin(ff);
-        //        vv.append(QString("H:%1-%2V,").arg(QString::number(hMin, 'f', 1)).arg(QString::number(hMax, 'f', 1)));
-        //        vv.append(QString("L:%1-%2V,").arg(QString::number(lMin, 'f', 1)).arg(QString::number(lMax, 'f', 1)));
-        //        vv.append(QString("F:%1-%2Hz,").arg(QString::number(fMin, 'f', 1)).arg(QString::number(fMax, 'f', 1)));
+        double fMax = ff.at(0).toDouble();
+        double fMin = ff.at(0).toDouble();
+        vv.append(QString("H:%1V,").arg(QString::number(hMin, 'f', 1)));
+        vv.append(QString("L:%1V,").arg(QString::number(lMin, 'f', 1)));
+        vv.append(QString("F:%1Hz,").arg(QString::number(fMin, 'f', 1)));
+        vv.append(QString("D:%1%").arg(QString::number(dMin, 'f', 1)));
 
-        //        QStringList offset = readOffset();
-        //        int speed = backemftest->readSpeed();
-        //        int count = halltesting->readCount();
-        //        QStringList limit = backemftest->readLimit();
-        //        double tmp = (limit.at(6).toDouble()+limit.at(7).toDouble())/2;
-        //        QStringList angle0 = math.readRotation(math.angleOrder(power), speed, count);
-        //        QStringList full = math.angleOffset(math.angleFilter(angle0, 360, 5, 10).mid(0,9), offset.at(0).toDouble());
-        //        QStringList half = math.angleOffset(math.angleFilter(angle0, 180, 5, 10).mid(9,18), offset.at(1).toDouble());
-        //        QStringList with = math.angleOffset(math.angleFilter(angle0, 120, 5, 10).mid(27,9), offset.at(2).toDouble());
-        //        QStringList hall;
-        //        hall << QString::number(math.readPhase(waveU, waveHu)*6*(speed*count)/20000);
-        //        hall << QString::number(math.readPhase(waveV, waveHv)*6*(speed*count)/20000);
-        //        hall << QString::number(math.readPhase(waveW, waveHw)*6*(speed*count)/20000);
-        //        hall = math.angleOffset(hall, offset.at(3).toDouble());
-        //        QStringList angle;
-        //        angle << full << half << with << hall;
+        QStringList limit = halltesting->readLimit();
 
-        //        double wFull = math.readWorst(360, full);
-        //        double wHalf = math.readWorst(180, half);
-        //        double wWith = math.readWorst(120, with);
-        //        double wHall = math.readWorst(tmp, hall);
-        //        vv.append(QString("%1°,").arg(QString::number(wFull, 'f', 1)));
-        //        vv.append(QString("%1°,").arg(QString::number(wHalf, 'f', 1)));
-        //        vv.append(QString("%1°,").arg(QString::number(wWith, 'f', 1)));
-        //        vv.append(QString("%1° ").arg(QString::number(wHall, 'f', 1)));
+        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
+            jj = "NG";
+        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
+            jj = "NG";
+        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
+            jj = "NG";
+        if (dMax > limit.at(7).toDouble() || dMin < limit.at(6).toDouble())
+            jj = "NG";
 
-        //        if (wHall < limit.at(6).toDouble() || wHall > limit.at(7).toDouble())
-        //            jj = "NG";
-        //        limit = halltesting->readLimit();
-        //        if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
-        //            jj = "NG";
-        //        if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
-        //            jj = "NG";
-        //        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
-        //            jj = "NG";
-        //        if (wFull < limit.at(8).toDouble() || wFull > limit.at(9).toDouble())
-        //            jj = "NG";
-        //        if (wHalf < limit.at(10).toDouble() || wHalf > limit.at(11).toDouble())
-        //            jj = "NG";
-        //        if (wWith < limit.at(12).toDouble() || wWith > limit.at(13).toDouble())
-        //            jj = "NG";
-
-        //        text.append(math.angleShow(angle));
         text.append(math.powerShow(power, ff));
         test->setTextHall(text);
     } else {
         vv = "NULL";
         jj = "NG";
     }
-    //    test->updateItem(vv);
-    //    test->updateJudge(jj);
+    test->updateItem(vv);
+    test->updateJudge(jj);
 }
 
 void MainPage::testNLD()

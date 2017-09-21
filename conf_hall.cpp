@@ -88,7 +88,7 @@ void ConfHall::initUI()
     DoubleSpinBox *duty = new DoubleSpinBox;
     duty->setMaxinum(100);
     SpinBox *count = new SpinBox;
-    count->setMaxinum(10);
+    count->setMaxinum(99);
     DoubleSpinBox *time = new DoubleSpinBox;
     time->setMaxinum(99);
     DoubleSpinBox *vcc = new DoubleSpinBox;
