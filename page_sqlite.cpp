@@ -213,17 +213,25 @@ void PageSqlite::exportSql()
     cmd += "INNER JOIN TestDatas ON TestData.id = TestDatas.parent";
     query.exec(cmd);
     QStringList header;
-    header << tr("测试日期") << tr("测试时间") << tr("测试型号") << tr("产品编码") << tr("测试人") << tr("测试判定")
-           << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
+    header << tr("测试日期") << tr("测试时间") << tr("测试型号")
+           << tr("产品编码") << tr("测试人") << tr("测试判定");
     for (int i=0; i < header.size(); i++) {
         file.write(ToGbk(header.at(i)));
         file.write(",");
     }
-    file.write("\n");
+    QStringList headers;
+    headers << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
+    for (int i=0; i < 5; i++) {
+        for (int j=0; j < headers.size(); j++) {
+            file.write(ToGbk(headers.at(i%4)));
+            file.write(",");
+        }
+    }
 
     while (query.next()) {
         double id = query.value(0).toDouble();
         if (current_id != id) {
+            file.write("\n");
             file.write(ToGbk(query.value(1).toString().replace(",", " ")));
             file.write(",");
             file.write(ToGbk(query.value(2).toString().replace(",", " ")));
@@ -237,10 +245,7 @@ void PageSqlite::exportSql()
             file.write(ToGbk(query.value(6).toString().replace(",", " ")));
             file.write(",");
         } else {
-            file.write(",");
-            file.write(",");
-            file.write(",");
-            file.write(",");
+            // nothing
         }
         file.write(ToGbk(query.value(7).toString().replace(",", " ")));
         file.write(",");
@@ -249,7 +254,8 @@ void PageSqlite::exportSql()
         file.write(ToGbk(query.value(9).toString().replace(",", " ")));
         file.write(",");
         file.write(ToGbk(query.value(10).toString().replace(",", " ")));
-        file.write("\n");
+        file.write(",");
+
         current_id = id;
     }
     file.close();
