@@ -112,7 +112,7 @@ bool IOBrd::readThread()
     if (com->bytesAvailable() > 7) {
         QByteArray msg = com->readAll();
         status = quint16(msg.at(3)*256) + quint8(msg.at(4));
-        if ((status & X10) || (status & X11))
+        if ((status & X10) && (status & X11))
             emit sendStart(1);
         if ((status & X12) || (status & X13))
             emit sendStart(0);
