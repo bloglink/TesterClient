@@ -17,6 +17,12 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     testing = false;
     isNG = false;
     isServo = false;
+    loadStopEnable = false;
+    isLoadStop = false;
+    stopping = false;
+
+    load_timer = new QTimer(this);
+    connect(load_timer, SIGNAL(timeout()), this, SLOT(waitSendStop()));
 }
 
 MainPage::~MainPage()
@@ -163,6 +169,7 @@ void MainPage::initCom()
     mbdktR.initPort("COM8");
 
     connect(&iobrdL, SIGNAL(sendStart(bool)), this, SLOT(readStartL(bool)));
+    connect(&iobrdL, SIGNAL(iobrdReset(bool)), this, SLOT(iobrdReset()));
     connect(&iobrdR, SIGNAL(sendStart(bool)), this, SLOT(readStartR(bool)));
 }
 
@@ -208,7 +215,7 @@ void MainPage::recvNetMsg(QString msg)
         status = STATUS_FREE;
         break;
     case 6015:  // 空载启动完成
-        readNoLoadStart();
+        QTimer::singleShot(10, this, SLOT(readNoLoadStart()));
         break;
     case 6019:
         power = dat.split(" ");
@@ -225,7 +232,8 @@ void MainPage::recvNetMsg(QString msg)
         QMessageBox::warning(this, "警告", "失去对设备的连接", QMessageBox::Ok);
         break;
     case 6033:
-        readNoLoadStop();
+        loadStopEnable = false;
+        QTimer::singleShot(10, this, SLOT(readNoLoadStop()));
         break;
     default:
         break;
@@ -266,10 +274,17 @@ void MainPage::wait(int ms)
 
 void MainPage::testInit()
 {
+    testing = true;
+    isNG = false;
+    isServo = false;
+    loadStopEnable = false;
+    isLoadStop = false;
+    stopping = false;
     test->initItems(station);
     if (!cylinderAction(LED_Y, station)) {
         cylinderAction(0x00, station);
         test->updateResult(STATUS_OVER);
+        testing = false;
         return;
     }
 
@@ -349,6 +364,7 @@ void MainPage::testInit()
 
     status = STATUS_FREE;
     testing = false;
+    qDebug() << "test over";
 }
 
 void MainPage::testDCR()
@@ -479,9 +495,18 @@ void MainPage::testNLD()
         return;
     }
     wait(100);
+    isLoadStop = false;
+    loadStopEnable = false;
     sendUdpCommand("6006 NOLAOD");          // 启动
     waitTimeOut(STATUS_NLD);                // 等待测试完成
     readNLD();
+    if (isLoadStop) {
+        status = STATUS_OVER;
+    } else {
+        // nothing
+    }
+    isLoadStop = false;
+    loadStopEnable = false;
     if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return;
@@ -498,7 +523,6 @@ void MainPage::readNLD()
         double crr = power.at(4).toDouble();
         double vlt = power.at(5).toDouble();
         double pwr = power.at(6).toDouble();
-        double phs = power.at(7).toDouble();
 
         QString tt;
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
@@ -541,10 +565,22 @@ void MainPage::testLOD()
     }
     wait(100);
     mbdktPrevAction(station);
+    isLoadStop = false;
+    loadStopEnable = false;
     sendUdpCommand("6006 LOAD");          // 启动
     waitTimeOut(STATUS_LOD);                // 等待测试完成
     readLOD();
     mbdktPrevActionStop(station);
+    if (isLoadStop) {
+        double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
+        mbdktActionStop(tmp*2500, station);
+        status = STATUS_OVER;
+        qDebug() << "load lower ok";
+    } else {
+        // nothing
+    }
+    isLoadStop = false;
+    loadStopEnable = false;
 
     if (!cylinderAction(Y00 | Y01 | Y10, station)) {
         status = STATUS_OVER;
@@ -572,7 +608,6 @@ void MainPage::readLOD()
         double crr = power.at(4).toDouble();
         double vlt = power.at(5).toDouble();
         double pwr = power.at(6).toDouble();
-        double phs = power.at(7).toDouble();
 
         QString tt;
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
@@ -937,11 +972,18 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 }
 
 void MainPage::readNoLoadStart()
-{
+{  
+    qDebug() << "upper over" << isLoadStop;
     if (status == STATUS_LOD) {
+        if (isLoadStop) {
+            loadStopEnable = true;
+            return;
+        }
         double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
         mbdktAction(tmp*2500, station);
+        qDebug() << "upper ok";
     }
+    loadStopEnable = true;
 }
 
 void MainPage::readNoLoadStop()
@@ -949,6 +991,7 @@ void MainPage::readNoLoadStop()
     if (status == STATUS_LOD) {
         double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
         mbdktActionStop(tmp*2500, station);
+        qDebug() << "lower ok";
     }
 }
 
@@ -968,14 +1011,25 @@ void MainPage::readStartL(bool s)
         if (stack->currentWidget()->objectName() == "TestPage") {
             testing = true;
             station = 0x13;
-            QTimer::singleShot(10, this, SLOT(testInit()));
+            QTimer::singleShot(1, this, SLOT(testInit()));
         }
     }
     if (!s && testing) {
         if (station != 0x13)
             return;
-        iobrdL.quitPort(true);
-        testStop();
+        if (stopping)
+            return;
+        stopping = true;
+        if (status == STATUS_LOD || status == STATUS_NLD) {
+            qDebug() << "recv stop";
+            isLoadStop = true;
+            load_timer->start(50);
+        } else {
+            iobrdL.quitPort(true);
+            testStop();
+            stopping = false;
+        }
+
     }
 }
 
@@ -985,14 +1039,27 @@ void MainPage::readStartR(bool s)
         if (stack->currentWidget()->objectName() == "TestPage") {
             testing = true;
             station = 0x14;
-            QTimer::singleShot(10, this, SLOT(testInit()));
+            QTimer::singleShot(1, this, SLOT(testInit()));
         }
     }
     if (!s && testing) {
         if (station != 0x14)
             return;
-        iobrdR.quitPort(true);
-        testStop();
+        if (status == STATUS_LOD || status == STATUS_NLD) {
+            qDebug() << "recv stop";
+            isLoadStop = true;
+            while (1) {
+                if (loadStopEnable == true) {
+                    sendUdpCommand(QString("6022 %1").arg(station));
+                    break;
+                } else {
+                    wait(10);
+                }
+            }
+        } else {
+            iobrdR.quitPort(true);
+            testStop();
+        }
     }
 }
 
@@ -1080,12 +1147,18 @@ bool MainPage::mbdktAction(int torque, quint16 s)
             if (!mbdktL.setTorque(torque*i/10))
                 QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
             wait(100);
+            if (isLoadStop) {
+                return true;
+            }
         }
     } else if (s == 0x14) {
         for (int i=1; i < 11; i++) {
             if (!mbdktR.setTorque(torque*i/10))
                 QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
             wait(100);
+            if (isLoadStop) {
+                return true;
+            }
         }
     }
     return false;
@@ -1143,6 +1216,82 @@ void MainPage::closeEvent(QCloseEvent *e)
     } else {
         e->ignore();
     }
+}
+
+void MainPage::iobrdReset()
+{
+    if (testing) {
+        // nothing
+    } else {
+        mbdktL.setStart(0);
+        mbdktR.setStart(0);
+        cylinderAction(0x00, 0x13);
+        cylinderAction(0x00, 0x14);
+    }
+}
+
+void MainPage::waitSendStop()
+{
+    if (loadStopEnable == true) {
+        sendUdpCommand(QString("6022 %1").arg(station));
+        qDebug() << "break";
+        load_timer->stop();
+    }
+}
+
+void MainPage::thread_system(void)
+{
+
+}
+
+void MainPage::thread_udp()
+{
+
+}
+
+void MainPage::thread_iobrd()
+{
+
+}
+
+void MainPage::thread_servo()
+{
+
+}
+
+void MainPage::thread_mbdkt()
+{
+
+}
+
+void MainPage::thread_dcr()
+{
+
+}
+
+void MainPage::thread_ir()
+{
+
+}
+
+void MainPage::thread_acw()
+{
+
+}
+
+void MainPage::thread_noload()
+{
+
+}
+
+void MainPage::thread_load()
+{
+
+}
+
+void MainPage::thread_hall()
+{
+
 }
 
 void MainPage::showWarnning()

@@ -131,8 +131,8 @@ void ConfLoadTesting::initUI()
     view->setItemDelegateForColumn(12, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    view->hideColumn(11);
-    view->hideColumn(12);
+//    view->hideColumn(11);
+//    view->hideColumn(12);
 
     QPushButton *btnSave = new QPushButton(this);
     btnSave->setText(tr("保存"));

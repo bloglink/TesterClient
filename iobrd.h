@@ -37,6 +37,7 @@
 #define X11 0x0002  // 启动
 #define X12 0x0004  // 停止
 #define X13 0x0008  // 停止
+#define X14 0x0010  // 复位
 
 #define Y00 0x0001  // 台下起降气缸1
 #define Y01 0x0002  // 台下夹紧气缸2
@@ -66,12 +67,17 @@ public:
 
 signals:
     void sendStart(bool s);
+    void iobrdReset();
 public slots:
     bool initPort(QString portName);
     quint16 readPort();
     bool sendPort(quint16 hex);
     bool waitPort(quint16 hex);
     void quitPort(bool s);
+    bool open(QString name);
+    bool close();
+    bool write(quint16 hex);
+    bool thread();
 private slots:
     bool readThread();
     bool wait(int t);
@@ -79,6 +85,9 @@ private:
     QSerialPort *com;
     quint16 status;
     bool isQuit;
+    quint16 target_status;
+    quint16 time_out;
+    quint16 io_hex;
 };
 
 #endif // IOBRD_H
