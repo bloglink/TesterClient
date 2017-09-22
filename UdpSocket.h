@@ -36,6 +36,7 @@ signals:
 public:
     void initSocket(QString host, quint16 port);
     void quitSocket(void);
+    void send_command(QString cmd);
 
 private slots:
     void recvNetMsg(void);

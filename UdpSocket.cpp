@@ -31,6 +31,12 @@ void UdpSocket::quitSocket()
     this->close();
 }
 
+void UdpSocket::send_command(QString cmd)
+{
+    this->writeDatagram(cmd.toUtf8(), txHost, txPort);
+    this->waitForBytesWritten();
+}
+
 void UdpSocket::recvNetMsg()
 {
     while (this->hasPendingDatagrams()) {
@@ -41,7 +47,8 @@ void UdpSocket::recvNetMsg()
         this->readDatagram(msg.data(), msg.size(), &sender, &senderPort);
         recv_queue.enqueue(msg);
         timeCount = 0;
-        qDebug() << "recv" << msg;
+        if (!msg.startsWith("0x31"))
+            qDebug() << "recv" << msg;
     }
 }
 
