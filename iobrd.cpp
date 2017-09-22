@@ -105,6 +105,72 @@ void IOBrd::quitPort(bool s)
     isQuit = s;
 }
 
+bool IOBrd::open(QString name)
+{
+    com = new QSerialPort(name, this);
+    if (com->open(QIODevice::ReadWrite)) {
+        com->setBaudRate(9600);
+        com->setParity(QSerialPort::NoParity);
+        com->setDataBits(QSerialPort::Data8);
+        com->setStopBits(QSerialPort::OneStop);
+        com->setFlowControl(QSerialPort::NoFlowControl);
+        com->setDataTerminalReady(true);
+        com->setRequestToSend(false);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool IOBrd::close()
+{
+    if (com != NULL) {
+        com->close();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool IOBrd::write(quint16 hex)
+{
+    if (com != NULL && com->isOpen()) {
+        quint8 crc = 0x00;
+        QByteArray msg;
+        QDataStream out(&msg, QIODevice::ReadWrite);
+        out << quint8(0x7B) << quint8(0x00) << quint8(0xF2)
+            << quint8(hex/256) << quint8(hex%256)
+            << quint8(crc) << quint8(0x7D);
+        out.device()->seek(1);
+        out << quint8(msg.size());
+        out.device()->seek(msg.size()-2);
+        for (int i=1; i < msg.size()-2; i++)
+            crc += quint8(msg.at(i));
+        out << quint8(crc);
+        com->write(msg);
+        target_status = (hex & 0xFF00);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool IOBrd::thread()
+{
+    if (com != NULL && com->isOpen()) {
+        com->write(QByteArray::fromHex("7B06F100F77D"));  // 读取IO板状态
+        if (com->bytesAvailable() > 7) {
+            QByteArray msg = com->readAll();
+            io_hex = quint16(msg.at(4)*256) + quint8(msg.at(3));
+        } else {
+            // nothing
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool IOBrd::readThread()
 {
     if (com == NULL || !com->isOpen())
@@ -116,6 +182,8 @@ bool IOBrd::readThread()
             emit sendStart(1);
         if ((status & X12) || (status & X13))
             emit sendStart(0);
+        if (status & X14)
+            emit iobrdReset();
         return true;
     }
     com->write(QByteArray::fromHex("7B06F100F77D"));  // 读取IO板状态
