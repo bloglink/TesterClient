@@ -34,6 +34,7 @@
 
 #include "qcustomplot.h"
 #include "MessageBox.h"
+#include "lqrcode.h"
 
 #define PI 3.1415936
 
@@ -113,7 +114,7 @@ private:
     QCustomPlot *wave;
     QCustomPlot *histogram;
 
-    ConfQrenCode *qrencode;
+    LQRcode *qrencode;
 
     QLabel *station;
     QLabel *judge;

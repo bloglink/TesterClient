@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     ddoublespinbox.cpp \
     MessageBox.cpp \
     lqmath.cpp \
-    backpage.cpp
+    backpage.cpp \
+    lqrcode.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -79,7 +80,8 @@ HEADERS  += \
     ddoublespinbox.h \
     MessageBox.h \
     lqmath.h \
-    backpage.h
+    backpage.h \
+    lqrcode.h
 
 FORMS    += \
     WinSyst.ui

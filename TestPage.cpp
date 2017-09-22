@@ -370,18 +370,19 @@ void TestPage::initUI()
     //    btnLOD->setMinimumSize(97, 44);
     //    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
 
-    //    QPushButton *btnPrt = new QPushButton("测试打印", this);
-    //    btnPrt->setMinimumSize(97, 44);
-    //    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
+    QPushButton *btnPrt = new QPushButton("测试打印", this);
+    btnPrt->setMinimumSize(97, 44);
+    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
 
     QLabel *btnLogo = new QLabel(this);
     btnLogo->setPixmap(QPixmap(":/source/logo.png"));
     btnLogo->setScaledContents(true);
     btnLogo->setMinimumHeight(btnLogo->width());
 
-    //    qrencode = new ConfQrenCode(this);
-    //    qrencode->setMinimumSize(90,90);
-    //    qrencode->setMaximumSize(90,90);
+    qrencode = new LQRcode(this);
+    qrencode->resize(QSize(189, 189));
+    qrencode->hide();
+
     histogram = new QCustomPlot(this);
     bars1 = new QCPBars(histogram->xAxis, histogram->yAxis);
     bars2 = new QCPBars(histogram->xAxis, histogram->yAxis);
@@ -401,7 +402,7 @@ void TestPage::initUI()
     station->setStyleSheet("font:50pt;color:yellow");
     station->setText("左");
     station->setAlignment(Qt::AlignCenter);
-//    station->hide();
+    //    station->hide();
 
     judge = new QLabel(this);
     judge->setStyleSheet("font:55pt;color:green");
@@ -414,16 +415,17 @@ void TestPage::initUI()
     tLayout->addWidget(btnTestL, 2, 0, 1, 2);
     tLayout->addWidget(btnTestR, 3, 0, 1, 2);
     tLayout->addWidget(btnStop, 4, 0, 1, 2);
-    tLayout->addWidget(btnLogo, 5, 0, 1, 2);
-    tLayout->addWidget(histogram, 6, 0, 1, 2);
-    tLayout->setRowStretch(6, 2);
+    tLayout->addWidget(btnPrt, 5, 0, 1, 2);
+    tLayout->addWidget(btnLogo, 6, 0, 1, 2);
+    tLayout->addWidget(histogram, 7, 0, 1, 2);
+    tLayout->setRowStretch(7, 2);
     //    tLayout->addWidget(btnDCR, 5, 0, 1, 2);
     //    tLayout->addWidget(btnINR, 6, 0, 1, 2);
     //    tLayout->addWidget(btnACW, 7, 0, 1, 2);
     //    tLayout->addWidget(btnIND, 8, 0, 1, 2);
     //    tLayout->addWidget(btnPWR, 9, 0, 1, 2);
     //    tLayout->addWidget(btnLOD, 10, 0, 1, 2);
-    //    tLayout->addWidget(btnPrt, 11, 0, 1, 2);
+
     tLayout->addLayout(cLayout, 12, 0, 1, 2);
     tLayout->setRowStretch(12, 1);
 
@@ -693,14 +695,18 @@ void TestPage::DrawWave()
 
 void TestPage::Printer()
 {
-    qrencode->generateString("xxx");
-    QPrinter printer;
-    // 创建打印预览对话框
-    QPrintPreviewDialog preview(&printer, this);
-    // 当要生成预览页面时，发射paintRequested()信号
-    connect(&preview, SIGNAL(paintRequested(QPrinter*)),
-            this,SLOT(printPreview(QPrinter*)));
-    preview.exec();
+    QFile file("qrencode.txt");
+    if (file.open(QFile::ReadOnly)) {
+        QString tmp = file.readAll();
+        qrencode->generateString(tmp);
+        QPrinter printer;  // 创建打印机对象
+        QPixmap image;
+        QPainter painter(&printer);
+        image = qrencode->grab(QRect(0, 0, qrencode->width(), qrencode->height()));
+        painter.drawPixmap(75, 18, image);
+    } else {
+        //nothing
+    }
 }
 
 void TestPage::printPreview(QPrinter *printer)
