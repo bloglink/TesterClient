@@ -501,11 +501,10 @@ void MainPage::readNLD()
         double phs = power.at(7).toDouble();
 
         QString tt;
-        tt.append(QString("%1A,").arg(QString::number(crr, 'f', 2)));
-        tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 2)));
+        tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
+        tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 1)));
         tt.append(QString("%1W,").arg(QString::number(pwr, 'f', 2)));
-        tt.append(QString("%1,").arg(QString::number(phs, 'f', 2)));
-        tt.append(QString("%1rpm").arg(rpm));
+        tt.append(QString("%1rpm").arg(QString::number(rpm, 'f', 1)));
         test->updateItem(tt);
 
         QString jj = "OK";
@@ -576,11 +575,10 @@ void MainPage::readLOD()
         double phs = power.at(7).toDouble();
 
         QString tt;
-        tt.append(QString("%1A,").arg(QString::number(crr, 'f', 2)));
-        tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 2)));
+        tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
+        tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 1)));
         tt.append(QString("%1W,").arg(QString::number(pwr, 'f', 2)));
-        tt.append(QString("%1,").arg(QString::number(phs, 'f', 2)));
-        tt.append(QString("%1rpm").arg(rpm));
+        tt.append(QString("%1rpm").arg(QString::number(rpm, 'f', 1)));
         test->updateItem(tt);
 
         QString jj = "OK";
