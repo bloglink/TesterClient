@@ -205,6 +205,7 @@ private:
     bool stopping;
 
     QTimer *load_timer;
+    int speed;
 
 };
 

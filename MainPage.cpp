@@ -20,6 +20,7 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
     loadStopEnable = false;
     isLoadStop = false;
     stopping = false;
+    speed = 0;
 
     load_timer = new QTimer(this);
     connect(load_timer, SIGNAL(timeout()), this, SLOT(waitSendStop()));
@@ -595,7 +596,11 @@ void MainPage::readLOD()
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
         tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 1)));
         tt.append(QString("%1W,").arg(QString::number(pwr, 'f', 2)));
-        tt.append(QString("%1rpm").arg(QString::number(rpm, 'f', 1)));
+        tt.append(QString("%1rpm,").arg(QString::number(rpm, 'f', 1)));
+        if (speed > 32767)
+            tt.append(QString("CCW"));
+        else
+            tt.append(QString("CW"));
         test->updateItem(tt);
 
         QString jj = "OK";
