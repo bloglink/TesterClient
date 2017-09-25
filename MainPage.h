@@ -100,8 +100,9 @@ private slots:
     void readNLD();
     void testLOD();
     void readLOD();
+    int cylinder_start();
+    bool cylinder_stop(int ret);
     void testStop();
-    void testTimeOut();
     bool waitTimeOut(quint16 s);
     bool testPause();
 

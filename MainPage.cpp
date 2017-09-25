@@ -212,7 +212,8 @@ void MainPage::recvNetMsg(QString msg)
         test->updateItems(dat);
         break;
     case 6007:  // 单项测试完成
-        status = STATUS_FREE;
+        if (status != STATUS_OVER)
+            status = STATUS_FREE;
         break;
     case 6015:  // 空载启动完成
         QTimer::singleShot(10, this, SLOT(readNoLoadStart()));
@@ -274,12 +275,14 @@ void MainPage::wait(int ms)
 
 void MainPage::testInit()
 {
+    int ret;
     testing = true;
     isNG = false;
     isServo = false;
     loadStopEnable = false;
     isLoadStop = false;
     stopping = false;
+    load_timer->stop();
     test->initItems(station);
     if (!cylinderAction(LED_Y, station)) {
         cylinderAction(0x00, station);
@@ -288,15 +291,13 @@ void MainPage::testInit()
         return;
     }
 
-    QJsonObject obj;
-    obj.insert("TxMessage",QString("6020 %1").arg(station));
-    emit transmitJson(obj);
+    udp.send_command(QString("6020 %1").arg(station));
 
     QStringList testItems = conf->testItems();
     testing = true;
+    status = STATUS_FREE;
     for (int i=0; i < testItems.size(); i++) {
         int cmd = testItems.at(i).toInt();
-        status = cmd;
         switch (cmd) {
         case STATUS_DCR:
             testDCR();
@@ -317,18 +318,16 @@ void MainPage::testInit()
             testNLD();
             break;
         case STATUS_LOD:
-            testLOD();
+            ret = cylinder_start();
+            if (ret == 0)
+                testLOD();
+            cylinder_stop(ret);
             break;
         default:
             break;
         }
         if (status == STATUS_OVER) {
             testStop();
-            break;
-        }
-        if (status == STATUS_TIME) {
-            testTimeOut();
-            QMessageBox::warning(this, "超时", QString("测试超时"), QMessageBox::Ok);
             break;
         }
         if (isNG) {
@@ -371,44 +370,44 @@ void MainPage::testDCR()
 {
     sendUdpCommand("6006 DCR");
     waitTimeOut(STATUS_DCR);
-    wait(100);
 }
 
 void MainPage::testINR()
 {
-    if (!cylinderAction(Y03 | Y10, station)) {
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "ir start";
+    if (!cylinderAction(Y03 | Y10, station))
         status = STATUS_OVER;
+    if (status == STATUS_OVER)
         return;
-    }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "ir cylinder ok";
 
     sendUdpCommand("6006 IR");
     waitTimeOut(STATUS_INR);
-    wait(100);
+
     QStringList s = conf->testItems();
     QList<int> tt;
     for (int i=0; i < s.size(); i++) {
         tt.append(QString(s.at(i)).toInt());
     }
     if (tt.indexOf(STATUS_ACW) - tt.indexOf(STATUS_INR) != 1) {
-        if (!cylinderAction(Y10, station)) {
+        if (!cylinderAction(Y10, station))
             status = STATUS_OVER;
-            return;
-        }
     }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "ir over";
 }
 
 void MainPage::testACW()
 {
-    if (!cylinderAction(Y03 | Y10, station)) {
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "acw start";
+    if (!cylinderAction(Y03 | Y10, station))
         status = STATUS_OVER;
+    if (status == STATUS_OVER)
         return;
-    }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "acw cylinder ok";
+
     sendUdpCommand("6006 ACW");
     waitTimeOut(STATUS_ACW);
-    wait(100);
+
     QStringList s = conf->testItems();
     QList<int> tt;
     for (int i=0; i < s.size(); i++) {
@@ -420,21 +419,19 @@ void MainPage::testACW()
             return;
         }
     }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "acw over";
 }
 
 void MainPage::testIND()
 {
     sendUdpCommand("6006 IND");
     waitTimeOut(STATUS_IND);
-    wait(100);
 }
 
 void MainPage::testHAL()
 {
     sendUdpCommand("6006 HALL");
     waitTimeOut(STATUS_HAL);
-    wait(100);
     readHall();
 }
 
@@ -490,11 +487,12 @@ void MainPage::readHall()
 
 void MainPage::testNLD()
 {
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "noload start";
     if (!cylinderAction(Y02 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "noload cylinder ok";
     isLoadStop = false;
     loadStopEnable = false;
     sendUdpCommand("6006 NOLAOD");          // 启动
@@ -507,11 +505,21 @@ void MainPage::testNLD()
     }
     isLoadStop = false;
     loadStopEnable = false;
-    if (!cylinderAction(Y10, station)) {
-        status = STATUS_OVER;
-        return;
+
+    QStringList s = conf->testItems();
+    QList<int> tt;
+    for (int i=0; i < s.size(); i++) {
+        tt.append(QString(s.at(i)).toInt());
     }
-    wait(100);
+    if (tt.indexOf(STATUS_LOD) - tt.indexOf(STATUS_NLD) != 1) {
+        if (!cylinderAction(Y10, station))
+            status = STATUS_OVER;
+    } else {
+        if (!cylinderAction(Y00 | Y10, station)) {
+            status = STATUS_OVER;
+        }
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "noload over";
 }
 
 void MainPage::readNLD()
@@ -549,22 +557,10 @@ void MainPage::readNLD()
 
 void MainPage::testLOD()
 {
-    if (!cylinderAction(Y00 | Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-    if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
     mbdktPrevAction(station);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "mbdkt ok";
+    if (status == STATUS_OVER)
+        return;
     isLoadStop = false;
     loadStopEnable = false;
     sendUdpCommand("6006 LOAD");          // 启动
@@ -575,28 +571,14 @@ void MainPage::testLOD()
         double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
         mbdktActionStop(tmp*2500, station);
         status = STATUS_OVER;
-        qDebug() << "load lower ok";
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load lower ok";
     } else {
         // nothing
     }
+    load_timer->stop();
     isLoadStop = false;
     loadStopEnable = false;
-
-    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-    if (!cylinderAction(Y00 | Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
-    if (!cylinderAction(Y10, station)) {
-        status = STATUS_OVER;
-        return;
-    }
-    wait(100);
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load over";
 }
 
 void MainPage::readLOD()
@@ -632,20 +614,60 @@ void MainPage::readLOD()
     }
 }
 
+int MainPage::cylinder_start()
+{
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load start";
+    if (!cylinderAction(Y00 | Y10, station)) {
+        status = STATUS_OVER;
+        return 1;
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
+    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
+        status = STATUS_OVER;
+        return 2;
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder2 ok";
+    if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
+        status = STATUS_OVER;
+        return 3;
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder3 ok";
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load start ok";
+    return 0;
+}
+
+bool MainPage::cylinder_stop(int ret)
+{
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load cylinder stop" << ret;
+    if (ret == 0) {
+        if (!cylinderAction(Y00 | Y01 | Y10, station)) {
+            status = STATUS_OVER;
+            return false;
+        }
+        if (!cylinderAction(Y00 | Y10, station)) {
+            status = STATUS_OVER;
+            return false;
+        }
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
+    if (ret == 2 || ret == 3) {
+        cylinderAction(Y00 | Y01 | Y10, station);
+        cylinderAction(Y00 | Y10, station);
+    }
+    if (!cylinderAction(Y10, station)) {
+        status = STATUS_OVER;
+        return false;
+    }
+    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load cylinder stop ok";
+    return true;
+}
+
 void MainPage::testStop()
 {
     QJsonObject obj;
     obj.insert("TxMessage",QString("6022 %1").arg(station));
     emit transmitJson(obj);
     status = STATUS_OVER;
-}
-
-void MainPage::testTimeOut()
-{
-    QJsonObject obj;
-    obj.insert("TxMessage",QString("6026"));
-    emit transmitJson(obj);
-    status = STATUS_TIME;
 }
 
 bool MainPage::waitTimeOut(quint16 s)
@@ -973,7 +995,6 @@ void MainPage::sendXmlCmd(QJsonObject obj)
 
 void MainPage::readNoLoadStart()
 {  
-    qDebug() << "upper over" << isLoadStop;
     if (status == STATUS_LOD) {
         if (isLoadStop) {
             loadStopEnable = true;
@@ -981,7 +1002,7 @@ void MainPage::readNoLoadStart()
         }
         double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
         mbdktAction(tmp*2500, station);
-        qDebug() << "upper ok";
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load upper ok";
     }
     loadStopEnable = true;
 }
@@ -989,9 +1010,13 @@ void MainPage::readNoLoadStart()
 void MainPage::readNoLoadStop()
 {
     if (status == STATUS_LOD) {
+        if (station == 0x13)
+            speed = servoL.readPort();
+        else
+            speed = servoR.readPort();
         double tmp = qMax(loadtesting->readTorque()-readTorqueComp().toDouble(), 0.0);
         mbdktActionStop(tmp*2500, station);
-        qDebug() << "lower ok";
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load lower ok";
     }
 }
 
@@ -1020,16 +1045,14 @@ void MainPage::readStartL(bool s)
         if (stopping)
             return;
         stopping = true;
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "recv stop";
         if (status == STATUS_LOD || status == STATUS_NLD) {
-            qDebug() << "recv stop";
             isLoadStop = true;
-            load_timer->start(50);
+            load_timer->start(10);
         } else {
             iobrdL.quitPort(true);
             testStop();
-            stopping = false;
         }
-
     }
 }
 
@@ -1045,17 +1068,13 @@ void MainPage::readStartR(bool s)
     if (!s && testing) {
         if (station != 0x14)
             return;
+        if (stopping)
+            return;
+        stopping = true;
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "recv stop";
         if (status == STATUS_LOD || status == STATUS_NLD) {
-            qDebug() << "recv stop";
             isLoadStop = true;
-            while (1) {
-                if (loadStopEnable == true) {
-                    sendUdpCommand(QString("6022 %1").arg(station));
-                    break;
-                } else {
-                    wait(10);
-                }
-            }
+            load_timer->start(10);
         } else {
             iobrdR.quitPort(true);
             testStop();
@@ -1232,66 +1251,11 @@ void MainPage::iobrdReset()
 
 void MainPage::waitSendStop()
 {
-    if (loadStopEnable == true) {
+    if (isLoadStop && loadStopEnable) {
         sendUdpCommand(QString("6022 %1").arg(station));
-        qDebug() << "break";
+        qDebug() << QTime::currentTime().toString("hh:mm:ss") << "send stop";
         load_timer->stop();
     }
-}
-
-void MainPage::thread_system(void)
-{
-
-}
-
-void MainPage::thread_udp()
-{
-
-}
-
-void MainPage::thread_iobrd()
-{
-
-}
-
-void MainPage::thread_servo()
-{
-
-}
-
-void MainPage::thread_mbdkt()
-{
-
-}
-
-void MainPage::thread_dcr()
-{
-
-}
-
-void MainPage::thread_ir()
-{
-
-}
-
-void MainPage::thread_acw()
-{
-
-}
-
-void MainPage::thread_noload()
-{
-
-}
-
-void MainPage::thread_load()
-{
-
-}
-
-void MainPage::thread_hall()
-{
-
 }
 
 void MainPage::showWarnning()
