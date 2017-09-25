@@ -290,12 +290,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string>操作员</string>
+                 <string>guest</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>管理员</string>
+                 <string>admin</string>
                 </property>
                </item>
               </widget>
