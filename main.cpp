@@ -10,9 +10,15 @@
 #include "MainPage.h"
 #include <QApplication>
 #include <QTextCodec>
-
+#include <QTranslator>
+#include <QLibraryInfo>
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    QTranslator qt_zh;
+    qt_zh.load("qt_zh_CN.qm", ":/translations");
+    a.installTranslator(&qt_zh);  // 加载Qt标准对话框的中文翻译文件
+
     MainPage w;
     if (!w.check())
         return 0;
