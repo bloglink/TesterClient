@@ -108,6 +108,8 @@ void MBDKT::wait(int ms)
 
 bool MBDKT::sendCommand(QByteArray cmd)
 {
+//    wait(10);
+//    return true;
     if (com == NULL || !com->isOpen())
         return false;
     quint32 timeOut = 0;

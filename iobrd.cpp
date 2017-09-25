@@ -59,6 +59,13 @@ bool IOBrd::sendPort(quint16 hex)
 
 bool IOBrd::waitPort(quint16 hex)
 {
+//    qDebug() << isQuit;
+//    wait(2000);
+//    if (isQuit) {
+//        isQuit = false;
+//        return false;
+//    }
+//    return true;
     quint16 s = 0x0000;
     if (hex & Y00)
         s |= X01_TARGET;
@@ -77,10 +84,11 @@ bool IOBrd::waitPort(quint16 hex)
     else
         s |= X04_ORIGIN;
 
-    qDebug() << "recv" << QString::number(s, 16);
+    qDebug() << "recv" << QString::number(s, 16) << isQuit;
 
     quint16 timeOut = 0x0000;
     quint16 count = 0;
+    isQuit = false;
     while (1) {
         if ((status & 0xFF00) == s) {
             count++;
@@ -155,6 +163,28 @@ bool IOBrd::write(quint16 hex)
     }
 }
 
+quint16 IOBrd::get_target_status(quint16 hex)
+{
+    quint16 s = 0x0000;
+    if (hex & Y00)
+        s |= X01_TARGET;
+    else
+        s |= X01_ORIGIN;
+    if (hex & Y01)
+        s |= X02_TARGET;
+    else
+        s |= X02_ORIGIN;
+    if (hex & Y02)
+        s |= X03_TARGET;
+    else
+        s |= X03_ORIGIN;
+    if (hex & Y03)
+        s |= X04_TARGET;
+    else
+        s |= X04_ORIGIN;
+    return s;
+}
+
 bool IOBrd::thread()
 {
     if (com != NULL && com->isOpen()) {
@@ -175,7 +205,7 @@ bool IOBrd::readThread()
 {
     if (com == NULL || !com->isOpen())
         return false;
-    if (com->bytesAvailable() > 7) {
+    if (com->bytesAvailable() >= 7) {
         QByteArray msg = com->readAll();
         status = quint16(msg.at(3)*256) + quint8(msg.at(4));
         if ((status & X10) && (status & X11))

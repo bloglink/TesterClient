@@ -137,18 +137,6 @@ private slots:
     void closeEvent(QCloseEvent *e);
     void iobrdReset();
     void waitSendStop();
-
-    void thread_system(void);
-    void thread_udp();
-    void thread_iobrd();
-    void thread_servo();
-    void thread_mbdkt();
-    void thread_dcr();
-    void thread_ir();
-    void thread_acw();
-    void thread_noload();
-    void thread_load();
-    void thread_hall();
 private:
     QList<int> previous_window;
     QStackedWidget *stack;

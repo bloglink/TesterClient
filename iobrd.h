@@ -77,6 +77,7 @@ public slots:
     bool open(QString name);
     bool close();
     bool write(quint16 hex);
+    quint16 get_target_status(quint16 hex);
     bool thread();
 private slots:
     bool readThread();

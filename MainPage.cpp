@@ -170,7 +170,7 @@ void MainPage::initCom()
     mbdktR.initPort("COM8");
 
     connect(&iobrdL, SIGNAL(sendStart(bool)), this, SLOT(readStartL(bool)));
-    connect(&iobrdL, SIGNAL(iobrdReset(bool)), this, SLOT(iobrdReset()));
+    connect(&iobrdL, SIGNAL(iobrdReset()), this, SLOT(iobrdReset()));
     connect(&iobrdR, SIGNAL(sendStart(bool)), this, SLOT(readStartR(bool)));
 }
 
