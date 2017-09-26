@@ -645,20 +645,33 @@ bool MainPage::cylinder_stop(int ret)
 {
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load cylinder stop" << ret;
     if (ret == 0) {
-        if (!cylinderAction(Y00 | Y01 | Y10, station)) {
+        if (!cylinderAction(Y00 | Y02 | Y10, station)) {
+            cylinderAction(Y00 | Y02 | Y10, station);  // 确保夹紧气缸松开
             status = STATUS_OVER;
             return false;
         }
-        if (!cylinderAction(Y00 | Y10, station)) {
+        if (!cylinderAction(Y02 | Y10, station)) {
             status = STATUS_OVER;
             return false;
         }
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
     if (ret == 2 || ret == 3) {
-        cylinderAction(Y00 | Y01 | Y10, station);
-        cylinderAction(Y00 | Y10, station);
+        if (!cylinderAction(Y00 | Y02 | Y10, station))
+            cylinderAction(Y00 | Y02 | Y10, station);  // 确保夹紧气缸松开
+        cylinderAction(Y02 | Y10, station);
     }
+
+    QStringList s = conf->testItems();
+    QList<int> tt;
+    for (int i=0; i < s.size(); i++) {
+        tt.append(QString(s.at(i)).toInt());
+    }
+    if (tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_LOD) == 1)
+        return true;
+    if ((tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_HAL) == 1) &&
+            (tt.indexOf(STATUS_HAL) - tt.indexOf(STATUS_LOD) == 1))
+        return true;
     if (!cylinderAction(Y10, station)) {
         status = STATUS_OVER;
         return false;
