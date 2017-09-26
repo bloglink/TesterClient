@@ -45,9 +45,14 @@ void PageSqlite::initUI()
     connect(btnQuery, SIGNAL(clicked(bool)), this, SLOT(querySql()));
 
     QPushButton *btnExport = new QPushButton(this);
-    btnExport->setText(tr("导出"));
+    btnExport->setText(tr("导出当前"));
     btnExport->setMinimumSize(97, 35);
     connect(btnExport, SIGNAL(clicked(bool)), this, SLOT(exportSql()));
+
+    QPushButton *btnExports = new QPushButton(this);
+    btnExports->setText(tr("全部导出"));
+    btnExports->setMinimumSize(97, 35);
+    connect(btnExports, SIGNAL(clicked(bool)), this, SLOT(exportsSql()));
 
     QPushButton *btnClear = new QPushButton(this);
     btnClear->setText(tr("清空"));
@@ -64,6 +69,7 @@ void PageSqlite::initUI()
     btnLayout->addWidget(date);
     btnLayout->addWidget(btnQuery);
     btnLayout->addWidget(btnExport);
+    btnLayout->addWidget(btnExports);
     btnLayout->addWidget(btnClear);
     btnLayout->addStretch();
     btnLayout->addWidget(btnExit);
@@ -223,7 +229,78 @@ void PageSqlite::exportSql()
     headers << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
     for (int i=0; i < 5; i++) {
         for (int j=0; j < headers.size(); j++) {
-            file.write(ToGbk(headers.at(i%4)));
+            file.write(ToGbk(headers.at(j%4)));
+            file.write(",");
+        }
+    }
+
+    while (query.next()) {
+        QString s = query.value(1).toString();
+        if (s != date->date().toString("yyyy-MM-dd"))
+            continue;
+        double id = query.value(0).toDouble();
+        if (current_id != id) {
+            file.write("\n");
+            file.write(ToGbk(query.value(1).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(2).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(3).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(4).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(5).toString().replace(",", " ")));
+            file.write(",");
+            file.write(ToGbk(query.value(6).toString().replace(",", " ")));
+            file.write(",");
+        } else {
+            // nothing
+        }
+        file.write(ToGbk(query.value(7).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(8).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(9).toString().replace(",", " ")));
+        file.write(",");
+        file.write(ToGbk(query.value(10).toString().replace(",", " ")));
+        file.write(",");
+
+        current_id = id;
+    }
+    file.close();
+    QMessageBox::information(this,  "",   "导出成功",  QMessageBox::Ok);
+}
+
+void PageSqlite::exportsSql()
+{
+    QString name = getSaveFileName();
+    QFile file(QString("%1.csv").arg(name));
+    if (!file.open(QFile::WriteOnly)) {
+        QMessageBox::warning(this,  "",   "创建失败",  QMessageBox::Ok);
+        return;
+    }
+    QSqlQuery query(db);
+    QString cmd;
+    cmd = "select TestData.id, TestData.date, ";
+    cmd += "TestData.time, TestData.type, TestData.code, ";
+    cmd += "TestData.user, TestData.judge, ";
+    cmd += "TestDatas.item, TestDatas.para, ";
+    cmd += "TestDatas.result, TestDatas.judge ";
+    cmd += "from TestData ";
+    cmd += "INNER JOIN TestDatas ON TestData.id = TestDatas.parent";
+    query.exec(cmd);
+    QStringList header;
+    header << tr("测试日期") << tr("测试时间") << tr("测试型号")
+           << tr("产品编码") << tr("测试人") << tr("测试判定");
+    for (int i=0; i < header.size(); i++) {
+        file.write(ToGbk(header.at(i)));
+        file.write(",");
+    }
+    QStringList headers;
+    headers << tr("测试项目") << tr("测试参数") << tr("测试结果") << tr("测试判定");
+    for (int i=0; i < 5; i++) {
+        for (int j=0; j < headers.size(); j++) {
+            file.write(ToGbk(headers.at(j%4)));
             file.write(",");
         }
     }
@@ -272,7 +349,7 @@ QString PageSqlite::getSaveFileName()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
                                                     tr("Open Config"),
-                                                    QDate::currentDate().toString("yy-MM-dd"),
+                                                    date->date().toString("yy-MM-dd"),
                                                     tr("Config Files (*.csv)"));
     return fileName;
 }

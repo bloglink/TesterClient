@@ -51,6 +51,7 @@ private slots:
     void querySql();
     void clearSql();
     void exportSql();
+    void exportsSql();
     QByteArray ToGbk(const QString &inStr);
     QString getSaveFileName();
 private:
