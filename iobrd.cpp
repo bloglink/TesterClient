@@ -92,12 +92,12 @@ bool IOBrd::waitPort(quint16 hex)
     while (1) {
         if ((status & 0xFF00) == s) {
             count++;
-            if (count > 5)
+            if (count > 11)
                 return true;
         }
-        wait(50);
+        wait(10);
         timeOut++;
-        if (timeOut > 100) {
+        if (timeOut > 500) {
             QMessageBox::warning(NULL, "气缸", "气缸超时", QMessageBox::Ok);
             return false;
         }

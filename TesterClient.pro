@@ -35,7 +35,6 @@ SOURCES += main.cpp\
     conf_loadtesting.cpp \
     LoginPage.cpp \
     conf_backforce.cpp \
-    conf_qrencode.cpp \
     conf_hall.cpp \
     wt330.cpp \
     iobrd.cpp \
@@ -68,7 +67,6 @@ HEADERS  += \
     conf_loadtesting.h \
     LoginPage.h \
     conf_backforce.h \
-    conf_qrencode.h \
     conf_hall.h \
     wt330.h \
     iobrd.h \

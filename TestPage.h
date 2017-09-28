@@ -30,7 +30,6 @@
 #include <QKeyEvent>
 
 #include "conf_delegation.h"
-#include "conf_qrencode.h"
 
 #include "qcustomplot.h"
 #include "MessageBox.h"

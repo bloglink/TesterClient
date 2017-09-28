@@ -1155,24 +1155,22 @@ bool MainPage::mbdktPrevAction(quint16 s)
     if (s == 0x13) {
         if (!mbdktL.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
-        wait(100);
+        wait(50);
         if (!mbdktL.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-        wait(100);
+        wait(50);
         if (!mbdktL.setStart(1))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(100);
+        wait(50);
     } else if (s == 0x14) {
         if (!mbdktR.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
-        wait(100);
+        wait(50);
         if (!mbdktR.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-        wait(100);
+        wait(50);
         if (!mbdktR.setStart(1))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(100);
-
     }
     return false;
 }
@@ -1182,7 +1180,6 @@ bool MainPage::mbdktPrevActionStop(quint16 s)
     if (s == 0x13) {
         if (!mbdktL.setStart(0))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(100);
     } else if (s == 0x14) {
         if (!mbdktR.setStart(0))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
@@ -1196,7 +1193,7 @@ bool MainPage::mbdktAction(int torque, quint16 s)
         for (int i=1; i < 11; i++) {
             if (!mbdktL.setTorque(torque*i/10))
                 QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-            wait(100);
+            wait(50);
             if (isLoadStop) {
                 return true;
             }
@@ -1205,7 +1202,7 @@ bool MainPage::mbdktAction(int torque, quint16 s)
         for (int i=1; i < 11; i++) {
             if (!mbdktR.setTorque(torque*i/10))
                 QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-            wait(100);
+            wait(50);
             if (isLoadStop) {
                 return true;
             }
@@ -1219,13 +1216,13 @@ bool MainPage::mbdktActionStop(int torque, quint16 s)
     if (s == 0x13) {
         for (int i=1; i < 11; i++) {
             mbdktL.setTorque(torque/10*(10-i));
-            wait(100);
+            wait(50);
         }
         return true;
     } else if (s == 0x14) {
         for (int i=1; i < 11; i++) {
             mbdktR.setTorque(torque/10*(10-i));
-            wait(100);
+            wait(50);
         }
         return true;
     }
