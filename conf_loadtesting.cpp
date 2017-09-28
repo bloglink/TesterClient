@@ -20,12 +20,20 @@ ConfLoadTesting::~ConfLoadTesting()
 void ConfLoadTesting::initSettings(QJsonObject obj)
 {
     QStringList items = itemNames;
-    items << "sequence";
+    items << "sequence" << "turn";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "sequence") {
             for (int t=0; t < qMin(temp.size(), tModel->columnCount()); t++)
                 tModel->item(0, t)->setText(temp.at(t));
+        } else if (items.at(i) == "turn"){
+            if (temp.size() < 2)
+                continue;
+            if (temp.at(0) == "0")
+                turnCheckBox->setChecked(false);
+            else
+                turnCheckBox->setChecked(true);
+            turnComboBox->setCurrentIndex(temp.at(1).toInt());
         } else {
             for (int t=0; t < temp.size(); t++)
                 mView->item(t, i)->setText(temp.at(t));
@@ -52,6 +60,14 @@ void ConfLoadTesting::readSettings()
     }
     obj.insert("sequence", temp.join(","));
 
+    temp.clear();
+    if (turnCheckBox->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    temp.append(QString::number(turnComboBox->currentIndex()));
+    obj.insert("turn", temp.join(","));
+
     QJsonObject array;
     array.insert("LOAD", obj);
     emit sendAppCmd(array);
@@ -72,6 +88,11 @@ QStringList ConfLoadTesting::readLimit()
             temp.append(QString::number(x));
         }
     }
+    if (turnCheckBox->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    temp.append(QString::number(turnComboBox->currentIndex()));
     return temp;
 }
 
@@ -131,8 +152,16 @@ void ConfLoadTesting::initUI()
     view->setItemDelegateForColumn(12, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    view->hideColumn(11);
-//    view->hideColumn(12);
+    //    view->hideColumn(11);
+    //    view->hideColumn(12);
+
+    turnCheckBox = new QCheckBox(this);
+    turnCheckBox->setText(tr("负载转向"));
+    turnComboBox = new QComboBox(this);
+    turnComboBox->addItem(tr("CCW"));
+    turnComboBox->addItem(tr("CW"));
+    turnComboBox->setMinimumSize(97, 35);
+    turnComboBox->setView(new QListView);
 
     QPushButton *btnSave = new QPushButton(this);
     btnSave->setText(tr("保存"));
@@ -145,6 +174,8 @@ void ConfLoadTesting::initUI()
     connect(btnExit, SIGNAL(clicked(bool)), this, SLOT(back()));
 
     QHBoxLayout *btnLayout = new QHBoxLayout;
+    btnLayout->addWidget(turnCheckBox);
+    btnLayout->addWidget(turnComboBox);
     btnLayout->addStretch();
     btnLayout->addWidget(btnSave);
     btnLayout->addWidget(btnExit);

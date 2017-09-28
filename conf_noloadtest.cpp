@@ -26,11 +26,14 @@ void ConfNoLoadTest::initSettings(QJsonObject obj)
         if (items.at(i) == "sequence") {
             for (int t=0; t < temp.size(); t++)
                 tModel->item(0, t)->setText(temp.at(t));
-        } else if (items.at(i) == "turn"){
+        } else if (items.at(i) == "turn") {
+            if (temp.size() < 2)
+                continue;
             if (temp.at(0) == "0")
                 turnCheckBox->setChecked(false);
             else
                 turnCheckBox->setChecked(true);
+            turnComboBox->setCurrentIndex(temp.at(1).toInt());
         } else {
             for (int t=0; t < temp.size(); t++)
                 mView->item(t, i)->setText(temp.at(t));
@@ -80,6 +83,11 @@ QStringList ConfNoLoadTest::readLimit()
             temp.append(QString::number(x));
         }
     }
+    if (turnCheckBox->isChecked())
+        temp.append("1");
+    else
+        temp.append("0");
+    temp.append(QString::number(turnComboBox->currentIndex()));
     return temp;
 }
 
@@ -142,8 +150,8 @@ void ConfNoLoadTest::initUI()
     turnCheckBox = new QCheckBox(this);
     turnCheckBox->setText(tr("空载转向"));
     turnComboBox = new QComboBox(this);
-    turnComboBox->addItem(tr("逆时针"));
-    turnComboBox->addItem(tr("顺时针"));
+    turnComboBox->addItem(tr("CCW"));
+    turnComboBox->addItem(tr("CW"));
     turnComboBox->setMinimumSize(97, 35);
     turnComboBox->setView(new QListView);
 

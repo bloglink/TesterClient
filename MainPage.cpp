@@ -596,22 +596,31 @@ void MainPage::readLOD()
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
         tt.append(QString("%1V,").arg(QString::number(vlt, 'f', 1)));
         tt.append(QString("%1W,").arg(QString::number(pwr, 'f', 2)));
-        tt.append(QString("%1rpm,").arg(QString::number(rpm, 'f', 1)));
-        if (speed > 32767)
-            tt.append(QString("CCW"));
-        else
-            tt.append(QString("CW"));
-        test->updateItem(tt);
+        tt.append(QString("%1rpm").arg(QString::number(rpm, 'f', 1)));
 
         QString jj = "OK";
         QStringList ss = loadtesting->readLimit();
-
+        if (ss.size() >= 14 && ss.at(13) == "1") {
+            if (speed > 60535 && speed < 65530) {
+                tt.append(QString(",CCW"));
+                if (ss.at(14) == "1")
+                    jj = "NG";
+            } else if (speed > 5 && speed < 5000) {
+                tt.append(QString(",CW"));
+                if (ss.at(14) == "0")
+                    jj = "NG";
+            } else {
+                tt.append(",NULL");
+                jj = "NG";
+            }
+        }
         if (crr < ss.at(1).toDouble() || crr > ss.at(2).toDouble())
             jj = "NG";
         if (pwr < ss.at(3).toDouble() || pwr > ss.at(4).toDouble())
             jj = "NG";
         if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
             jj = "NG";
+        test->updateItem(tt);
         test->updateJudge(jj);
     } else {
         test->updateItem("NULL");
@@ -837,12 +846,14 @@ void MainPage::readSettings()
     names_lod << "volt" << "curr_min" << "curr_max"
               << "pwr_min" << "pwr_max"
               << "speed_min" << "speed_max" << "torque"
-              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power"<< "sequence";
+              << "vcc_volt" << "vsp_volt" << "time" << "driver" << "power"<< "sequence" << "turn";
     ini->beginGroup("LOAD");
     for (int i=0; i < names_lod.size(); i++) {
         QString def = "0";
         if (names_lod.at(i) == "sequence")
             def = "1,1,1,1,1,1,1,1,1,1,1,1,1,1";
+        if (names_lod.at(i) == "turn")
+            def = "0,0";
         obj_lod.insert(names_lod.at(i), ini->value(names_lod.at(i), def).toString());
     }
     ini->endGroup();
