@@ -60,7 +60,7 @@ bool IOBrd::sendPort(quint16 hex)
 bool IOBrd::waitPort(quint16 hex)
 {
 //    qDebug() << isQuit;
-//    wait(2000);
+//    wait(1000);
 //    if (isQuit) {
 //        isQuit = false;
 //        return false;

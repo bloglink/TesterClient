@@ -636,11 +636,11 @@ int MainPage::cylinder_start()
         return 1;
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
-    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
-        status = STATUS_OVER;
-        return 2;
-    }
-    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder2 ok";
+    //    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
+    //        status = STATUS_OVER;
+    //        return 2;
+    //    }
+    //    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder2 ok";
     if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
         status = STATUS_OVER;
         return 3;
@@ -659,10 +659,10 @@ bool MainPage::cylinder_stop(int ret)
             status = STATUS_OVER;
             return false;
         }
-        if (!cylinderAction(Y02 | Y10, station)) {
-            status = STATUS_OVER;
-            return false;
-        }
+        //        if (!cylinderAction(Y02 | Y10, station)) {
+        //            status = STATUS_OVER;
+        //            return false;
+        //        }
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
     if (ret == 2 || ret == 3) {
@@ -670,20 +670,27 @@ bool MainPage::cylinder_stop(int ret)
             cylinderAction(Y00 | Y02 | Y10, station);  // 确保夹紧气缸松开
         cylinderAction(Y02 | Y10, station);
     }
-
+    bool next = false;
     QStringList s = conf->testItems();
     QList<int> tt;
     for (int i=0; i < s.size(); i++) {
         tt.append(QString(s.at(i)).toInt());
     }
     if (tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_LOD) == 1)
-        return true;
+        next = true;
     if ((tt.indexOf(STATUS_NLD) - tt.indexOf(STATUS_HAL) == 1) &&
             (tt.indexOf(STATUS_HAL) - tt.indexOf(STATUS_LOD) == 1))
-        return true;
-    if (!cylinderAction(Y10, station)) {
-        status = STATUS_OVER;
-        return false;
+        next = true;
+    if (next) {
+        if (!cylinderAction(Y02 | Y10, station)) {
+            status = STATUS_OVER;
+            return false;
+        }
+    } else {
+        if (!cylinderAction(Y10, station)) {
+            status = STATUS_OVER;
+            return false;
+        }
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load cylinder stop ok";
     return true;
