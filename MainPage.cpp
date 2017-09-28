@@ -960,7 +960,9 @@ QString MainPage::readHighVolt()
 QString MainPage::readTorqueComp()
 {
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
-    QString temp = ini->value("/GLOBAL/torqueComp", "0.1").toString();
+    QString temp = ini->value("/GLOBAL/torqueCompL", "0.1").toString();
+    if (station == 0x14)
+        temp = ini->value("/GLOBAL/torqueCompR", "0.1").toString();
     return temp;
 }
 

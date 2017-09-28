@@ -98,7 +98,8 @@ void WinSyst::readSettings()
     ui->BoxPower->setCurrentIndex(g_ini->value("PowerSupply","0").toInt());
     ui->EditCode1->setText(g_ini->value("Barcode1","0").toString());
     ui->EditCode2->setText(g_ini->value("Barcode2","9").toString());
-    ui->torqueComp->setValue(g_ini->value("torqueComp", "0.1").toDouble());
+    ui->torqueCompL->setValue(g_ini->value("torqueCompL", "0.1").toDouble());
+    ui->torqueCompR->setValue(g_ini->value("torqueCompR", "0.1").toDouble());
 
     password = g_ini->value("Password","").toString();
     ui->EditPassword->clear();
@@ -125,7 +126,8 @@ void WinSyst::SaveSettings()
     g_ini->setValue("PowerSupply", ui->BoxPower->currentIndex());
     g_ini->setValue("Barcode1", ui->EditCode1->text());
     g_ini->setValue("Barcode2", ui->EditCode2->text());
-    g_ini->setValue("torqueComp", QString::number(ui->torqueComp->value()));
+    g_ini->setValue("torqueCompL", QString::number(ui->torqueCompL->value()));
+    g_ini->setValue("torqueCompR", QString::number(ui->torqueCompR->value()));
 
     qDebug() << QTime::currentTime().toString() << "WinSyst save OK";
 }
