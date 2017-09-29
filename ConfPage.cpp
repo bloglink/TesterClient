@@ -312,6 +312,10 @@ void ConfPage::selectColor()
 
 void ConfPage::deleteItem()
 {
+    if (pModel->rowCount() <= 2) {
+        QMessageBox::warning(this, "", "请至少保留一项", QMessageBox::Ok);
+        return;
+    }
     int row = pView->currentIndex().row();
     if (row < 0)
         return;
