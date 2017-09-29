@@ -15,11 +15,6 @@
 #include <QCoreApplication>
 #include <QtSerialPort/QSerialPort>
 
-#define SERVO_INIT 0x00
-#define SERVO_HANK 0x01
-#define SERVO_READ 0x02
-#define SERVO_OVER 0x03
-
 class Servo : public QObject
 {
     Q_OBJECT
@@ -28,8 +23,8 @@ public:
 public slots:
     bool initPort(QString portName);
     quint16 readPort();
-private slots:
     bool readThread();
+private slots:
     void wait(int ms);
 private:
     QSerialPort *com;

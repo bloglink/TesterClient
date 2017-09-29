@@ -137,6 +137,7 @@ private slots:
     void closeEvent(QCloseEvent *e);
     void iobrdReset();
     void waitSendStop();
+    void readSpeed();
 private:
     QList<int> previous_window;
     QStackedWidget *stack;
@@ -194,6 +195,7 @@ private:
 
     QTimer *load_timer;
     int speed;
+    QTimer *servo_timer;
 
 };
 

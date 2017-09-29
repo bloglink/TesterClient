@@ -24,6 +24,7 @@ MainPage::MainPage(QWidget *parent) : QWidget(parent)
 
     load_timer = new QTimer(this);
     connect(load_timer, SIGNAL(timeout()), this, SLOT(waitSendStop()));
+    servo_timer = new QTimer(this);
 }
 
 MainPage::~MainPage()
@@ -1043,6 +1044,7 @@ void MainPage::readNoLoadStart()
         qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load upper ok";
     }
     loadStopEnable = true;
+    servo_timer->singleShot(10, this, SLOT(readSpeed()));
 }
 
 void MainPage::readNoLoadStop()
@@ -1290,6 +1292,22 @@ void MainPage::waitSendStop()
         sendUdpCommand(QString("6022 %1").arg(station));
         qDebug() << QTime::currentTime().toString("hh:mm:ss") << "send stop";
         load_timer->stop();
+    }
+}
+
+void MainPage::readSpeed()
+{
+    if (station == 0x13) {
+        if (servoL.readThread())
+            speed = servoL.readPort();
+        else
+            QMessageBox::warning(this, "", "伺服L失败", QMessageBox::Ok);
+    }
+    if (station == 0x14) {
+        if (servoR.readThread())
+            speed = servoR.readPort();
+        else
+            QMessageBox::warning(this, "", "伺服R失败", QMessageBox::Ok);
     }
 }
 
