@@ -386,15 +386,15 @@ void MainPage::testINR()
     sendUdpCommand("6006 IR");
     waitTimeOut(STATUS_INR);
 
-    QStringList s = conf->testItems();
-    QList<int> tt;
-    for (int i=0; i < s.size(); i++) {
-        tt.append(QString(s.at(i)).toInt());
-    }
-    if (tt.indexOf(STATUS_ACW) - tt.indexOf(STATUS_INR) != 1) {
-        if (!cylinderAction(Y10, station))
-            status = STATUS_OVER;
-    }
+//    QStringList s = conf->testItems();
+//    QList<int> tt;
+//    for (int i=0; i < s.size(); i++) {
+//        tt.append(QString(s.at(i)).toInt());
+//    }
+//    if (tt.indexOf(STATUS_ACW) - tt.indexOf(STATUS_INR) != 1) {
+//        if (!cylinderAction(Y10, station))
+//            status = STATUS_OVER;
+//    }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "ir over";
 }
 
@@ -410,17 +410,17 @@ void MainPage::testACW()
     sendUdpCommand("6006 ACW");
     waitTimeOut(STATUS_ACW);
 
-    QStringList s = conf->testItems();
-    QList<int> tt;
-    for (int i=0; i < s.size(); i++) {
-        tt.append(QString(s.at(i)).toInt());
-    }
-    if (tt.indexOf(STATUS_INR) - tt.indexOf(STATUS_ACW) != 1) {
-        if (!cylinderAction(Y10, station)) {
-            status = STATUS_OVER;
-            return;
-        }
-    }
+//    QStringList s = conf->testItems();
+//    QList<int> tt;
+//    for (int i=0; i < s.size(); i++) {
+//        tt.append(QString(s.at(i)).toInt());
+//    }
+//    if (tt.indexOf(STATUS_INR) - tt.indexOf(STATUS_ACW) != 1) {
+//        if (!cylinderAction(Y10, station)) {
+//            status = STATUS_OVER;
+//            return;
+//        }
+//    }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "acw over";
 }
 
@@ -637,11 +637,6 @@ int MainPage::cylinder_start()
         return 1;
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
-    //    if (!cylinderAction(Y00 | Y01 | Y10, station)) {
-    //        status = STATUS_OVER;
-    //        return 2;
-    //    }
-    //    qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder2 ok";
     if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
         status = STATUS_OVER;
         return 3;
@@ -660,10 +655,10 @@ bool MainPage::cylinder_stop(int ret)
             status = STATUS_OVER;
             return false;
         }
-        //        if (!cylinderAction(Y02 | Y10, station)) {
-        //            status = STATUS_OVER;
-        //            return false;
-        //        }
+        if (!cylinderAction(Y10, station)) {
+            status = STATUS_OVER;
+            return false;
+        }
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
     if (ret == 2 || ret == 3) {
@@ -1164,20 +1159,19 @@ bool MainPage::mbdktPrevAction(quint16 s)
     if (s == 0x13) {
         if (!mbdktL.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
-        wait(50);
+        wait(10);
         if (!mbdktL.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-        wait(50);
+        wait(10);
         if (!mbdktL.setStart(1))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
-        wait(50);
     } else if (s == 0x14) {
         if (!mbdktR.setMode(0))
             QMessageBox::warning(this, "", "伺服模式失败", QMessageBox::Ok);
-        wait(50);
+        wait(10);
         if (!mbdktR.setTorque(0))
             QMessageBox::warning(this, "", "伺服转矩失败", QMessageBox::Ok);
-        wait(50);
+        wait(10);
         if (!mbdktR.setStart(1))
             QMessageBox::warning(this, "", "伺服启动失败", QMessageBox::Ok);
     }
