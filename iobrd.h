@@ -44,20 +44,20 @@
 #define Y02 0x0004  // 台上压紧气缸3
 #define Y03 0x0008  // 台上耐压气缸4
 
-//#define Y08 0x0100  // 绿灯
-//#define Y09 0x0200  // 蜂鸣器
-//#define Y10 0x0400  // 黄灯
-//#define Y11 0x0800  // 红灯
-
-#define Y08 0x0100  // 蜂鸣器
-#define Y09 0x0200  // 红灯
+#define Y08 0x0100  // 绿灯
+#define Y09 0x0200  // 蜂鸣器
 #define Y10 0x0400  // 黄灯
-#define Y11 0x0800  // 绿灯
+#define Y11 0x0800  // 红灯
 
-#define LED_B Y08
-#define LED_R Y09
+//#define Y08 0x0100  // 蜂鸣器
+//#define Y09 0x0200  // 红灯
+//#define Y10 0x0400  // 黄灯
+//#define Y11 0x0800  // 绿灯
+
+#define LED_B Y09
+#define LED_R Y11
 #define LED_Y Y10
-#define LED_G Y11
+#define LED_G Y08
 
 class IOBrd : public QObject
 {
