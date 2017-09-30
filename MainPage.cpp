@@ -489,8 +489,11 @@ void MainPage::readHall()
 
 void MainPage::testNLD()
 {
+    quint16 cylinder3 = 0x0000;
+    if (readCylinder3())
+        cylinder3 = Y02;
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "noload start";
-    if (!cylinderAction(Y02 | Y10, station)) {
+    if (!cylinderAction(cylinder3 | Y10, station)) {
         status = STATUS_OVER;
         return;
     }
@@ -631,13 +634,17 @@ void MainPage::readLOD()
 
 int MainPage::cylinder_start()
 {
+    quint16 cylinder3 = 0x0000;
+    if (readCylinder3())
+        cylinder3 = Y02;
+
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load start";
     if (!cylinderAction(Y00 | Y10, station)) {
         status = STATUS_OVER;
         return 1;
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
-    if (!cylinderAction(Y00 | Y01 | Y02 | Y10, station)) {
+    if (!cylinderAction(Y00 | Y01 | cylinder3 | Y10, station)) {
         status = STATUS_OVER;
         return 3;
     }
@@ -648,10 +655,13 @@ int MainPage::cylinder_start()
 
 bool MainPage::cylinder_stop(int ret)
 {
+    quint16 cylinder3 = 0x0000;
+    if (readCylinder3())
+        cylinder3 = Y02;
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "load cylinder stop" << ret;
     if (ret == 0) {
-        if (!cylinderAction(Y00 | Y02 | Y10, station)) {
-            cylinderAction(Y00 | Y02 | Y10, station);  // 确保夹紧气缸松开
+        if (!cylinderAction(Y00 | cylinder3 | Y10, station)) {
+            cylinderAction(Y00 | cylinder3 | Y10, station);  // 确保夹紧气缸松开
             status = STATUS_OVER;
             return false;
         }
@@ -662,9 +672,9 @@ bool MainPage::cylinder_stop(int ret)
     }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "cylinder1 ok";
     if (ret == 2 || ret == 3) {
-        if (!cylinderAction(Y00 | Y02 | Y10, station))
-            cylinderAction(Y00 | Y02 | Y10, station);  // 确保夹紧气缸松开
-        cylinderAction(Y02 | Y10, station);
+        if (!cylinderAction(Y00 | cylinder3 | Y10, station))
+            cylinderAction(Y00 | cylinder3 | Y10, station);  // 确保夹紧气缸松开
+        cylinderAction(cylinder3 | Y10, station);
     }
     bool next = false;
     QStringList s = conf->testItems();
@@ -678,7 +688,7 @@ bool MainPage::cylinder_stop(int ret)
             (tt.indexOf(STATUS_HAL) - tt.indexOf(STATUS_LOD) == 1))
         next = true;
     if (next) {
-        if (!cylinderAction(Y02 | Y10, station)) {
+        if (!cylinderAction(cylinder3 | Y10, station)) {
             status = STATUS_OVER;
             return false;
         }
@@ -966,6 +976,13 @@ QString MainPage::readTorqueComp()
     QString temp = ini->value("/GLOBAL/torqueCompL", "0.1").toString();
     if (station == 0x14)
         temp = ini->value("/GLOBAL/torqueCompR", "0.1").toString();
+    return temp;
+}
+
+bool MainPage::readCylinder3()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    bool temp = ini->value("/GLOBAL/cylinder3Enable", true).toBool();
     return temp;
 }
 

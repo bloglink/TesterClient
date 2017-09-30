@@ -100,6 +100,7 @@ void WinSyst::readSettings()
     ui->EditCode2->setText(g_ini->value("Barcode2","9").toString());
     ui->torqueCompL->setValue(g_ini->value("torqueCompL", "0.1").toDouble());
     ui->torqueCompR->setValue(g_ini->value("torqueCompR", "0.1").toDouble());
+    ui->checkBox->setChecked(g_ini->value("cylinder3Enable", true).toBool());
 
     password = g_ini->value("Password","").toString();
     ui->EditPassword->clear();
@@ -128,6 +129,7 @@ void WinSyst::SaveSettings()
     g_ini->setValue("Barcode2", ui->EditCode2->text());
     g_ini->setValue("torqueCompL", QString::number(ui->torqueCompL->value()));
     g_ini->setValue("torqueCompR", QString::number(ui->torqueCompR->value()));
+    g_ini->setValue("cylinder3Enable", ui->checkBox->isChecked());
 
     qDebug() << QTime::currentTime().toString() << "WinSyst save OK";
 }
