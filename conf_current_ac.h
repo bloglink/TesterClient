@@ -19,6 +19,7 @@
 #include <QJsonObject>
 
 #include "conf_delegation.h"
+#include "dspinbox.h"
 
 class ConfCurrent_AC : public QWidget
 {

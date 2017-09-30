@@ -96,8 +96,9 @@ void ConfCurrent_AC::initUI()
         }
         mView->item(i, 0)->setCheckable(true);
     }
-    SpinBox *voltage = new SpinBox;
+    DSpinBox *voltage = new DSpinBox;
     voltage->setMaxinum(3000);
+    voltage->setMininum(500);
     DoubleSpinBox *currentSpinBox = new DoubleSpinBox;
     currentSpinBox->setMaxinum(25);
     DoubleSpinBox *doubleSpinBox = new DoubleSpinBox;
@@ -106,7 +107,7 @@ void ConfCurrent_AC::initUI()
     items << "50" << "60";
     ComboBox *freq = new ComboBox;
     freq->setItemNames(items);
-    SpinBox *arc = new SpinBox;
+    DSpinBox *arc = new DSpinBox;
     arc->setMaxinum(9);
     view = new QTableView(this);
     view->setModel(mView);

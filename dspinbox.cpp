@@ -3,6 +3,7 @@
 DSpinBox::DSpinBox(QObject *parent):QItemDelegate(parent)
 {
     max = 99;
+    min = 0;
 }
 
 QWidget *DSpinBox::createEditor(QWidget *parent,
@@ -11,6 +12,7 @@ QWidget *DSpinBox::createEditor(QWidget *parent,
 {
     QSpinBox *editor = new QSpinBox(parent);
     editor->setMaximum(max);
+    editor->setMinimum(min);
     editor->setButtonSymbols(QAbstractSpinBox::NoButtons);
     return editor;
 }
@@ -37,6 +39,12 @@ void DSpinBox::updateEditorGeometry(QWidget *editor,
     editor->setGeometry(option.rect);
 }
 
-void DSpinBox::setMaxinum(int m) {
+void DSpinBox::setMaxinum(int m)
+{
     max = m;
+}
+
+void DSpinBox::setMininum(int m)
+{
+    min = m;
 }

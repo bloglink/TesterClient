@@ -27,9 +27,11 @@ public:
                               const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
 public slots:
-    void setMaxinum(int max);
+    void setMaxinum(int m);
+    void setMininum(int m);
 private:
     int max;
+    int min;
 };
 
 #endif // DSPINBOX_H
