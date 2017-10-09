@@ -117,8 +117,9 @@ void ConfLoadTesting::initUI()
     }
     SpinBox *voltage = new SpinBox;
     voltage->setMaxinum(500);
-    DoubleSpinBox *current = new DoubleSpinBox;
+    DDoubleSpinBox *current = new DDoubleSpinBox;
     current->setMaxinum(5);
+    current->setDecimals(3);
     SpinBox *power = new SpinBox;
     power->setMaxinum(5000);
     SpinBox *speed = new SpinBox;
@@ -133,7 +134,7 @@ void ConfLoadTesting::initUI()
     time->setMaxinum(99);
     ComboBox *dirver = new ComboBox;
     QStringList mode;
-    mode << "0" << "1";
+    mode << "0" << "1" << "2";
     dirver->setItemNames(mode);
     view = new QTableView(this);
     view->setModel(mView);

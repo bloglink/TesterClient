@@ -24,6 +24,7 @@
 
 #include "conf_delegation.h"
 #include "qcustomplot.h"
+#include "ddoublespinbox.h"
 
 class ConfLoadTesting : public QWidget
 {
