@@ -140,6 +140,7 @@ void ConfInsulation::initUI()
     view->hideColumn(0);
     view->hideColumn(1);
     view->hideColumn(2);
+    view->hideColumn(5);
     view->hideRow(0);
     view->hideRow(1);
     view->hideRow(2);
