@@ -112,12 +112,13 @@ void ConfNoLoadTest::initUI()
     }
     SpinBox *voltage = new SpinBox;
     voltage->setMaxinum(500);
-    DoubleSpinBox *current = new DoubleSpinBox;
+    DDoubleSpinBox *current = new DDoubleSpinBox;
     current->setMaxinum(5);
+    current->setDecimals(3);
     SpinBox *power = new SpinBox;
     power->setMaxinum(5000);
     SpinBox *speed = new SpinBox;
-    speed->setMaxinum(3000);
+    speed->setMaxinum(5000);
     DoubleSpinBox *vcc = new DoubleSpinBox;
     vcc->setMaxinum(15);
     DoubleSpinBox *vsp = new DoubleSpinBox;
