@@ -72,6 +72,7 @@ void MainPage::initUI()
 
     WinSyst *syst = new WinSyst(this);
     connect(syst, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), syst, SLOT(recvAppShow(QString)));
 
     winBack = new BackPage(this);
     connect(winBack, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
