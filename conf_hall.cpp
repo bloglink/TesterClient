@@ -115,6 +115,8 @@ void ConfHall::initUI()
     view->setItemDelegateForColumn(16, time);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    view->hideColumn(4);
+    view->hideColumn(5);
     view->hideColumn(8);
     view->hideColumn(9);
     view->hideColumn(10);
@@ -123,6 +125,7 @@ void ConfHall::initUI()
     view->hideColumn(13);
     view->hideColumn(15);
     view->hideColumn(16);
+    view->hideColumn(17);
 
     QPushButton *btnSave = new QPushButton(this);
     btnSave->setText(tr("保存"));

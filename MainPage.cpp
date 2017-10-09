@@ -467,13 +467,15 @@ void MainPage::readHall()
         vv.append(QString("F:%1Hz,").arg(QString::number(fMin, 'f', 1)));
         vv.append(QString("D:%1%").arg(QString::number(dMin, 'f', 1)));
 
+        double rpm = fMax*60/halltesting->readCount();
         QStringList limit = halltesting->readLimit();
+        QStringList ss = loadtesting->readLimit();
 
+        if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
+            jj = "NG";
         if (lMax > limit.at(1).toDouble() || lMin < limit.at(0).toDouble())
             jj = "NG";
         if (hMax > limit.at(3).toDouble() || hMin < limit.at(2).toDouble())
-            jj = "NG";
-        if (fMax > limit.at(5).toDouble() || fMin < limit.at(4).toDouble())
             jj = "NG";
         if (dMax > limit.at(7).toDouble() || dMin < limit.at(6).toDouble())
             jj = "NG";
