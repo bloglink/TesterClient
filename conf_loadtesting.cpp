@@ -115,13 +115,15 @@ void ConfLoadTesting::initUI()
             mView->setData(mView->index(i, j), "");
         }
     }
-    SpinBox *voltage = new SpinBox;
+    DDoubleSpinBox *voltage = new DDoubleSpinBox;
     voltage->setMaxinum(500);
+    voltage->setDecimals(1);
     DDoubleSpinBox *current = new DDoubleSpinBox;
     current->setMaxinum(5);
     current->setDecimals(3);
-    SpinBox *power = new SpinBox;
+    DDoubleSpinBox *power = new DDoubleSpinBox;
     power->setMaxinum(5000);
+    power->setDecimals(1);
     SpinBox *speed = new SpinBox;
     speed->setMaxinum(3000);
     DoubleSpinBox *torque = new DoubleSpinBox;
@@ -153,8 +155,8 @@ void ConfLoadTesting::initUI()
     view->setItemDelegateForColumn(12, dirver);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     view->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    //    view->hideColumn(11);
-    //    view->hideColumn(12);
+    view->hideColumn(11);
+    view->hideColumn(12);
 
     turnCheckBox = new QCheckBox(this);
     turnCheckBox->setText(tr("负载转向"));
