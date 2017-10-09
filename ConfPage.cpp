@@ -207,7 +207,7 @@ void ConfPage::initUI()
 
     btnNames << "电阻" << "反嵌" << "绝缘" << "交耐" << "直耐"
              << "匝间" << "电参" << "电感" << "堵转" << "低启"
-             << "霍尔" << "负载" << "空载" << "BEMF";
+             << "FG" << "负载" << "空载" << "BEMF";
     QStringList objNames;
     objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC" << "x"
              << "ConfigIMP" << "x" << "ConfInductance" << "x" << "x" << "ConfHall"
