@@ -133,7 +133,7 @@ void ConfLoadTesting::initUI()
     time->setMaxinum(99);
     ComboBox *dirver = new ComboBox;
     QStringList mode;
-    mode << "0" << "1";
+    mode << "0" << "1" << "2";
     dirver->setItemNames(mode);
     view = new QTableView(this);
     view->setModel(mView);
