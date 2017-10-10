@@ -388,15 +388,6 @@ void MainPage::testINR()
     sendUdpCommand("6006 IR");
     waitTimeOut(STATUS_INR);
 
-//    QStringList s = conf->testItems();
-//    QList<int> tt;
-//    for (int i=0; i < s.size(); i++) {
-//        tt.append(QString(s.at(i)).toInt());
-//    }
-//    if (tt.indexOf(STATUS_ACW) - tt.indexOf(STATUS_INR) != 1) {
-//        if (!cylinderAction(Y10, station))
-//            status = STATUS_OVER;
-//    }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "ir over";
 }
 
@@ -412,17 +403,6 @@ void MainPage::testACW()
     sendUdpCommand("6006 ACW");
     waitTimeOut(STATUS_ACW);
 
-//    QStringList s = conf->testItems();
-//    QList<int> tt;
-//    for (int i=0; i < s.size(); i++) {
-//        tt.append(QString(s.at(i)).toInt());
-//    }
-//    if (tt.indexOf(STATUS_INR) - tt.indexOf(STATUS_ACW) != 1) {
-//        if (!cylinderAction(Y10, station)) {
-//            status = STATUS_OVER;
-//            return;
-//        }
-//    }
     qDebug() << QTime::currentTime().toString("hh:mm:ss") << "acw over";
 }
 
