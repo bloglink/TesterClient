@@ -125,7 +125,7 @@ void ConfHall::initUI()
     view->hideColumn(13);
     view->hideColumn(15);
     view->hideColumn(16);
-    view->hideColumn(17);
+//    view->hideColumn(17);
 
     QPushButton *btnSave = new QPushButton(this);
     btnSave->setText(tr("保存"));

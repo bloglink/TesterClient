@@ -471,6 +471,8 @@ void MainPage::readHall()
         double rpm = fMax*60/halltesting->readCount();
         QStringList limit = halltesting->readLimit();
         QStringList ss = loadtesting->readLimit();
+        if (limit.at(17) == "1")
+            ss = noloadtest->readLimit();
 
         if (rpm < ss.at(5).toDouble() || rpm > ss.at(6).toDouble())
             jj = "NG";
