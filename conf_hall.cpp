@@ -80,7 +80,7 @@ void ConfHall::initUI()
         }
     }
     DoubleSpinBox *voltage = new DoubleSpinBox;
-    voltage->setMaxinum(15);
+    voltage->setMaxinum(20);
     SpinBox *freq = new SpinBox;
     freq->setMaxinum(25000);
     DoubleSpinBox *skewing = new DoubleSpinBox;
