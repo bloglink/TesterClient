@@ -23,9 +23,11 @@ signals:
 public slots:
     void initSettings(QJsonObject obj);
     void readSettings();
+    void saveSettings();
 private slots:
     void initUI();
     void back();
+    void recvAppShow(QString win);
 private:
     QTableView *view;
     StandardItem *mView;

@@ -114,6 +114,8 @@ private slots:
     QString readVoltScale();
     QString readHighVolt();
     QString readTorqueComp();
+    double readLoadK(int i);
+    double readLoadB(int i);
     bool readCylinder3();
     int currentPauseMode();
     int currentAlarmTime(QString msg);

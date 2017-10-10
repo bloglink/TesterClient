@@ -76,6 +76,7 @@ void MainPage::initUI()
 
     winBack = new BackPage(this);
     connect(winBack, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), winBack, SLOT(recvAppShow(QString)));
 
     winData = new PageSqlite(this);
     connect(winData, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -539,6 +540,8 @@ void MainPage::readNLD()
         double crr = power.at(4).toDouble();
         double vlt = power.at(5).toDouble();
         double pwr = power.at(6).toDouble();
+        crr = crr*readLoadK(0) + readLoadB(0);
+        pwr = crr*vlt;
 
         QString tt;
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
@@ -598,6 +601,8 @@ void MainPage::readLOD()
         double crr = power.at(4).toDouble();
         double vlt = power.at(5).toDouble();
         double pwr = power.at(6).toDouble();
+        crr = crr*readLoadK(1) + readLoadB(1);
+        pwr = crr*vlt;
 
         QString tt;
         tt.append(QString("%1A,").arg(QString::number(crr, 'f', 4)));
@@ -980,6 +985,32 @@ QString MainPage::readTorqueComp()
     if (station == 0x14)
         temp = ini->value("/GLOBAL/torqueCompR", "0.1").toString();
     return temp;
+}
+
+double MainPage::readLoadK(int i)
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("GLOBAL");
+    QStringList k_loads = ini->value("k_loads","10000,10000,10000,10000,10000").toString().split(",");
+    if (i < k_loads.size()) {
+        return k_loads.at(i).toDouble()/10000;
+    } else {
+        return 1.0;
+    }
+}
+
+double MainPage::readLoadB(int i)
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    ini->setIniCodec("GB18030");
+    ini->beginGroup("GLOBAL");
+    QStringList b_loads = ini->value("b_loads","5000,5000,5000,5000,5000").toString().split(",");
+    if (i < b_loads.size()) {
+        return (b_loads.at(i).toDouble()-5000)/10000;
+    } else {
+        return 0;
+    }
 }
 
 bool MainPage::readCylinder3()

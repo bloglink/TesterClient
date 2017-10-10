@@ -34,37 +34,31 @@ void BackPage::initSettings(QJsonObject obj)
 
 void BackPage::readSettings()
 {
-    QJsonObject obj;
-    QStringList items = itemNames;
-    for (int i=0; i < items.size(); i++) {
-        QStringList temp;
-        if (items.at(i) == "test") {
-            for (int t=0; t < mView->rowCount(); t++) {
-                if (mView->item(t, 0)->checkState() == Qt::Unchecked)
-                    temp.append("0");
-                else
-                    temp.append("1");
-            }
-        } else if (items.at(i) == "volt") {
-            for (int t=0; t < mView->rowCount(); t++) {
-                if (mView->item(t, 3)->text() == "500")
-                    temp.append("0");
-                else
-                    temp.append("1");
-            }
-            obj.insert(items.at(i), temp.join(","));
-        } else {
-            for (int t=0; t < mView->rowCount(); t++) {
-                double x = mView->item(t, i)->text().toDouble();
-                temp.append(QString::number(x));
-            }
-        }
-        obj.insert(items.at(i), temp.join(","));
-    }
+    QSettings *g_ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    g_ini->setIniCodec("GB18030");
+    g_ini->beginGroup("GLOBAL");
 
-    QJsonObject array;
-    array.insert("IR", obj);
-    emit sendAppCmd(array);
+    QStringList k_loads = g_ini->value("k_loads","10000,10000,10000,10000,10000").toString().split(",");
+    QStringList b_loads = g_ini->value("b_loads","5000,5000,5000,5000,5000").toString().split(",");
+    for (int i=0; i < qMin(k_loads.size(), b_loads.size()); i++) {
+        mView->item(i, 0)->setText(k_loads.at(i));
+        mView->item(i, 1)->setText(b_loads.at(i));
+    }
+}
+
+void BackPage::saveSettings()
+{
+    QSettings *g_ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    g_ini->setIniCodec("GB18030");
+    g_ini->beginGroup("GLOBAL");
+    QStringList k_loads;
+    QStringList b_loads;
+    for (int i=0; i < mView->rowCount(); i++) {
+        k_loads.append(mView->item(i, 0)->text());
+        b_loads.append(mView->item(i, 1)->text());
+    }
+    g_ini->setValue("k_loads", k_loads.join(","));
+    g_ini->setValue("b_loads", b_loads.join(","));
 }
 
 void BackPage::initUI()
@@ -88,7 +82,7 @@ void BackPage::initUI()
     QPushButton *btnSave = new QPushButton(this);
     btnSave->setText(tr("保存"));
     btnSave->setMinimumSize(97, 35);
-    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(readSettings()));
+    connect(btnSave, SIGNAL(clicked(bool)), this, SLOT(saveSettings()));
 
     QPushButton *btnExit = new QPushButton(this);
     btnExit->setText(tr("退出"));
@@ -115,3 +109,9 @@ void BackPage::back()
     emit buttonClicked(NULL);
 }
 
+void BackPage::recvAppShow(QString win)
+{
+    if (win != this->objectName())
+        return;
+    readSettings();
+}
