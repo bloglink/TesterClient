@@ -209,7 +209,7 @@ void ConfPage::initUI()
              << "匝间" << "电参" << "电感" << "堵转" << "低启"
              << "霍尔" << "负载" << "空载" << "BEMF";
     QStringList objNames;
-    objNames << "ConfResistance" << "ConfigMAG" << "ConfInsulation" << "ConfCurrent_AC" << "x"
+    objNames << "ConfResistance" << "Magnetic" << "ConfInsulation" << "ConfCurrent_AC" << "x"
              << "ConfigIMP" << "x" << "ConfInductance" << "x" << "x" << "ConfHall"
              << "ConfLoadTesting" << "ConfNoLoadTest"  << "ConfBackForce";
     for (int i=0; i < btnNames.size(); i++) {
@@ -220,10 +220,10 @@ void ConfPage::initUI()
         buttons.at(i)->setCheckable(true);
         connect(buttons.at(i), SIGNAL(clicked(bool)), this, SLOT(clickButton()));
     }
-    buttons.at(0)->hide();
-    buttons.at(1)->hide();
+//    buttons.at(0)->hide();
+//    buttons.at(1)->hide();
     buttons.at(4)->hide();
-    buttons.at(5)->hide();
+//    buttons.at(5)->hide();
     buttons.at(6)->hide();
     buttons.at(7)->hide();
     buttons.at(8)->hide();

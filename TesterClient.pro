@@ -47,7 +47,9 @@ SOURCES += main.cpp\
     MessageBox.cpp \
     lqmath.cpp \
     backpage.cpp \
-    lqrcode.cpp
+    lqrcode.cpp \
+    logtotext.cpp \
+    magnetic.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -79,14 +81,16 @@ HEADERS  += \
     MessageBox.h \
     lqmath.h \
     backpage.h \
-    lqrcode.h
+    lqrcode.h \
+    logtotext.h \
+    magnetic.h
 
 FORMS    += \
     WinSyst.ui
 
 RESOURCES += \
-    image.qrc \
-    source.qrc
+    source.qrc \
+    image.qrc
 
 RC_FILE += ico.rc
 

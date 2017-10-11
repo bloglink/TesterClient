@@ -103,6 +103,12 @@ void MainPage::initUI()
     connect(resistance, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(resistance, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
+    mag = new Magnetic(this);
+    connect(mag, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
+    connect(mag, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+    connect(mag, SIGNAL(sendNetMsg(QByteArray)), &udp, SLOT(recvAppMsg(QByteArray)));
+    connect(this, SIGNAL(transmitShow(QString)), mag, SLOT(recvAppShow(QString)));
+
     current_ac = new ConfCurrent_AC(this);
     connect(current_ac, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(current_ac, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
@@ -139,6 +145,7 @@ void MainPage::initUI()
     stack->addWidget(conf);
     stack->addWidget(test);
     stack->addWidget(resistance);
+    stack->addWidget(mag);
     stack->addWidget(current_ac);
     stack->addWidget(insulation);
     stack->addWidget(inductance);
@@ -795,6 +802,18 @@ void MainPage::readSettings()
     ini->endGroup();
     obj_array.insert("DCR", obj_dcr);
     resistance->initSettings(obj_dcr);
+
+    QStringList names_mag;
+    QJsonObject obj_mag;
+    names_mag << "test" << "port1" << "port2" << "max" << "wave" << "dir";
+    ini->beginGroup("MAG");
+    for (int i=0; i < names_mag.size(); i++) {
+        QString def = "0,0,0,0,0,0,0,0";
+        obj_mag.insert(names_mag.at(i), ini->value(names_mag.at(i), def).toString());
+    }
+    ini->endGroup();
+    obj_array.insert("MAG", obj_mag);
+    mag->initSettings(obj_mag);
 
     QStringList names_inr;
     QJsonObject obj_inr;

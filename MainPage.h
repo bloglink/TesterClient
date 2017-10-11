@@ -33,6 +33,7 @@
 #include "conf_loadtesting.h"
 #include "conf_backforce.h"
 #include "conf_hall.h"
+#include "magnetic.h"
 
 #include "WinSyst.h"
 #include "page_sqlite.h"
@@ -158,6 +159,7 @@ private:
     ConfLoadTesting *loadtesting;
     ConfBackEMFTest *backemftest;
     ConfHall *halltesting;
+    Magnetic *mag;
 
     IOBrd iobrdL;
     Servo servoL;
