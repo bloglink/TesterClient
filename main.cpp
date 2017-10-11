@@ -6,14 +6,17 @@
  * author:      zhaonanlin
  * brief:       电机综合测试仪
 *******************************************************************************/
-
+#include "logtotext.h"
 #include "MainPage.h"
 #include <QApplication>
 #include <QTextCodec>
 #include <QTranslator>
 #include <QLibraryInfo>
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+//    qInstallMessageHandler(debugMessageHandler);
 
     QTranslator qt_zh;
     qt_zh.load("qt_zh_CN.qm", ":/translations");
