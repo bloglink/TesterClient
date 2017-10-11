@@ -11,7 +11,7 @@
 MainPage::MainPage(QWidget *parent) : QWidget(parent)
 {
     initUI();
-    initCom();
+//    initCom();
     status = STATUS_FREE;
     station = 0x13;
     testing = false;
@@ -1253,13 +1253,13 @@ bool MainPage::mbdktActionStop(int torque, quint16 s)
 void MainPage::recvAppShow(QString win)
 {
     if (win == "TestPage") {
-        mbdktL.setStart(0);     // 停止伺服
-        mbdktR.setStart(0);     // 停止伺服
+//        mbdktL.setStart(0);     // 停止伺服
+//        mbdktR.setStart(0);     // 停止伺服
 
-        iobrdL.sendPort(0x00);  // 气缸全部归位
-        iobrdL.waitPort(0x00);  // 等待气缸归位
-        iobrdR.sendPort(0x00);  // 气缸全部归位
-        iobrdR.waitPort(0x00);  // 等待气缸归位
+//        iobrdL.sendPort(0x00);  // 气缸全部归位
+//        iobrdL.waitPort(0x00);  // 等待气缸归位
+//        iobrdR.sendPort(0x00);  // 气缸全部归位
+//        iobrdR.waitPort(0x00);  // 等待气缸归位
     }
 }
 

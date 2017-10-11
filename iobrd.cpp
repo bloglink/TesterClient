@@ -65,7 +65,7 @@ bool IOBrd::waitPort(quint16 hex)
 //        isQuit = false;
 //        return false;
 //    }
-//    return true;
+    return true;
     quint16 s = 0x0000;
     if (hex & Y00)
         s |= X01_TARGET;
