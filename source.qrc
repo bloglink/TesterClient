@@ -29,5 +29,6 @@
         <file>source/circle_green_128px.png</file>
         <file>source/circle_grey_128px.png</file>
         <file>translations/qt_zh_CN.qm</file>
+        <file>skins/soft_rain.qss</file>
     </qresource>
 </RCC>

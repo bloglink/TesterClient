@@ -60,7 +60,7 @@ void MainPage::initUI()
     //设置界面风格
     QFile file;
     QString qss;
-    file.setFileName(":/skins/bu_bk.css");
+    file.setFileName(":/skins/soft_rain.qss");
     file.open(QFile::ReadOnly);
     qss = QLatin1String(file.readAll());
     qApp->setStyleSheet(qss);

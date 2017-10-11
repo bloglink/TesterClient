@@ -41,5 +41,6 @@
         <file>source/M1S3.jpg</file>
         <file>source/M1S4.jpg</file>
         <file>source/None.jpg</file>
+        <file>skins/soft_rain.qss</file>
     </qresource>
 </RCC>
