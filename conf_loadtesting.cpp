@@ -126,8 +126,9 @@ void ConfLoadTesting::initUI()
     power->setDecimals(1);
     SpinBox *speed = new SpinBox;
     speed->setMaxinum(3000);
-    DoubleSpinBox *torque = new DoubleSpinBox;
+    DDoubleSpinBox *torque = new DDoubleSpinBox;
     torque->setMaxinum(1);
+    torque->setDecimals(3);
     DoubleSpinBox *vcc = new DoubleSpinBox;
     vcc->setMaxinum(15);
     DoubleSpinBox *vsp = new DoubleSpinBox;

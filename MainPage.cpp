@@ -429,6 +429,8 @@ void MainPage::readHall()
         hh << power.at(50+60);
         double hMax = math.readMax(hh)*15.3/4095*readHighVolt().toDouble()/100;
         double hMin = math.readMin(hh)*15.3/4095*readHighVolt().toDouble()/100;
+        hMax = hMax*readLoadK(2)+readLoadB(2)*10;
+        hMin = hMin*readLoadK(2)+readLoadB(2)*10;
         QStringList ll;
         ll << power.at(50+61);
         double lMax = math.readMax(ll)*15.3/4095;

@@ -29,7 +29,7 @@
    <item>
     <widget class="QStackedWidget" name="StackWinSyst">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="SystemPage">
       <layout class="QGridLayout" name="gridLayout_5">
@@ -385,6 +385,9 @@
                <property name="buttonSymbols">
                 <enum>QAbstractSpinBox::NoButtons</enum>
                </property>
+               <property name="decimals">
+                <number>3</number>
+               </property>
               </widget>
              </item>
              <item row="2" column="0">
@@ -533,6 +536,9 @@
                </property>
                <property name="buttonSymbols">
                 <enum>QAbstractSpinBox::NoButtons</enum>
+               </property>
+               <property name="decimals">
+                <number>3</number>
                </property>
               </widget>
              </item>
