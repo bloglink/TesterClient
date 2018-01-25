@@ -82,6 +82,8 @@ private slots:
     void DrawHistogram();
     void DrawWave();
     void Printer();
+    QString printerString();
+    QString printerScale();
     void printPreview(QPrinter *printer);
     void exportToCsv(QString title, QStringList wave);
     QString CurrentSettings();

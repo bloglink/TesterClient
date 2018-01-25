@@ -10,10 +10,10 @@ CONFIG   += serialport
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 linux{
-LIBS += /usr/lib/i386-linux-gnu/libqrencode.so
+LIBS += /usr/lib/x86_64-linux-gnu/libqrencode.so
 }
 win32{
-LIBS += E:\Var\TesterClient\qrcodelib.lib
+LIBS += E:\TesterClient\qrcodelib.lib
 }
 TARGET = TesterClient
 TEMPLATE = app

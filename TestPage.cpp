@@ -695,18 +695,74 @@ void TestPage::DrawWave()
 
 void TestPage::Printer()
 {
+    QString tmp = printerString();
+    if (tmp.isEmpty())
+        return;
+
+    qrencode->generateString(tmp);
+
+    QStringList scale = printerScale().split(",");
+    if (scale.size() >= 4) {
+        int x = scale.at(0).toInt();
+        int y = scale.at(1).toInt();
+        int qrw = scale.at(2).toInt();
+        int qrh = scale.at(3).toInt();
+        int logow = scale.at(4).toInt();
+        int logoh = scale.at(5).toInt();
+        qDebug() << x << y << qrw << qrh;
+        QImage image("./logo.png");
+        QPainter painter(&image);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        QPixmap qrcode;
+        qrcode = qrencode->grab(QRect(0, 0, qrencode->width(), qrencode->height()));
+        painter.drawImage(x, y, qrcode.toImage().scaled(qrw, qrh));
+        painter.end();
+        QPrinter printer;  // 创建打印机对象
+        QPainter filePainter(&printer);
+        filePainter.drawPixmap(0, 0, QPixmap::fromImage(image.scaled(logow, logoh)));
+    }
+
+}
+
+QString TestPage::printerString()
+{
+    QString tmp;
     QFile file("qrencode.txt");
     if (file.open(QFile::ReadOnly)) {
-        QString tmp = file.readAll();
-        qrencode->generateString(tmp);
-        QPrinter printer;  // 创建打印机对象
-        QPixmap image;
-        QPainter painter(&printer);
-        image = qrencode->grab(QRect(0, 0, qrencode->width(), qrencode->height()));
-        painter.drawPixmap(75, 18, image);
-    } else {
-        //nothing
+        tmp = file.readAll();
+        file.close();
+        if (tmp.isEmpty()) {
+            tmp.append(tr("产品整机号:FZQ0060000018A\r\n"));
+            tmp.append(tr("客户代码:000000\r\n"));
+            tmp.append(tr("生产日期:20180122\r\n"));
+            tmp.append(tr("工厂代码:0A0A0A\r\n"));
+            tmp.append(tr("序列号:0000"));
+        }
+        QStringList tmps = tmp.split("\r\n");
+        QString tmpDate = QString(tmps.at(2)).remove(tr("生产日期:"));
+        QString tmpNumb = QString(tmps.at(4)).remove(tr("序列号:"));
+        if (QDate::fromString(tmpDate, "yyyyMMdd") == QDate::currentDate()) {
+            tmpNumb = QString::number(tmpNumb.toInt() + 1);
+            tmpNumb = QString("%1").arg(tmpNumb.toInt(), 4, 10, QChar('0'));
+        } else {
+            tmpDate = QDate::currentDate().toString("yyyyMMdd");
+            tmpNumb = QString("0001");
+        }
+        tmps[2] = QString("生产日期:%1").arg(tmpDate);
+        tmps[4] = QString("序列号:%1").arg(tmpNumb);
+        tmp = tmps.join("\r\n");
+        file.open(QFile::WriteOnly | QIODevice::Truncate);
+        file.write(tmp.toUtf8());
+        file.close();
     }
+    return tmp;
+}
+
+QString TestPage::printerScale()
+{
+    QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
+    QString temp = ini->value("/PRINTER/scale", "0,0,100,100").toString();
+    return temp;
 }
 
 void TestPage::printPreview(QPrinter *printer)
