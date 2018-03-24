@@ -33,6 +33,7 @@
 #include "conf_loadtesting.h"
 #include "conf_backforce.h"
 #include "conf_hall.h"
+#include "conf_qrencode.h"
 
 #include "WinSyst.h"
 #include "page_sqlite.h"
@@ -114,6 +115,7 @@ private slots:
     QString readVoltScale();
     QString readHighVolt();
     QString readTorqueComp();
+    QString readPrint();
     double readLoadK(int i);
     double readLoadB(int i);
     bool readCylinder3();
@@ -160,6 +162,7 @@ private:
     ConfLoadTesting *loadtesting;
     ConfBackEMFTest *backemftest;
     ConfHall *halltesting;
+    Conf_QRencode *winQrencode;
 
     IOBrd iobrdL;
     Servo servoL;

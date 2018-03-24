@@ -132,6 +132,10 @@ void MainPage::initUI()
     connect(backemftest, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
     connect(backemftest, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
 
+    winQrencode = new Conf_QRencode(this);
+    connect(winQrencode, SIGNAL(sendAppCmd(QJsonObject)), this, SLOT(recvAppCmd(QJsonObject)));
+    connect(winQrencode, SIGNAL(buttonClicked(QByteArray)), this, SLOT(readButtons(QByteArray)));
+
     stack = new QStackedWidget(this);
     stack->addWidget(home);
     stack->addWidget(syst);
@@ -147,6 +151,7 @@ void MainPage::initUI()
     stack->addWidget(loadtesting);
     stack->addWidget(halltesting);
     stack->addWidget(backemftest);
+    stack->addWidget(winQrencode);
     readButtons("HomePage");
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -247,6 +252,7 @@ void MainPage::recvNetMsg(QString msg)
 
 void MainPage::readButtons(QByteArray win)
 {
+    qDebug() << win;
     if (testing)
         return;
     int WinCurrent = stack->currentIndex();
@@ -349,20 +355,24 @@ void MainPage::testInit()
     xx.append("@");
     xx.append(currentUser());
     xx.append("@");
+    QJsonObject objs;
     if (test->updateResult(status)) {
         cylinderAction(LED_G | LED_B, station);
         wait(currentAlarmTime("OK"));
         cylinderAction(LED_G, station);
         xx.append("OK");
+        objs.insert("content", test->readResult("0"));
+        winQrencode->printer();
     } else {
         cylinderAction(LED_R | LED_B, station);
         wait(currentAlarmTime("NG"));
         cylinderAction(LED_R, station);
         xx.append("NG");
+        objs.insert("content", test->readResult("0"));
     }
-    QJsonObject objs;
+
     objs.insert("title", xx);
-    objs.insert("content", test->readResult());
+
     winData->saveSql(objs);
 
     status = STATUS_FREE;
@@ -897,6 +907,18 @@ void MainPage::readSettings()
     ini->endGroup();
     obj_array.insert("BEMF", obj_bmf);
     backemftest->initSettings(obj_bmf);
+
+    QStringList names_code;
+    QJsonObject obj_code;
+    names_code  << "edit1" << "edit2" << "edit3" << "edit4" << "edit5" << "edit6"
+                << "text" << "code" << "port";
+    ini->beginGroup("QRCODE");
+    for (int i=0; i < names_code.size(); i++) {
+        obj_code.insert(names_code.at(i), ini->value(names_code.at(i)).toString());
+    }
+    ini->endGroup();
+    obj_array.insert("QRCODE", obj_code);
+    winQrencode->initSettings(obj_code);
 }
 
 void MainPage::saveSettings()
@@ -969,6 +991,13 @@ QString MainPage::readTorqueComp()
     if (station == 0x14)
         temp = ini->value("/GLOBAL/torqueCompR", "0.1").toString();
     return temp;
+}
+
+QString MainPage::readPrint()
+{
+    QString n = QString("./config/%1.ini").arg(CurrentSettings());
+    QSettings *ini = new QSettings(n, QSettings::IniFormat);
+    return ini->value("/Conf/print", "1").toString();
 }
 
 double MainPage::readLoadK(int i)

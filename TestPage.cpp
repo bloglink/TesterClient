@@ -172,7 +172,7 @@ void TestPage::updateTemp(QString s)
     textTemp->setText(s);
 }
 
-QString TestPage::readResult()
+QString TestPage::readResult(QString print)
 {
     QString temp;
     for (int i=0; i < mView->rowCount(); i++) {
@@ -186,6 +186,12 @@ QString TestPage::readResult()
         temp.append("\n");
     }
     textNumb->setText(QString("编码:__"));
+    if (print == "1") {
+        PrinterLogo();
+    }
+    if (print == "2") {
+        PrinterCode();
+    }
     return temp;
 }
 
@@ -370,9 +376,9 @@ void TestPage::initUI()
     //    btnLOD->setMinimumSize(97, 44);
     //    connect(btnLOD, SIGNAL(clicked(bool)), this, SIGNAL(buttonTest6()));
 
-    QPushButton *btnPrt = new QPushButton("测试打印", this);
-    btnPrt->setMinimumSize(97, 44);
-    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(Printer()));
+//    QPushButton *btnPrt = new QPushButton("测试打印", this);
+//    btnPrt->setMinimumSize(97, 44);
+//    connect(btnPrt, SIGNAL(clicked(bool)), this, SLOT(PrinterCode()));
 
     QLabel *btnLogo = new QLabel(this);
     btnLogo->setPixmap(QPixmap(":/source/logo.png"));
@@ -415,7 +421,7 @@ void TestPage::initUI()
     tLayout->addWidget(btnTestL, 2, 0, 1, 2);
     tLayout->addWidget(btnTestR, 3, 0, 1, 2);
     tLayout->addWidget(btnStop, 4, 0, 1, 2);
-    tLayout->addWidget(btnPrt, 5, 0, 1, 2);
+//    tLayout->addWidget(btnPrt, 5, 0, 1, 2);
     tLayout->addWidget(btnLogo, 6, 0, 1, 2);
     tLayout->addWidget(histogram, 7, 0, 1, 2);
     tLayout->setRowStretch(7, 2);
@@ -693,7 +699,7 @@ void TestPage::DrawWave()
     wave->replot();
 }
 
-void TestPage::Printer()
+void TestPage::PrinterLogo()
 {
     QString tmp = printerString();
     if (tmp.isEmpty())
@@ -702,15 +708,15 @@ void TestPage::Printer()
     qrencode->generateString(tmp);
 
     QStringList scale = printerScale().split(",");
-    if (scale.size() >= 4) {
+    if (scale.size() >= 6) {
         int x = scale.at(0).toInt();
         int y = scale.at(1).toInt();
         int qrw = scale.at(2).toInt();
         int qrh = scale.at(3).toInt();
         int logow = scale.at(4).toInt();
         int logoh = scale.at(5).toInt();
-        qDebug() << x << y << qrw << qrh;
-        QImage image("./logo.png");
+        qDebug() << x << y << qrw << qrh << logow << logoh;
+        QImage image("logo.png");
         QPainter painter(&image);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         QPixmap qrcode;
@@ -720,8 +726,32 @@ void TestPage::Printer()
         QPrinter printer;  // 创建打印机对象
         QPainter filePainter(&printer);
         filePainter.drawPixmap(0, 0, QPixmap::fromImage(image.scaled(logow, logoh)));
+        filePainter.end();
     }
+}
 
+void TestPage::PrinterCode()
+{
+    QString tmp = printerString();
+    if (tmp.isEmpty())
+        return;
+    qrencode->generateString(tmp);
+    QPixmap image;
+    image = qrencode->grab(QRect(0, 0, qrencode->width(), qrencode->height()));
+    QStringList scale = printerScale().split(",");
+    if (scale.size() >= 6) {
+        QPrinter printer;  // 创建打印机对象
+        QPainter painter(&printer);
+        int x = scale.at(0).toInt();
+        int y = scale.at(1).toInt();
+        int qrw = scale.at(2).toInt();
+        int qrh = scale.at(3).toInt();
+        int logow = scale.at(4).toInt();
+        int logoh = scale.at(5).toInt();
+        qDebug() << x << y << qrw << qrh << logow << logoh;
+        painter.drawPixmap(x, y, image.scaled(logow,logoh));
+        painter.end();
+    }
 }
 
 QString TestPage::printerString()
@@ -761,7 +791,7 @@ QString TestPage::printerString()
 QString TestPage::printerScale()
 {
     QSettings *ini = new QSettings("./nandflash/global.ini", QSettings::IniFormat);
-    QString temp = ini->value("/PRINTER/scale", "0,0,100,100").toString();
+    QString temp = ini->value("/PRINTER/scale", "0,0,100,100,100,100").toString();
     return temp;
 }
 

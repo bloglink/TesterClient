@@ -61,7 +61,7 @@ public slots:
     bool updateJudge(QString item);
     bool updateResult(quint16 s);
     void updateTemp(QString s);
-    QString readResult();
+    QString readResult(QString print);
     void updateWave(QString w);
     void setTextBemf(QString s);
     void setTextLoad(QString s);
@@ -81,7 +81,8 @@ private slots:
     void deleteItem();
     void DrawHistogram();
     void DrawWave();
-    void Printer();
+    void PrinterLogo();
+    void PrinterCode();
     QString printerString();
     QString printerScale();
     void printPreview(QPrinter *printer);

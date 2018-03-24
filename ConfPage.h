@@ -55,6 +55,7 @@ private slots:
     void clickButton();
     void clickView(QModelIndex index);
     void windowChange();
+    void windowQrcode();
     void selectColor();
     void deleteItem();
     void autoPixmap(QString name);
@@ -76,6 +77,7 @@ private:
     QLineEdit *typeLineEdit;
     QComboBox *typeComboBox;
     QComboBox *testComboBox;
+
     QLabel *typePixmap;
 
     QList<QPushButton *> buttons;

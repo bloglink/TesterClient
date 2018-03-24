@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     MessageBox.cpp \
     lqmath.cpp \
     backpage.cpp \
-    lqrcode.cpp
+    lqrcode.cpp \
+    conf_qrencode.cpp
 
 HEADERS  += \
     WinSyst.h \
@@ -79,7 +80,8 @@ HEADERS  += \
     MessageBox.h \
     lqmath.h \
     backpage.h \
-    lqrcode.h
+    lqrcode.h \
+    conf_qrencode.h
 
 FORMS    += \
     WinSyst.ui

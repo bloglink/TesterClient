@@ -20,7 +20,7 @@ ConfPage::~ConfPage()
 void ConfPage::initSettings(QJsonObject obj)
 {
     QStringList items;
-    items << "color" << "type" << "test";
+    items << "color" << "type" << "test" << "print";
     for (int i=0; i < items.size(); i++) {
         QStringList temp = obj.value(items.at(i)).toString().split(",");
         if (items.at(i) == "color") {
@@ -169,6 +169,8 @@ void ConfPage::initUI()
     testComboBox->setMinimumSize(97, 35);
     testComboBox->setView(new QListView);
 
+
+
     QGridLayout *cLayout = new QGridLayout;
     for (int i=0; i < 8; i++) {
         QPushButton *btn = new QPushButton(QString::number(i+1));
@@ -183,10 +185,10 @@ void ConfPage::initUI()
     tLayout->addWidget(typePixmap, 1, 0, 1, 2);
     tLayout->addWidget(new QLabel("不合格处理", this), 2, 0);
     tLayout->addWidget(testComboBox, 2, 1);
-    tLayout->addWidget(new QLabel("线夹颜色", this), 3, 0);
-    tLayout->addLayout(cLayout, 4, 0, 1, 2);
+    tLayout->addWidget(new QLabel("线夹颜色", this), 4, 0);
+    tLayout->addLayout(cLayout, 5, 0, 1, 2);
     tLayout->setColumnStretch(1, 1);
-    tLayout->setRowStretch(5, 1);
+    tLayout->setRowStretch(6, 1);
 
     QGroupBox *tGroup = new QGroupBox(this);
     tGroup->setLayout(tLayout);
@@ -238,6 +240,10 @@ void ConfPage::initUI()
     btnConfig->setMinimumSize(97, 35);
     connect(btnConfig, SIGNAL(clicked(bool)), this, SLOT(windowChange()));
     btnsLayout->addWidget(btnConfig);
+    QPushButton *btnqrcode = new QPushButton("配置条码", this);
+    btnqrcode->setMinimumSize(97, 35);
+    connect(btnqrcode, SIGNAL(clicked(bool)), this, SLOT(windowQrcode()));
+    btnsLayout->addWidget(btnqrcode);
     btnsLayout->addStretch();
     btnsLayout->setMargin(0);
 
@@ -300,6 +306,11 @@ void ConfPage::windowChange()
         if (buttons.at(i)->isChecked())
             emit buttonClicked(buttons.at(i)->objectName().toUtf8());
     }
+}
+
+void ConfPage::windowQrcode()
+{
+    emit buttonClicked("qrencode");
 }
 
 void ConfPage::selectColor()
